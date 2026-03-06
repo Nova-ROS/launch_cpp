@@ -1,0 +1,23 @@
+# Test launch file for cpp_launch
+# This is a simple test launch file
+
+entities:
+  # Declare a launch argument
+  - type: declare_launch_argument
+    name: message
+    default_value: "Hello from YAML Launch!"
+    description: "The message to display"
+  
+  # Execute a process
+  - type: execute_process
+    cmd:
+      - echo
+      - "Testing YAML parser"
+    output: screen
+  
+  # Another echo command
+  - type: execute_process
+    cmd:
+      - echo
+      - "cpp_launch is working!"
+    output: screen

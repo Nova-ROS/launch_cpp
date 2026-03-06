@@ -1,0 +1,68 @@
+// Copyright 2024 Example Author
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include "cpp_launch/substitutions/command.hpp"
+#include "cpp_launch/launch_context.hpp"
+#include <array>
+#include <memory>
+#include <stdexcept>
+
+namespace cpp_launch
+{
+
+std::string Command::Perform(const LaunchContext& context) const
+{
+  // Build command string
+  std::string cmd;
+  for (const auto& sub : command_)
+  {
+    if (sub)
+    {
+      if (!cmd.empty()) cmd += " ";
+      cmd += sub->Perform(context);
+    }
+  }
+  
+  if (cmd.empty())
+  {
+    return "";
+  }
+  
+  // Execute command and capture output
+  std::array<char, 128> buffer;
+  std::string result;
+  
+  // Use popen to execute command
+  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd.c_str(), "r"), pclose);
+  
+  if (!pipe)
+  {
+    return "";
+  }
+  
+  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+  {
+    result += buffer.data();
+  }
+  
+  // Trim trailing newline
+  if (!result.empty() && result.back() == '\n')
+  {
+    result.pop_back();
+  }
+  
+  return result;
+}
+
+}  // namespace cpp_launch

@@ -1,0 +1,36 @@
+# Example YAML Launch File
+# This is a sample launch file for cpp_launch
+
+entities:
+  # Declare a launch argument
+  - type: declare_launch_argument
+    name: message
+    default_value: "Hello from YAML"
+    description: "The message to display"
+  
+  # Execute a process
+  - type: execute_process
+    cmd:
+      - echo
+      - $(var message)
+    output: screen
+  
+  # Another process with condition
+  - type: execute_process
+    cmd:
+      - echo
+      - "This is a conditional message"
+    output: screen
+    condition:
+      if: "true"
+
+  # Group of actions
+  - type: group
+    actions:
+      - type: execute_process
+        cmd: ["echo", "Group member 1"]
+        output: screen
+      
+      - type: execute_process
+        cmd: ["echo", "Group member 2"]
+        output: screen
