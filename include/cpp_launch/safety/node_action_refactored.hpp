@@ -89,9 +89,9 @@ public:
      */
     NodeActionRefactored(
         const NodeActionOptions& options,
-        std::shared_ptr<ara::exec::ProcessExecutor> executor,
-        std::shared_ptr<ara::exec::Watchdog> watchdog,
-        std::shared_ptr<ara::exec::ErrorHandler> error_handler,
+        std::shared_ptr<cpp_launch::ProcessExecutor> executor,
+        std::shared_ptr<cpp_launch::Watchdog> watchdog,
+        std::shared_ptr<cpp_launch::ErrorHandler> error_handler,
         std::shared_ptr<RetryPolicy> retry_policy);
 
     /**
@@ -162,7 +162,7 @@ public:
      * @brief Get process ID (if running)
      * @return Process ID or -1 if not running
      */
-    ara::exec::ProcessId GetProcessId() const { return current_pid_.load(); }
+    cpp_launch::ProcessId GetProcessId() const { return current_pid_.load(); }
 
     /**
      * @brief Get node statistics
@@ -182,7 +182,7 @@ public:
      * 
      * Called by watchdog when heartbeat received.
      */
-    void OnHeartbeat(const ara::exec::HeartbeatMessage& message);
+    void OnHeartbeat(const cpp_launch::HeartbeatMessage& message);
 
     /**
      * @brief Handle heartbeat timeout
@@ -199,16 +199,16 @@ public:
      * 
      * Called when process exits (normally or abnormally).
      */
-    void OnProcessExit(int32_t exit_code, ara::exec::ProcessState state);
+    void OnProcessExit(int32_t exit_code, cpp_launch::ProcessState state);
 
 private:
     // Configuration
     NodeActionOptions options_;
     
     // Injected dependencies (OSAL)
-    std::shared_ptr<ara::exec::ProcessExecutor> executor_;
-    std::shared_ptr<ara::exec::Watchdog> watchdog_;
-    std::shared_ptr<ara::exec::ErrorHandler> error_handler_;
+    std::shared_ptr<cpp_launch::ProcessExecutor> executor_;
+    std::shared_ptr<cpp_launch::Watchdog> watchdog_;
+    std::shared_ptr<cpp_launch::ErrorHandler> error_handler_;
     std::shared_ptr<RetryPolicy> retry_policy_;
     
     // Business logic (extracted)
@@ -216,7 +216,7 @@ private:
     
     // State
     std::atomic<NodeState> state_{NodeState::kUninitialized};
-    std::atomic<ara::exec::ProcessId> current_pid_{-1};
+    std::atomic<cpp_launch::ProcessId> current_pid_{-1};
     
     // Statistics
     NodeStatistics stats_;
@@ -306,7 +306,7 @@ inline void NodeActionRefactored::UpdateState(NodeState new_state) {
 inline void NodeActionRefactored::ReportError(ErrorCode code, 
                                                const std::string& message) {
     if (error_handler_) {
-        ara::exec::ErrorInfo error;
+        cpp_launch::ErrorInfo error;
         error.timestamp_us = std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count();
         error.error_code = static_cast<uint32_t>(code);
@@ -369,9 +369,9 @@ class NodeActionRefactoredTestFixture {
 public:
     // Create mock dependencies
     struct MockDependencies {
-        std::shared_ptr<ara::exec::ProcessExecutor> executor;
-        std::shared_ptr<ara::exec::Watchdog> watchdog;
-        std::shared_ptr<ara::exec::ErrorHandler> error_handler;
+        std::shared_ptr<cpp_launch::ProcessExecutor> executor;
+        std::shared_ptr<cpp_launch::Watchdog> watchdog;
+        std::shared_ptr<cpp_launch::ErrorHandler> error_handler;
         std::shared_ptr<RetryPolicy> retry_policy;
     };
     

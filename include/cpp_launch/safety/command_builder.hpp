@@ -142,7 +142,7 @@ public:
      * 
      * @thread_safety Thread-safe (const method)
      */
-    BuildResult<ara::exec::CommandLine> Build(
+    BuildResult<cpp_launch::CommandLine> Build(
         const NodeActionOptions& options,
         const LaunchContext& context) const;
 

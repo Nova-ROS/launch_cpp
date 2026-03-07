@@ -35,8 +35,8 @@
 #include <cmath>
 #include <mutex>
 
-namespace ara {
-namespace exec {
+namespace cpp_launch {
+
 
 // ============================================================================
 // PosixResourceMonitor Implementation
@@ -434,5 +434,4 @@ double PosixResourceMonitor::Impl::GetProcessUptime(ProcessId pid) {
     return sys_uptime - (static_cast<double>(starttime) / ticks_per_sec);
 }
 
-} // namespace exec
-} // namespace ara
+// namespace cpp_launch

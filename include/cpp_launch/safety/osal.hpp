@@ -32,8 +32,8 @@
 #include <vector>
 #include <chrono>
 
-namespace ara {
-namespace exec {
+namespace cpp_launch {
+
 
 // Forward declarations
 class ProcessExecutor;
@@ -684,7 +684,7 @@ private:
  */
 #define OSAL_REPORT_ERROR(handler, severity, code, message) \
     do { \
-        ara::exec::ErrorInfo error; \
+        cpp_launch::ErrorInfo error; \
         error.timestamp_us = std::chrono::duration_cast<std::chrono::microseconds>( \
             std::chrono::steady_clock::now().time_since_epoch()).count(); \
         error.severity = severity; \
@@ -697,15 +697,14 @@ private:
     } while(0)
 
 #define OSAL_REPORT_INFO(handler, code, message) \
-    OSAL_REPORT_ERROR(handler, ara::exec::ErrorSeverity::kInfo, code, message)
+    OSAL_REPORT_ERROR(handler, cpp_launch::ErrorSeverity::kInfo, code, message)
 
 #define OSAL_REPORT_WARNING(handler, code, message) \
-    OSAL_REPORT_ERROR(handler, ara::exec::ErrorSeverity::kWarning, code, message)
+    OSAL_REPORT_ERROR(handler, cpp_launch::ErrorSeverity::kWarning, code, message)
 
 #define OSAL_REPORT_CRITICAL(handler, code, message) \
-    OSAL_REPORT_ERROR(handler, ara::exec::ErrorSeverity::kCritical, code, message)
+    OSAL_REPORT_ERROR(handler, cpp_launch::ErrorSeverity::kCritical, code, message)
 
-} // namespace exec
-} // namespace ara
+// namespace cpp_launch
 
 #endif // CPP_LAUNCH_OSAL_HPP_

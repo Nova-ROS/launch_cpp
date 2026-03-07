@@ -70,9 +70,9 @@ class ExecuteProcess final : public Action
   std::string GetName() const;
   
   // Safety-related methods
-  void SetProcessExecutor(std::shared_ptr<ara::exec::ProcessExecutor> executor);
-  void SetResourceMonitor(std::shared_ptr<ara::exec::ResourceMonitor> monitor);
-  void SetWatchdog(std::shared_ptr<ara::exec::Watchdog> watchdog);
+  void SetProcessExecutor(std::shared_ptr<cpp_launch::ProcessExecutor> executor);
+  void SetResourceMonitor(std::shared_ptr<cpp_launch::ResourceMonitor> monitor);
+  void SetWatchdog(std::shared_ptr<cpp_launch::Watchdog> watchdog);
   bool CheckResourcesAvailable(std::uint64_t estimatedMemory) const;
   
  private:
@@ -81,10 +81,10 @@ class ExecuteProcess final : public Action
   std::string resolvedName_;
   
   // Safety-related members
-  std::shared_ptr<ara::exec::ProcessExecutor> processExecutor_;
-  std::shared_ptr<ara::exec::ResourceMonitor> resourceMonitor_;
-  std::shared_ptr<ara::exec::Watchdog> watchdog_;
-  ara::exec::ProcessId processId_;
+  std::shared_ptr<cpp_launch::ProcessExecutor> processExecutor_;
+  std::shared_ptr<cpp_launch::ResourceMonitor> resourceMonitor_;
+  std::shared_ptr<cpp_launch::Watchdog> watchdog_;
+  cpp_launch::ProcessId processId_;
   
   // Convert Substitutions to command line
   std::vector<std::string> ResolveCommand(LaunchContext& context) const;

@@ -18,7 +18,7 @@
 #include "cpp_launch/error_code.hpp"
 
 using namespace cpp_launch;
-using namespace ara::exec;
+using namespace cpp_launch;
 
 // Mock LaunchContext for testing
 class MockLaunchContext : public LaunchContext

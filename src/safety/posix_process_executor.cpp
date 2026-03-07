@@ -34,8 +34,8 @@
 #include <thread>
 #include <fcntl.h>
 
-namespace ara {
-namespace exec {
+namespace cpp_launch {
+
 
 // ============================================================================
 // PosixProcessExecutor Implementation
@@ -415,5 +415,4 @@ void PosixProcessExecutor::Impl::SetupChildEnvironment(
     }
 }
 
-} // namespace exec
-} // namespace ara
+// namespace cpp_launch

@@ -25,8 +25,8 @@
 #include <map>
 #include <atomic>
 
-namespace ara {
-namespace exec {
+namespace cpp_launch {
+
 
 // ============================================================================
 // MockProcessExecutor Implementation
@@ -130,5 +130,4 @@ OsalResult<ProcessState> MockProcessExecutor::GetState(ProcessId pid) {
     return OsalResult<ProcessState>(ProcessState::kUnknown);
 }
 
-} // namespace exec
-} // namespace ara
+// namespace cpp_launch

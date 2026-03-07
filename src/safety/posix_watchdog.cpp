@@ -30,8 +30,8 @@
 #include <atomic>
 #include <algorithm>
 
-namespace ara {
-namespace exec {
+namespace cpp_launch {
+
 
 // ============================================================================
 // Watchdog Node State
@@ -296,5 +296,4 @@ bool PosixWatchdog::Impl::ValidateHeartbeat(const HeartbeatMessage& message) {
     return (message.checksum == expected);
 }
 
-} // namespace exec
-} // namespace ara
+// namespace cpp_launch

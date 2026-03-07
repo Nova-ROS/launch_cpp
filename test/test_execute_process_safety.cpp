@@ -17,7 +17,7 @@
 #include "cpp_launch/error_code.hpp"
 
 using namespace cpp_launch;
-using namespace ara::exec;
+using namespace cpp_launch;
 
 // Helper function to create text substitution
 SubstitutionPtr text(const std::string& str)

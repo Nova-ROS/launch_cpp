@@ -67,9 +67,9 @@ ExecuteProcess::ExecuteProcess(const Options& options)
   if (options_.enableSafety)
   {
     // By default, use Posix implementations
-    processExecutor_ = std::make_shared<ara::exec::PosixProcessExecutor>();
-    resourceMonitor_ = std::make_shared<ara::exec::PosixResourceMonitor>();
-    watchdog_ = std::make_shared<ara::exec::PosixWatchdog>();
+    processExecutor_ = std::make_shared<cpp_launch::PosixProcessExecutor>();
+    resourceMonitor_ = std::make_shared<cpp_launch::PosixResourceMonitor>();
+    watchdog_ = std::make_shared<cpp_launch::PosixWatchdog>();
     
     // Start watchdog if timeout is configured
     if (options_.watchdogTimeoutMs > 0 && watchdog_)
@@ -136,7 +136,7 @@ Result<void> ExecuteProcess::Execute(LaunchContext& context)
   if (options_.enableSafety && processExecutor_)
   {
     // Build OSAL command line
-    ara::exec::CommandLine command;
+    cpp_launch::CommandLine command;
     if (!cmd.empty())
     {
       command.program = cmd[0];
@@ -147,7 +147,7 @@ Result<void> ExecuteProcess::Execute(LaunchContext& context)
     }
     
     // Build options
-    ara::exec::ProcessOptions processOptions;
+    cpp_launch::ProcessOptions processOptions;
     processOptions.startup_timeout = std::chrono::milliseconds(5000);
     processOptions.shutdown_timeout = std::chrono::seconds(options_.sigtermTimeout);
     processOptions.capture_stdout = (options_.output != "log");
@@ -377,17 +377,17 @@ std::string ExecuteProcess::GetName() const
   return resolvedName_;
 }
 
-void ExecuteProcess::SetProcessExecutor(std::shared_ptr<ara::exec::ProcessExecutor> executor)
+void ExecuteProcess::SetProcessExecutor(std::shared_ptr<cpp_launch::ProcessExecutor> executor)
 {
   processExecutor_ = executor;
 }
 
-void ExecuteProcess::SetResourceMonitor(std::shared_ptr<ara::exec::ResourceMonitor> monitor)
+void ExecuteProcess::SetResourceMonitor(std::shared_ptr<cpp_launch::ResourceMonitor> monitor)
 {
   resourceMonitor_ = monitor;
 }
 
-void ExecuteProcess::SetWatchdog(std::shared_ptr<ara::exec::Watchdog> watchdog)
+void ExecuteProcess::SetWatchdog(std::shared_ptr<cpp_launch::Watchdog> watchdog)
 {
   watchdog_ = watchdog;
 }
