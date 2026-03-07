@@ -21,7 +21,6 @@
 #include "launch_cpp/conditions/if_condition.hpp"
 #include <cctype>
 #include <algorithm>
-#include <iostream>
 
 namespace launch_cpp
 {
@@ -201,11 +200,42 @@ YamlValue launch_cpp::YamlParser::ParseArrayElementObject(std::istringstream& st
     
     if (value.empty())
     {
-      // Value is on subsequent lines (e.g., a nested object or array)
-      auto nestedResult = ParseValue(stream, line);
-      if (!nestedResult.HasError())
+      // Value is on subsequent lines - check if it's an array or object/scalar
+      auto pos = stream.tellg();
+      std::string nextLine;
+      if (std::getline(stream, nextLine))
       {
-        objectValue.SetObjectField(key, nestedResult.GetValue());
+        line++;
+        std::string trimmedNext = Trim(nextLine);
+        int nextIndent = GetIndent(nextLine);
+        
+        if (nextIndent > baseIndent && !trimmedNext.empty() && trimmedNext[0] == '-')
+        {
+          // It's an array - parse it
+          stream.seekg(pos);
+          line--;
+          auto arrayResult = ParseArray(stream, line, nextIndent);
+          if (!arrayResult.HasError())
+          {
+            objectValue.SetObjectField(key, arrayResult.GetValue());
+          }
+        }
+        else
+        {
+          // It's a nested object or scalar
+          stream.seekg(pos);
+          line--;
+          auto nestedResult = ParseValue(stream, line);
+          if (!nestedResult.HasError())
+          {
+            objectValue.SetObjectField(key, nestedResult.GetValue());
+          }
+        }
+      }
+      else
+      {
+        // No more lines - empty value
+        objectValue.SetObjectField(key, YamlValue());
       }
     }
     else
@@ -261,15 +291,42 @@ YamlValue launch_cpp::YamlParser::ParseArrayElementObject(std::istringstream& st
       
       if (value.empty())
       {
-        // Multi-line value - need to parse it
-        // Mark position after this line
+        // Multi-line value - check if it's array, object, or scalar
         auto afterKeyPos = stream.tellg();
-        
-        // Parse the value (could be object, array, or scalar)
-        auto valueResult = ParseValue(stream, line);
-        if (!valueResult.HasError())
+        std::string nextLine2;
+        if (std::getline(stream, nextLine2))
         {
-          objectValue.SetObjectField(key, valueResult.GetValue());
+          line++;
+          std::string trimmedNext2 = Trim(nextLine2);
+          int nextIndent2 = GetIndent(nextLine2);
+          
+          if (nextIndent2 > indent && !trimmedNext2.empty() && trimmedNext2[0] == '-')
+          {
+            // It's an array
+            stream.seekg(afterKeyPos);
+            line--;
+            auto arrayResult = ParseArray(stream, line, nextIndent2);
+            if (!arrayResult.HasError())
+            {
+              objectValue.SetObjectField(key, arrayResult.GetValue());
+            }
+          }
+          else
+          {
+            // It's a nested object or scalar
+            stream.seekg(afterKeyPos);
+            line--;
+            auto valueResult = ParseValue(stream, line);
+            if (!valueResult.HasError())
+            {
+              objectValue.SetObjectField(key, valueResult.GetValue());
+            }
+          }
+        }
+        else
+        {
+          // No more lines - empty value
+          objectValue.SetObjectField(key, YamlValue());
         }
       }
       else
@@ -484,24 +541,19 @@ Result<LaunchDescriptionPtr> YamlLaunchBuilder::Build(const YamlValue& yaml)
     return Result<LaunchDescriptionPtr>(Error(ErrorCode::kInvalidConfiguration, "Missing 'entities' array"));
   }
   
-  std::cerr << "[Build] Found " << entities->second.AsArray().size() << " entities" << std::endl;
-  
   for (const auto& entityYaml : entities->second.AsArray())
   {
     if (!entityYaml.IsObject())
     {
-      std::cerr << "[Build] Skipping non-object entity" << std::endl;
       continue;
     }
     
     auto actionResult = BuildAction(entityYaml);
     if (actionResult.HasError())
     {
-      std::cerr << "[Build] BuildAction failed: " << actionResult.GetError().GetMessage() << std::endl;
       continue;
     }
     
-    std::cerr << "[Build] Adding action to description" << std::endl;
     desc->Add(actionResult.GetValue());
   }
   
