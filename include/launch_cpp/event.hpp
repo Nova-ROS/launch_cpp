@@ -12,12 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/**
+ * @file event.hpp
+ * @brief Event base class and built-in event types
+ *
+ * @details Defines the Event base class for the publish-subscribe event
+ *          system, along with built-in event types for process lifecycle
+ *          and system events.
+ *
+ * @ASIL ASIL B
+ *
+ * @purpose Define event types for inter-component communication
+ *
+ * @requirements
+ * - REQ-LAUNCH-EVENT-001: Define event base class
+ * - REQ-LAUNCH-EVENT-002: Provide built-in event types
+ * - REQ-LAUNCH-EVENT-003: Support event timestamping
+ */
 
 #ifndef LAUNCH_CPP__EVENT_HPP_
 #define LAUNCH_CPP__EVENT_HPP_
-
-// AUTOSAR C++14 Compliant Event Base Class
-// No exceptions, virtual destructor
 
 #include <chrono>
 #include <string>
@@ -27,82 +41,231 @@
 namespace launch_cpp
 {
 
-// AUTOSAR C++14: A12-8-4 - Base class with virtual destructor
+/**
+ * @brief Base class for all events
+ *
+ * @details Provides the foundation for the event system.
+ *          All event types must derive from this class.
+ *          Events are timestamped at creation.
+ *
+ * @note AUTOSAR C++14: A12-8-4 - Base class with virtual destructor
+ * @note AUTOSAR C++14: A10-3-3 - Declare special functions
+ * @note Events are immutable after creation
+ *
+ * @requirements REQ-LAUNCH-EVENT-001
+ */
 class Event
 {
  public:
-  // AUTOSAR C++14: A12-1-1 - Use member initialization list
+  /**
+   * @brief Default constructor
+   *
+   * @post Event created with current timestamp
+   * @note AUTOSAR C++14: A12-1-1 - Use member initialization list
+   */
   Event() : timestamp_(std::chrono::steady_clock::now()) {}
   
-  // AUTOSAR C++14: A12-8-4 - Virtual destructor
+  /**
+   * @brief Virtual destructor
+   *
+   * @note AUTOSAR C++14: A12-8-4 - Virtual destructor required
+   * @note Enables polymorphic deletion
+   */
   virtual ~Event() {}
   
-  // AUTOSAR C++14: A10-3-3 - Declare special functions
+  /**
+   * @brief Copy constructor
+   * @note AUTOSAR C++14: A10-3-3 - Explicitly declared
+   */
   Event(const Event&) = default;
+  
+  /**
+   * @brief Copy assignment operator
+   * @note AUTOSAR C++14: A10-3-3 - Explicitly declared
+   */
   Event& operator=(const Event&) = default;
+  
+  /**
+   * @brief Move constructor
+   * @note AUTOSAR C++14: A10-3-3 - Explicitly declared
+   */
   Event(Event&&) = default;
+  
+  /**
+   * @brief Move assignment operator
+   * @note AUTOSAR C++14: A10-3-3 - Explicitly declared
+   */
   Event& operator=(Event&&) = default;
   
-  // AUTOSAR C++14: M0-1-9 - Pure virtual function
+  /**
+   * @brief Get the event type identifier
+   *
+   * @return C-string type identifier
+   *
+   * @pre None
+   * @post Returns non-null type string
+   *
+   * @note Derived classes must implement this
+   * @note Return value must be static string (lifetime > event)
+   *
+   * @note AUTOSAR C++14: M0-1-9 - Pure virtual function
+   *
+   * @requirements REQ-LAUNCH-EVENT-001
+   */
   virtual const char* GetType() const = 0;
   
-  // AUTOSAR C++14: M0-1-9 - Declare functions as noexcept
+  /**
+   * @brief Get the event creation timestamp
+   *
+   * @return Time point when event was created
+   *
+   * @pre None
+   * @post Returns stored timestamp
+   *
+   * @note AUTOSAR C++14: M0-1-9 - Declare noexcept
+   * @note Uses steady_clock for monotonic timing
+   *
+   * @requirements REQ-LAUNCH-EVENT-003
+   */
   std::chrono::steady_clock::time_point GetTimestamp() const noexcept
   {
     return timestamp_;
   }
   
  protected:
-  std::chrono::steady_clock::time_point timestamp_;
+  std::chrono::steady_clock::time_point timestamp_;  ///< Creation timestamp
 };
 
-// Built-in event types
+/**
+ * @brief Event emitted when a process starts
+ *
+ * @details Contains process ID and process name.
+ *          Emitted by ExecuteProcess action.
+ *
+ * @requirements REQ-LAUNCH-EVENT-002
+ */
 class ProcessStartedEvent final : public Event
 {
  public:
+  /**
+   * @brief Constructor
+   *
+   * @param pid Process ID of started process
+   * @param name Process name/identifier
+   * @post Event initialized with process info
+   */
   ProcessStartedEvent(std::int32_t pid, const std::string& name)
     : pid_(pid), name_(name) {}
   
+  /**
+   * @brief Get event type
+   * @return "process_started"
+   */
   const char* GetType() const override { return "process_started"; }
   
+  /**
+   * @brief Get the process ID
+   * @return Process ID
+   */
   std::int32_t GetPid() const noexcept { return pid_; }
+  
+  /**
+   * @brief Get the process name
+   * @return Process name
+   */
   const std::string& GetName() const noexcept { return name_; }
   
  private:
-  std::int32_t pid_;
-  std::string name_;
+  std::int32_t pid_;      ///< Process identifier
+  std::string name_;      ///< Process name
 };
 
+/**
+ * @brief Event emitted when a process exits
+ *
+ * @details Contains process ID, exit code, and process name.
+ *          Emitted when monitored process terminates.
+ *
+ * @requirements REQ-LAUNCH-EVENT-002
+ */
 class ProcessExitedEvent final : public Event
 {
  public:
+  /**
+   * @brief Constructor
+   *
+   * @param pid Process ID of exited process
+   * @param returnCode Process exit code
+   * @param name Process name/identifier
+   * @post Event initialized with process exit info
+   */
   ProcessExitedEvent(std::int32_t pid, std::int32_t returnCode, const std::string& name)
     : pid_(pid), returnCode_(returnCode), name_(name) {}
   
+  /**
+   * @brief Get event type
+   * @return "process_exited"
+   */
   const char* GetType() const override { return "process_exited"; }
   
+  /**
+   * @brief Get the process ID
+   * @return Process ID
+   */
   std::int32_t GetPid() const noexcept { return pid_; }
+  
+  /**
+   * @brief Get the exit code
+   * @return Exit code (0 = success, non-zero = error)
+   */
   std::int32_t GetReturnCode() const noexcept { return returnCode_; }
+  
+  /**
+   * @brief Get the process name
+   * @return Process name
+   */
   const std::string& GetName() const noexcept { return name_; }
   
  private:
-  std::int32_t pid_;
-  std::int32_t returnCode_;
-  std::string name_;
+  std::int32_t pid_;          ///< Process identifier
+  std::int32_t returnCode_;   ///< Exit status code
+  std::string name_;          ///< Process name
 };
 
+/**
+ * @brief Event emitted when shutdown is requested
+ *
+ * @details Signals that the launch system should shut down.
+ *          Contains reason for shutdown.
+ *
+ * @requirements REQ-LAUNCH-EVENT-002
+ */
 class ShutdownEvent final : public Event
 {
  public:
+  /**
+   * @brief Constructor
+   *
+   * @param reason Reason for shutdown
+   * @post Event initialized with shutdown reason
+   */
   explicit ShutdownEvent(const std::string& reason)
     : reason_(reason) {}
   
+  /**
+   * @brief Get event type
+   * @return "shutdown"
+   */
   const char* GetType() const override { return "shutdown"; }
   
+  /**
+   * @brief Get the shutdown reason
+   * @return Shutdown reason description
+   */
   const std::string& GetReason() const noexcept { return reason_; }
   
  private:
-  std::string reason_;
+  std::string reason_;  ///< Shutdown reason
 };
 
 }  // namespace launch_cpp

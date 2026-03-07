@@ -16,10 +16,25 @@
  * @file osal.hpp
  * @brief Operating System Abstraction Layer Interface
  *
- * This file defines the OSAL interfaces for ISO 26262 compliant
- * process management. These interfaces abstract system calls to
- * enable testing and portability.
+ * @details This file defines the OSAL interfaces for ISO 26262 compliant
+ *          process management. These interfaces abstract system calls to
+ *          enable testing and portability while maintaining ASIL B safety level.
  *
+ *          The OSAL provides:
+ *          - Process execution and management
+ *          - Resource monitoring
+ *          - Watchdog functionality
+ *          - Error handling
+ *
+ * @ASIL ASIL B
+ *
+ * @purpose Abstract operating system services for safety-critical process management
+ *
+ * @requirements
+ * - REQ-LAUNCH-OSAL-001: Abstract process creation and control
+ * - REQ-LAUNCH-OSAL-002: Provide resource monitoring capabilities
+ * - REQ-LAUNCH-OSAL-003: Implement watchdog for health monitoring
+ * - REQ-LAUNCH-OSAL-004: Enable mocking for unit testing
  */
 
 #ifndef LAUNCH_CPP_OSAL_HPP_
@@ -34,7 +49,6 @@
 
 namespace launch_cpp {
 
-
 // Forward declarations
 class ProcessExecutor;
 class Watchdog;
@@ -43,75 +57,180 @@ class ErrorHandler;
 
 /**
  * @brief Status codes for OSAL operations
+ *
+ * @details Enumerates possible outcomes of OSAL operations.
+ *          Provides granularity beyond simple success/failure.
+ *
+ * @note Distinct from ErrorCode in error_code.hpp
+ * @note Used with OsalResult for operation results
+ *
+ * @requirements REQ-LAUNCH-OSAL-001
  */
 enum class OsalStatus {
-    kSuccess,
-    kError,
-    kTimeout,
-    kResourceExhausted,
-    kPermissionDenied,
-    kNotFound,
-    kInvalidArgument
+    kSuccess,           ///< Operation completed successfully
+    kError,             ///< General error occurred
+    kTimeout,           ///< Operation timed out
+    kResourceExhausted, ///< System resources exhausted
+    kPermissionDenied,  ///< Insufficient permissions
+    kNotFound,          ///< Resource not found
+    kInvalidArgument    ///< Invalid parameter
 };
 
 /**
  * @brief Result type for OSAL operations (non-void types)
  *
- * Similar to launch_cpp::Result but specific to OSAL
+ * @tparam T Type of successful result
+ *
+ * @details Similar to launch_cpp::Result but specific to OSAL
+ *          operations. Provides error status alongside value.
+ *
+ * @note Check IsSuccess() before accessing value
+ * @note Default constructs to success state
+ *
+ * @requirements REQ-LAUNCH-OSAL-001
  */
 template<typename T>
 class OsalResult {
 public:
+    /**
+     * @brief Default constructor (success)
+     */
     OsalResult() : status_(OsalStatus::kSuccess) {}
+    
+    /**
+     * @brief Construct from value
+     * @param value Value to store
+     */
     explicit OsalResult(T value) : status_(OsalStatus::kSuccess), value_(std::move(value)) {}
+    
+    /**
+     * @brief Construct from status
+     * @param status Error status
+     */
     explicit OsalResult(OsalStatus status) : status_(status) {}
+    
+    /**
+     * @brief Construct from status with message
+     * @param status Error status
+     * @param message Error description
+     */
     OsalResult(OsalStatus status, const std::string& message)
         : status_(status), error_message_(message) {}
 
+    /**
+     * @brief Check if operation succeeded
+     * @return true if status is kSuccess
+     */
     bool IsSuccess() const { return status_ == OsalStatus::kSuccess; }
+    
+    /**
+     * @brief Check if operation failed
+     * @return true if status is not kSuccess
+     */
     bool HasError() const { return status_ != OsalStatus::kSuccess; }
 
+    /**
+     * @brief Get the status code
+     * @return OsalStatus value
+     */
     OsalStatus GetStatus() const { return status_; }
+    
+    /**
+     * @brief Get error message
+     * @return Error description (empty if success)
+     */
     const std::string& GetErrorMessage() const { return error_message_; }
 
+    /**
+     * @brief Get value reference
+     * @return Reference to stored value
+     * @pre IsSuccess() must be true
+     */
     T& GetValue() { return value_; }
+    
+    /**
+     * @brief Get value const reference
+     * @return Const reference to stored value
+     * @pre IsSuccess() must be true
+     */
     const T& GetValue() const { return value_; }
 
 private:
-    OsalStatus status_;
-    T value_;
-    std::string error_message_;
+    OsalStatus status_;      ///< Operation status
+    T value_;                ///< Result value (valid if success)
+    std::string error_message_;  ///< Error description
 };
 
 /**
  * @brief Specialization of OsalResult for void type
+ *
+ * @details For operations that succeed or fail without returning data.
  */
 template<>
 class OsalResult<void> {
 public:
+    /**
+     * @brief Default constructor (success)
+     */
     OsalResult() : status_(OsalStatus::kSuccess) {}
+    
+    /**
+     * @brief Construct from status
+     * @param status Error status
+     */
     explicit OsalResult(OsalStatus status) : status_(status) {}
+    
+    /**
+     * @brief Construct from status with message
+     * @param status Error status
+     * @param message Error description
+     */
     OsalResult(OsalStatus status, const std::string& message)
         : status_(status), error_message_(message) {}
 
+    /**
+     * @brief Check if operation succeeded
+     * @return true if status is kSuccess
+     */
     bool IsSuccess() const { return status_ == OsalStatus::kSuccess; }
+    
+    /**
+     * @brief Check if operation failed
+     * @return true if status is not kSuccess
+     */
     bool HasError() const { return status_ != OsalStatus::kSuccess; }
 
+    /**
+     * @brief Get the status code
+     * @return OsalStatus value
+     */
     OsalStatus GetStatus() const { return status_; }
+    
+    /**
+     * @brief Get error message
+     * @return Error description (empty if success)
+     */
     const std::string& GetErrorMessage() const { return error_message_; }
 
 private:
-    OsalStatus status_;
-    std::string error_message_;
+    OsalStatus status_;      ///< Operation status
+    std::string error_message_;  ///< Error description
 };
 
 /**
  * @brief Process identifier type
+ *
+ * @note Negative values indicate invalid/unknown PID
  */
 using ProcessId = int32_t;
 
 /**
  * @brief Process state enumeration
+ *
+ * @details Tracks the lifecycle state of a managed process.
+ *          Used for monitoring and health checking.
+ *
+ * @requirements REQ-LAUNCH-OSAL-001
  */
 enum class ProcessState {
     kNotStarted,      ///< Process has not been started
@@ -125,6 +244,13 @@ enum class ProcessState {
 
 /**
  * @brief Command line representation
+ *
+ * @details Encapsulates all parameters needed to execute a process.
+ *          Provides conversion to argv format for exec system calls.
+ *
+ * @note All strings must outlive the ToArgv() call
+ *
+ * @requirements REQ-LAUNCH-OSAL-001
  */
 struct CommandLine {
     std::string program;                    ///< Program to execute
@@ -135,6 +261,8 @@ struct CommandLine {
     /**
      * @brief Convert to argv format for exec
      * @return Vector of char* (null-terminated)
+     * @pre CommandLine object must outlive the returned pointers
+     * @post Returns argv-compatible array
      * @note The returned pointers are valid as long as this CommandLine exists
      */
     std::vector<char*> ToArgv() const;
@@ -142,6 +270,11 @@ struct CommandLine {
 
 /**
  * @brief Process execution options
+ *
+ * @details Configuration for process execution including
+ *          timeouts, restart policies, and output capture.
+ *
+ * @requirements REQ-LAUNCH-OSAL-001
  */
 struct ProcessOptions {
     std::chrono::milliseconds startup_timeout{30000};  ///< Startup timeout
@@ -155,6 +288,11 @@ struct ProcessOptions {
 
 /**
  * @brief Process execution result
+ *
+ * @details Contains all information about a completed process execution.
+ *          Returned by Wait() and related operations.
+ *
+ * @requirements REQ-LAUNCH-OSAL-001
  */
 struct ProcessResult {
     ProcessId pid{-1};                    ///< Process ID
@@ -169,11 +307,20 @@ struct ProcessResult {
 /**
  * @brief Process executor interface
  *
- * Abstracts process creation and management operations.
- * Enables mocking for unit testing.
+ * @details Abstracts process creation and management operations.
+ *          Enables mocking for unit testing and portability.
+ *
+ *          All methods are thread-safe unless noted otherwise.
+ *
+ * @ASIL ASIL B
+ *
+ * @requirements REQ-LAUNCH-OSAL-001, REQ-LAUNCH-OSAL-004
  */
 class ProcessExecutor {
 public:
+    /**
+     * @brief Virtual destructor
+     */
     virtual ~ProcessExecutor() = default;
 
     /**
@@ -187,6 +334,8 @@ public:
      * @post On failure, returns error status
      *
      * @thread_safety Thread-safe
+     *
+     * @requirements REQ-LAUNCH-OSAL-001
      */
     virtual OsalResult<ProcessId> Execute(
         const CommandLine& command,
@@ -202,6 +351,8 @@ public:
      * @post Returns when process exits or timeout occurs
      *
      * @thread_safety Thread-safe
+     *
+     * @requirements REQ-LAUNCH-OSAL-001
      */
     virtual OsalResult<ProcessResult> Wait(
         ProcessId pid,
@@ -213,6 +364,8 @@ public:
      * @return Result containing true if running, false otherwise
      *
      * @thread_safety Thread-safe
+     *
+     * @requirements REQ-LAUNCH-OSAL-001
      */
     virtual OsalResult<bool> IsRunning(ProcessId pid) = 0;
 
@@ -226,6 +379,8 @@ public:
      * @post Sends SIGTERM, waits for timeout, then SIGKILL if needed
      *
      * @thread_safety Thread-safe
+     *
+     * @requirements REQ-LAUNCH-OSAL-001
      */
     virtual OsalResult<void> Terminate(
         ProcessId pid,
@@ -240,6 +395,8 @@ public:
      * @post Sends SIGKILL
      *
      * @thread_safety Thread-safe
+     *
+     * @requirements REQ-LAUNCH-OSAL-001
      */
     virtual OsalResult<void> Kill(ProcessId pid) = 0;
 
@@ -250,6 +407,8 @@ public:
      * @return Success or error
      *
      * @thread_safety Thread-safe
+     *
+     * @requirements REQ-LAUNCH-OSAL-001
      */
     virtual OsalResult<void> SendSignal(ProcessId pid, int32_t signal) = 0;
 
@@ -259,6 +418,8 @@ public:
      * @return Result containing process state
      *
      * @thread_safety Thread-safe
+     *
+     * @requirements REQ-LAUNCH-OSAL-001
      */
     virtual OsalResult<ProcessState> GetState(ProcessId pid) = 0;
 };
@@ -266,8 +427,12 @@ public:
 /**
  * @brief Concrete implementation using POSIX system calls
  *
- * This is the production implementation.
- * ASIL: Simple adapter, code reviewed, minimal logic
+ * @details Production implementation using fork(), exec(), and signals.
+ *          This is a thin adapter over POSIX APIs.
+ *
+ * @ASIL Simple adapter, code reviewed, minimal logic
+ *
+ * @requirements REQ-LAUNCH-OSAL-001
  */
 class PosixProcessExecutor : public ProcessExecutor {
 public:
@@ -302,8 +467,12 @@ private:
 /**
  * @brief Mock implementation for unit testing
  *
- * Allows injection of mock behavior for testing.
- * ASIL: Not used in production, for testing only
+ * @details Allows injection of mock behavior for testing.
+ *          NOT for production use.
+ *
+ * @ASIL Not used in production, for testing only
+ *
+ * @requirements REQ-LAUNCH-OSAL-004
  */
 class MockProcessExecutor : public ProcessExecutor {
 public:
@@ -363,6 +532,10 @@ private:
 
 /**
  * @brief Resource usage information
+ *
+ * @details Snapshot of resource consumption for a process.
+ *
+ * @requirements REQ-LAUNCH-OSAL-002
  */
 struct ResourceUsage {
     uint64_t memory_bytes{0};           ///< Memory usage in bytes
@@ -374,6 +547,10 @@ struct ResourceUsage {
 
 /**
  * @brief System resource information
+ *
+ * @details System-wide resource availability and utilization.
+ *
+ * @requirements REQ-LAUNCH-OSAL-002
  */
 struct SystemResources {
     uint64_t total_memory_bytes{0};
@@ -391,10 +568,18 @@ struct SystemResources {
 /**
  * @brief Resource monitor interface
  *
- * Monitors system and process resource usage.
+ * @details Monitors system and process resource usage.
+ *          Provides alerts when thresholds are exceeded.
+ *
+ * @ASIL ASIL B
+ *
+ * @requirements REQ-LAUNCH-OSAL-002
  */
 class ResourceMonitor {
 public:
+    /**
+     * @brief Virtual destructor
+     */
     virtual ~ResourceMonitor() = default;
 
     /**
@@ -442,6 +627,10 @@ public:
 
 /**
  * @brief Concrete resource monitor implementation
+ *
+ * @details POSIX-based resource monitoring using /proc filesystem.
+ *
+ * @requirements REQ-LAUNCH-OSAL-002
  */
 class PosixResourceMonitor : public ResourceMonitor {
 public:
@@ -466,6 +655,11 @@ private:
 
 /**
  * @brief Heartbeat message structure
+ *
+ * @details Used by watchdog for health monitoring.
+ *          Includes checksum for integrity verification.
+ *
+ * @requirements REQ-LAUNCH-OSAL-003
  */
 struct HeartbeatMessage {
     uint32_t node_id{0};                    ///< Node identifier
@@ -495,10 +689,18 @@ using HeartbeatCallback = std::function<void(const HeartbeatMessage&)>;
 /**
  * @brief Watchdog interface
  *
- * Monitors node health via heartbeat mechanism.
+ * @details Monitors node health via heartbeat mechanism.
+ *          Detects unresponsive nodes and triggers recovery.
+ *
+ * @ASIL ASIL B
+ *
+ * @requirements REQ-LAUNCH-OSAL-003
  */
 class Watchdog {
 public:
+    /**
+     * @brief Virtual destructor
+     */
     virtual ~Watchdog() = default;
 
     /**
@@ -557,6 +759,10 @@ public:
 
 /**
  * @brief Concrete watchdog implementation
+ *
+ * @details POSIX-based watchdog using threads and timers.
+ *
+ * @requirements REQ-LAUNCH-OSAL-003
  */
 class PosixWatchdog : public Watchdog {
 public:
@@ -588,6 +794,10 @@ private:
 
 /**
  * @brief Error severity levels
+ *
+ * @details Classification of error impact for handling decisions.
+ *
+ * @requirements REQ-LAUNCH-OSAL-005
  */
 enum class ErrorSeverity {
     kInfo,       ///< Informational
@@ -599,6 +809,10 @@ enum class ErrorSeverity {
 
 /**
  * @brief Error information structure
+ *
+ * @details Comprehensive error information for logging and analysis.
+ *
+ * @requirements REQ-LAUNCH-OSAL-005
  */
 struct ErrorInfo {
     uint64_t timestamp_us{0};           ///< Error timestamp
@@ -614,10 +828,18 @@ struct ErrorInfo {
 /**
  * @brief Error handler interface
  *
- * Centralized error handling and reporting.
+ * @details Centralized error handling and reporting.
+ *          Provides logging and notification for errors.
+ *
+ * @ASIL ASIL B
+ *
+ * @requirements REQ-LAUNCH-OSAL-005
  */
 class ErrorHandler {
 public:
+    /**
+     * @brief Virtual destructor
+     */
     virtual ~ErrorHandler() = default;
 
     /**
@@ -660,6 +882,10 @@ public:
 
 /**
  * @brief Concrete error handler implementation
+ *
+ * @details POSIX-based error logging to files.
+ *
+ * @requirements REQ-LAUNCH-OSAL-005
  */
 class PosixErrorHandler : public ErrorHandler {
 public:
@@ -681,6 +907,14 @@ private:
 
 /**
  * @brief Convenience macros for error reporting
+ *
+ * @details These macros automatically populate ErrorInfo fields
+ *          with current location information.
+ *
+ * @note Do not use these in headers - use only in .cpp files
+ * @note These are convenience wrappers, not required
+ *
+ * @requirements REQ-LAUNCH-OSAL-005
  */
 #define OSAL_REPORT_ERROR(handler, severity, code, message) \
     do { \
