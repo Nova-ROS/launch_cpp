@@ -99,6 +99,10 @@ class YamlParser
   static Result<YamlValue> ParseArray(std::istringstream& stream, int& line, int indent);
   static Result<YamlValue> ParseObject(std::istringstream& stream, int& line, int indent);
   
+  // Helper for parsing object elements in arrays
+  static YamlValue ParseArrayElementObject(std::istringstream& stream, int& line, 
+                                           const std::string& firstLine, int baseIndent);
+  
   static std::string Trim(const std::string& str);
   static int GetIndent(const std::string& line);
   static std::string Unquote(const std::string& str);
