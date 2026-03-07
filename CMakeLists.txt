@@ -65,6 +65,7 @@ target_link_libraries(launch_cpp_exec launch_cpp_core)
 # Install
 install(TARGETS
   launch_cpp_core
+  launch_cpp_exec
   EXPORT launch_cpp
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -87,6 +88,20 @@ install(DIRECTORY include/
 # Debug executable for YAML parser
 add_executable(test_yaml_debug test/test_yaml_debug.cpp)
 target_link_libraries(test_yaml_debug launch_cpp_core)
+
+# Examples
+add_executable(example_basic examples/example_basic.cpp)
+target_link_libraries(example_basic launch_cpp_core)
+
+install(TARGETS
+  example_basic
+  DESTINATION lib/launch_cpp/examples
+)
+
+install(DIRECTORY examples/
+  DESTINATION share/launch_cpp/examples
+  FILES_MATCHING PATTERN "*.yaml"
+)
 
 # Testing
 if(BUILD_TESTING)
