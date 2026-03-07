@@ -18,9 +18,11 @@
 #include "cpp_launch/action.hpp"
 #include "cpp_launch/substitution.hpp"
 #include "cpp_launch/types.hpp"
+#include "cpp_launch/safety/osal.hpp"
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include <chrono>
 
 namespace cpp_launch
 {
@@ -40,6 +42,12 @@ class ExecuteProcess final : public Action
     bool emulateTty = false;
     std::int32_t sigtermTimeout = 5;
     SubstitutionPtr name;
+    
+    // Safety-related options
+    bool enableSafety = false;
+    std::uint64_t maxMemoryBytes = 0;  // 0 = unlimited
+    double maxCpuPercent = 0.0;        // 0.0 = unlimited
+    std::int32_t watchdogTimeoutMs = 0; // 0 = disabled
   };
   
   explicit ExecuteProcess(const Options& options);
@@ -60,10 +68,25 @@ class ExecuteProcess final : public Action
   Result<std::int32_t> GetPid() const;
   std::string GetName() const;
   
+  // Safety-related methods
+  void SetProcessExecutor(std::shared_ptr<ara::exec::ProcessExecutor> executor);
+  void SetResourceMonitor(std::shared_ptr<ara::exec::ResourceMonitor> monitor);
+  void SetWatchdog(std::shared_ptr<ara::exec::Watchdog> watchdog);
+  bool CheckResourcesAvailable(std::uint64_t estimatedMemory) const;
+  
  private:
   Options options_;
   std::unique_ptr<Process> process_;
   std::string resolvedName_;
+  
+  // Safety-related members
+  std::shared_ptr<ara::exec::ProcessExecutor> processExecutor_;
+  std::shared_ptr<ara::exec::ResourceMonitor> resourceMonitor_;
+  std::shared_ptr<ara::exec::Watchdog> watchdog_;
+  ara::exec::ProcessId processId_;
+  
+  // Convert Substitutions to command line
+  std::vector<std::string> ResolveCommand(LaunchContext& context) const;
 };
 
 }  // namespace cpp_launch

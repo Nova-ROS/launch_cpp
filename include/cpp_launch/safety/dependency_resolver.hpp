@@ -1,0 +1,502 @@
+/**
+ * @file dependency_resolver.hpp
+ * @brief Dependency resolution and topological sorting
+ * 
+ * ISO 26262 Compliance:
+ * - ASIL: B (Business Logic)
+ * - Requirement: TSR-002 (Startup Sequence Control)
+ * - Test Coverage Target: 100%
+ */
+
+#ifndef CPP_LAUNCH_DEPENDENCY_RESOLVER_HPP_
+#define CPP_LAUNCH_DEPENDENCY_RESOLVER_HPP_
+
+#include <string>
+#include <vector>
+#include <map>
+#include <set>
+#include <queue>
+#include <algorithm>
+#include <stdexcept>
+
+namespace cpp_launch {
+
+/**
+ * @brief Node configuration for dependency resolution
+ */
+struct NodeConfig {
+    std::string name;
+    std::vector<std::string> dependencies;
+    
+    bool operator==(const NodeConfig& other) const {
+        return name == other.name;
+    }
+    
+    bool operator<(const NodeConfig& other) const {
+        return name < other.name;
+    }
+};
+
+/**
+ * @brief Result of dependency resolution
+ */
+struct ResolutionResult {
+    bool success{true};
+    std::vector<std::string> order;
+    std::string error_message;
+    std::vector<std::string> circular_path;
+};
+
+/**
+ * @brief Dependency resolver using Kahn's algorithm
+ * 
+ * This class implements topological sorting to determine
+ * the correct startup order based on node dependencies.
+ * 
+ * Algorithm: Kahn's Algorithm
+ * Time Complexity: O(V + E)
+ * Space Complexity: O(V)
+ * 
+ * Where V = number of nodes, E = number of dependencies
+ */
+class DependencyResolver {
+public:
+    DependencyResolver() = default;
+    ~DependencyResolver() = default;
+
+    // Non-copyable
+    DependencyResolver(const DependencyResolver&) = delete;
+    DependencyResolver& operator=(const DependencyResolver&) = delete;
+    
+    // Movable
+    DependencyResolver(DependencyResolver&&) = default;
+    DependencyResolver& operator=(DependencyResolver&&) = default;
+
+    /**
+     * @brief Resolve dependencies and return startup order
+     * @param nodes Vector of node configurations
+     * @return ResolutionResult containing order or error
+     * 
+     * @requirement TSR-002: Startup sequence control
+     * 
+     * Example:
+     * @code
+     * std::vector<NodeConfig> nodes = {
+     *     {"A", {}},           // No dependencies
+     *     {"B", {"A"}},        // Depends on A
+     *     {"C", {"A", "B"}}    // Depends on A and B
+     * };
+     * auto result = resolver.Resolve(nodes);
+     * // result.order = {"A", "B", "C"}
+     * @endcode
+     */
+    ResolutionResult Resolve(const std::vector<NodeConfig>& nodes);
+
+    /**
+     * @brief Check if dependency graph has circular dependencies
+     * @param nodes Vector of node configurations
+     * @return true if circular dependency exists
+     * 
+     * @requirement TSR-001.3: Dependency validation
+     */
+    bool HasCircularDependency(const std::vector<NodeConfig>& nodes);
+
+    /**
+     * @brief Get the circular path if one exists
+     * @param nodes Vector of node configurations
+     * @return Vector showing the circular path, empty if no cycle
+     */
+    std::vector<std::string> GetCircularPath(const std::vector<NodeConfig>& nodes);
+
+    /**
+     * @brief Validate that all dependencies exist
+     * @param nodes Vector of node configurations
+     * @return true if all dependencies are valid
+     * 
+     * Checks that every dependency references an existing node.
+     */
+    bool ValidateDependencies(const std::vector<NodeConfig>& nodes);
+
+    /**
+     * @brief Get list of missing dependencies
+     * @param nodes Vector of node configurations
+     * @return Vector of missing dependency names
+     */
+    std::vector<std::string> GetMissingDependencies(const std::vector<NodeConfig>& nodes);
+
+    /**
+     * @brief Check if a node can be started (all dependencies satisfied)
+     * @param node_name Name of the node to check
+     * @param started_nodes Set of already started nodes
+     * @param all_nodes Map of all node configurations
+     * @return true if node can be started
+     */
+    bool CanStartNode(
+        const std::string& node_name,
+        const std::set<std::string>& started_nodes,
+        const std::map<std::string, NodeConfig>& all_nodes) const;
+
+    /**
+     * @brief Get nodes that can be started in parallel
+     * @param remaining_nodes Set of nodes not yet started
+     * @param started_nodes Set of already started nodes
+     * @param all_nodes Map of all node configurations
+     * @return Vector of node names ready to start
+     * 
+     * @requirement TSR-002.3: Parallel startup
+     */
+    std::vector<std::string> GetReadyNodes(
+        const std::set<std::string>& remaining_nodes,
+        const std::set<std::string>& started_nodes,
+        const std::map<std::string, NodeConfig>& all_nodes) const;
+
+private:
+    /**
+     * @brief Build adjacency list from node configurations
+     */
+    std::map<std::string, std::vector<std::string>> BuildAdjacencyList(
+        const std::vector<NodeConfig>& nodes) const;
+
+    /**
+     * @brief Build in-degree map from node configurations
+     */
+    std::map<std::string, int> BuildInDegreeMap(
+        const std::vector<NodeConfig>& nodes) const;
+
+    /**
+     * @brief Detect cycle using DFS
+     * @return Cycle path if found, empty otherwise
+     */
+    std::vector<std::string> DetectCycleDFS(
+        const std::map<std::string, std::vector<std::string>>& graph) const;
+
+    /**
+     * @brief DFS helper for cycle detection
+     */
+    bool DFSVisit(
+        const std::string& node,
+        const std::map<std::string, std::vector<std::string>>& graph,
+        std::map<std::string, int>& color,
+        std::vector<std::string>& path,
+        std::vector<std::string>& cycle) const;
+
+    /**
+     * @brief Build node name to config map
+     */
+    std::map<std::string, NodeConfig> BuildNodeMap(
+        const std::vector<NodeConfig>& nodes) const;
+};
+
+// ============================================================================
+// Inline Implementation
+// ============================================================================
+
+inline bool DependencyResolver::ValidateDependencies(
+    const std::vector<NodeConfig>& nodes) {
+    return GetMissingDependencies(nodes).empty();
+}
+
+inline std::vector<std::string> DependencyResolver::GetMissingDependencies(
+    const std::vector<NodeConfig>& nodes) {
+    std::set<std::string> all_node_names;
+    std::vector<std::string> missing;
+    
+    // Collect all node names
+    for (const auto& node : nodes) {
+        all_node_names.insert(node.name);
+    }
+    
+    // Check each dependency
+    for (const auto& node : nodes) {
+        for (const auto& dep : node.dependencies) {
+            if (all_node_names.find(dep) == all_node_names.end()) {
+                missing.push_back(dep);
+            }
+        }
+    }
+    
+    return missing;
+}
+
+inline std::map<std::string, NodeConfig> DependencyResolver::BuildNodeMap(
+    const std::vector<NodeConfig>& nodes) const {
+    std::map<std::string, NodeConfig> node_map;
+    for (const auto& node : nodes) {
+        node_map[node.name] = node;
+    }
+    return node_map;
+}
+
+inline bool DependencyResolver::CanStartNode(
+    const std::string& node_name,
+    const std::set<std::string>& started_nodes,
+    const std::map<std::string, NodeConfig>& all_nodes) const {
+    
+    auto it = all_nodes.find(node_name);
+    if (it == all_nodes.end()) {
+        return false;
+    }
+    
+    const auto& node = it->second;
+    for (const auto& dep : node.dependencies) {
+        if (started_nodes.find(dep) == started_nodes.end()) {
+            return false;  // Dependency not started
+        }
+    }
+    
+    return true;
+}
+
+inline std::vector<std::string> DependencyResolver::GetReadyNodes(
+    const std::set<std::string>& remaining_nodes,
+    const std::set<std::string>& started_nodes,
+    const std::map<std::string, NodeConfig>& all_nodes) const {
+    
+    std::vector<std::string> ready;
+    
+    for (const auto& node_name : remaining_nodes) {
+        if (CanStartNode(node_name, started_nodes, all_nodes)) {
+            ready.push_back(node_name);
+        }
+    }
+    
+    return ready;
+}
+
+// ============================================================================
+// Full Implementation
+// ============================================================================
+
+inline ResolutionResult DependencyResolver::Resolve(
+    const std::vector<NodeConfig>& nodes) {
+    
+    ResolutionResult result;
+    
+    // Step 1: Validate all dependencies exist
+    auto missing = GetMissingDependencies(nodes);
+    if (!missing.empty()) {
+        result.success = false;
+        result.error_message = "Missing dependencies: ";
+        for (size_t i = 0; i < missing.size(); ++i) {
+            if (i > 0) result.error_message += ", ";
+            result.error_message += missing[i];
+        }
+        return result;
+    }
+    
+    // Step 2: Check for circular dependencies
+    if (HasCircularDependency(nodes)) {
+        result.success = false;
+        result.error_message = "Circular dependency detected";
+        result.circular_path = GetCircularPath(nodes);
+        return result;
+    }
+    
+    // Step 3: Build adjacency list and in-degree map
+    auto graph = BuildAdjacencyList(nodes);
+    auto in_degree = BuildInDegreeMap(nodes);
+    
+    // Step 4: Initialize queue with nodes having no dependencies
+    std::queue<std::string> queue;
+    for (const auto& node : nodes) {
+        if (node.dependencies.empty()) {
+            queue.push(node.name);
+        }
+    }
+    
+    // Step 5: Process nodes using Kahn's algorithm
+    while (!queue.empty()) {
+        std::string current = queue.front();
+        queue.pop();
+        result.order.push_back(current);
+        
+        // Find all nodes that depend on current
+        for (const auto& [node_name, deps] : graph) {
+            if (std::find(deps.begin(), deps.end(), current) != deps.end()) {
+                in_degree[node_name]--;
+                if (in_degree[node_name] == 0) {
+                    queue.push(node_name);
+                }
+            }
+        }
+    }
+    
+    // Step 6: Check if all nodes were processed
+    if (result.order.size() != nodes.size()) {
+        result.success = false;
+        result.error_message = "Failed to resolve all dependencies";
+        result.order.clear();
+    }
+    
+    return result;
+}
+
+inline bool DependencyResolver::HasCircularDependency(
+    const std::vector<NodeConfig>& nodes) {
+    return !GetCircularPath(nodes).empty();
+}
+
+inline std::vector<std::string> DependencyResolver::GetCircularPath(
+    const std::vector<NodeConfig>& nodes) {
+    auto graph = BuildAdjacencyList(nodes);
+    return DetectCycleDFS(graph);
+}
+
+inline std::map<std::string, std::vector<std::string>> 
+DependencyResolver::BuildAdjacencyList(const std::vector<NodeConfig>& nodes) const {
+    std::map<std::string, std::vector<std::string>> graph;
+    
+    for (const auto& node : nodes) {
+        graph[node.name] = node.dependencies;
+    }
+    
+    return graph;
+}
+
+inline std::map<std::string, int> DependencyResolver::BuildInDegreeMap(
+    const std::vector<NodeConfig>& nodes) const {
+    std::map<std::string, int> in_degree;
+    
+    // Initialize all nodes with 0
+    for (const auto& node : nodes) {
+        in_degree[node.name] = 0;
+    }
+    
+    // Count incoming edges
+    for (const auto& node : nodes) {
+        for (const auto& dep : node.dependencies) {
+            in_degree[node.name]++;
+        }
+    }
+    
+    return in_degree;
+}
+
+inline std::vector<std::string> DependencyResolver::DetectCycleDFS(
+    const std::map<std::string, std::vector<std::string>>& graph) const {
+    
+    std::map<std::string, int> color;  // 0 = white, 1 = gray, 2 = black
+    std::vector<std::string> path;
+    std::vector<std::string> cycle;
+    
+    // Initialize colors
+    for (const auto& [node, _] : graph) {
+        color[node] = 0;
+    }
+    
+    // DFS from each unvisited node
+    for (const auto& [node, _] : graph) {
+        if (color[node] == 0) {
+            if (DFSVisit(node, graph, color, path, cycle)) {
+                return cycle;
+            }
+        }
+    }
+    
+    return cycle;  // Empty if no cycle
+}
+
+inline bool DependencyResolver::DFSVisit(
+    const std::string& node,
+    const std::map<std::string, std::vector<std::string>>& graph,
+    std::map<std::string, int>& color,
+    std::vector<std::string>& path,
+    std::vector<std::string>& cycle) const {
+    
+    color[node] = 1;  // Gray
+    path.push_back(node);
+    
+    auto it = graph.find(node);
+    if (it != graph.end()) {
+        for (const auto& neighbor : it->second) {
+            if (color[neighbor] == 1) {
+                // Found back edge - cycle detected
+                cycle.push_back(neighbor);
+                for (auto it = path.rbegin(); it != path.rend(); ++it) {
+                    cycle.push_back(*it);
+                    if (*it == neighbor) break;
+                }
+                std::reverse(cycle.begin(), cycle.end());
+                return true;
+            }
+            
+            if (color[neighbor] == 0) {
+                if (DFSVisit(neighbor, graph, color, path, cycle)) {
+                    return true;
+                }
+            }
+        }
+    }
+    
+    color[node] = 2;  // Black
+    path.pop_back();
+    return false;
+}
+
+// ============================================================================
+// Test Support
+// ============================================================================
+
+#ifdef BUILD_TESTING
+/**
+ * @brief Test fixture for DependencyResolver tests
+ */
+class DependencyResolverTestFixture {
+public:
+    DependencyResolver CreateResolver() const {
+        return DependencyResolver();
+    }
+    
+    // Test case: Simple linear dependency A -> B -> C
+    std::vector<NodeConfig> CreateLinearDependencies() const {
+        return {
+            {"A", {}},
+            {"B", {"A"}},
+            {"C", {"B"}}
+        };
+    }
+    
+    // Test case: Diamond dependency A -> B, A -> C, B -> D, C -> D
+    std::vector<NodeConfig> CreateDiamondDependencies() const {
+        return {
+            {"A", {}},
+            {"B", {"A"}},
+            {"C", {"A"}},
+            {"D", {"B", "C"}}
+        };
+    }
+    
+    // Test case: Circular dependency A -> B -> C -> A
+    std::vector<NodeConfig> CreateCircularDependencies() const {
+        return {
+            {"A", {"C"}},
+            {"B", {"A"}},
+            {"C", {"B"}}
+        };
+    }
+    
+    // Test case: Missing dependency
+    std::vector<NodeConfig> CreateMissingDependency() const {
+        return {
+            {"A", {}},
+            {"B", {"C"}}  // C doesn't exist
+        };
+    }
+    
+    // Test case: Complex graph
+    std::vector<NodeConfig> CreateComplexDependencies() const {
+        return {
+            {"sensor", {}},
+            {"filter", {"sensor"}},
+            {"fusion", {"filter"}},
+            {"planner", {"fusion"}},
+            {"controller", {"planner"}},
+            {"logger", {"sensor", "controller"}}
+        };
+    }
+};
+#endif  // BUILD_TESTING
+
+} // namespace cpp_launch
+
+#endif // CPP_LAUNCH_DEPENDENCY_RESOLVER_HPP_

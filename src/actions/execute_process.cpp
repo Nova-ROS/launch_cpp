@@ -19,6 +19,7 @@
 #include <sys/wait.h>
 #include <vector>
 #include <string>
+#include <iostream>
 
 namespace cpp_launch
 {
@@ -59,15 +60,41 @@ class Process
 };
 
 ExecuteProcess::ExecuteProcess(const Options& options)
-  : Action(), options_(options), process_(nullptr)
+  : Action(), options_(options), process_(nullptr), processId_(0)
 {
+  // Initialize safety components if enabled
+  if (options_.enableSafety)
+  {
+    // By default, use Posix implementations
+    processExecutor_ = std::make_shared<ara::exec::PosixProcessExecutor>();
+    resourceMonitor_ = std::make_shared<ara::exec::PosixResourceMonitor>();
+    watchdog_ = std::make_shared<ara::exec::PosixWatchdog>();
+    
+    // Start watchdog if timeout is configured
+    if (options_.watchdogTimeoutMs > 0 && watchdog_)
+    {
+      watchdog_->Start();
+    }
+  }
 }
 
-ExecuteProcess::~ExecuteProcess() = default;
-
-Result<void> ExecuteProcess::Execute(LaunchContext& context)
+ExecuteProcess::~ExecuteProcess()
 {
-  // Resolve command
+  // Unregister from watchdog if enabled
+  if (watchdog_ && processId_ != 0)
+  {
+    watchdog_->UnregisterNode(static_cast<uint32_t>(processId_));
+  }
+  
+  // Stop watchdog
+  if (watchdog_)
+  {
+    watchdog_->Stop();
+  }
+}
+
+std::vector<std::string> ExecuteProcess::ResolveCommand(LaunchContext& context) const
+{
   std::vector<std::string> cmd;
   for (const auto& sub : options_.cmd)
   {
@@ -76,51 +103,160 @@ Result<void> ExecuteProcess::Execute(LaunchContext& context)
       cmd.push_back(sub->Perform(context));
     }
   }
+  return cmd;
+}
+
+Result<void> ExecuteProcess::Execute(LaunchContext& context)
+{
+  // Resolve command
+  std::vector<std::string> cmd = ResolveCommand(context);
   
   if (cmd.empty())
   {
     return Result<void>(Error(ErrorCode::kInvalidArgument, "Empty command"));
   }
   
-  // Fork and exec
-  pid_t pid = fork();
-  
-  if (pid < 0)
+  // Safety: Check resources if safety is enabled
+  if (options_.enableSafety && resourceMonitor_)
   {
-    return Result<void>(Error(ErrorCode::kProcessSpawnFailed, "Fork failed"));
-  }
-  
-  if (pid == 0)
-  {
-    // Child process
-    std::vector<char*> args;
-    for (auto& arg : cmd)
+    // Estimate memory requirement (simplified: use configured max or 100MB default)
+    std::uint64_t estimatedMemory = options_.maxMemoryBytes > 0 ? 
+                                    options_.maxMemoryBytes : 100 * 1024 * 1024;
+    
+    auto result = resourceMonitor_->AreResourcesAvailable(estimatedMemory);
+    if (!result.IsSuccess() || !result.GetValue())
     {
-      args.push_back(&arg[0]);
+      return Result<void>(Error(ErrorCode::kProcessSpawnFailed, 
+                                "Insufficient resources to start process"));
     }
-    args.push_back(nullptr);
-    
-    execvp(args[0], args.data());
-    
-    // If we get here, exec failed
-    _exit(1);
   }
   
-  // Parent process
-  process_ = std::make_unique<Process>(pid);
-  
-  // Wait for process if output is set to screen
-  if (options_.output == "screen")
+  // Use safety-enabled execution if available
+  if (options_.enableSafety && processExecutor_)
   {
-    int returnCode = process_->Wait();
-    (void)returnCode;
+    // Build OSAL command line
+    ara::exec::CommandLine command;
+    if (!cmd.empty())
+    {
+      command.program = cmd[0];
+      for (size_t i = 1; i < cmd.size(); ++i)
+      {
+        command.arguments.push_back(cmd[i]);
+      }
+    }
+    
+    // Build options
+    ara::exec::ProcessOptions processOptions;
+    processOptions.startup_timeout = std::chrono::milliseconds(5000);
+    processOptions.shutdown_timeout = std::chrono::seconds(options_.sigtermTimeout);
+    processOptions.capture_stdout = (options_.output != "log");
+    processOptions.capture_stderr = (options_.output != "log");
+    
+    // Execute using safety executor
+    auto result = processExecutor_->Execute(command, processOptions);
+    if (!result.IsSuccess())
+    {
+      return Result<void>(Error(ErrorCode::kProcessSpawnFailed, 
+                                result.GetErrorMessage()));
+    }
+    
+    processId_ = result.GetValue();
+    
+    // Register with watchdog if enabled
+    if (watchdog_ && options_.watchdogTimeoutMs > 0)
+    {
+      auto regResult = watchdog_->RegisterNode(
+        static_cast<uint32_t>(processId_), 
+        static_cast<uint32_t>(options_.watchdogTimeoutMs),
+        nullptr);
+      
+      if (!regResult.IsSuccess())
+      {
+        std::cerr << "Warning: Failed to register process with watchdog: "
+                  << regResult.GetErrorMessage() << std::endl;
+      }
+    }
+    
+    // Set resource limits if configured
+    if (resourceMonitor_ && (options_.maxMemoryBytes > 0 || options_.maxCpuPercent > 0))
+    {
+      resourceMonitor_->SetResourceLimits(
+        processId_,
+        options_.maxMemoryBytes,
+        options_.maxCpuPercent);
+    }
+    
+    // For screen output, wait for process to complete
+    if (options_.output == "screen")
+    {
+      auto waitResult = processExecutor_->Wait(
+        processId_, 
+        std::chrono::milliseconds(-1)); // Wait indefinitely
+      
+      if (waitResult.IsSuccess())
+      {
+        const auto& processResult = waitResult.GetValue();
+        (void)processResult; // Process completed
+      }
+    }
+    
+    // Also create legacy Process object for backward compatibility
+    process_ = std::make_unique<Process>(static_cast<pid_t>(processId_));
+    
+    return Result<void>();
   }
-  
-  return Result<void>();
+  else
+  {
+    // Legacy execution path (original implementation)
+    pid_t pid = fork();
+    
+    if (pid < 0)
+    {
+      return Result<void>(Error(ErrorCode::kProcessSpawnFailed, "Fork failed"));
+    }
+    
+    if (pid == 0)
+    {
+      // Child process
+      std::vector<char*> args;
+      for (auto& arg : cmd)
+      {
+        args.push_back(&arg[0]);
+      }
+      args.push_back(nullptr);
+      
+      execvp(args[0], args.data());
+      
+      // If we get here, exec failed
+      _exit(1);
+    }
+    
+    // Parent process
+    process_ = std::make_unique<Process>(pid);
+    
+    // Wait for process if output is set to screen
+    if (options_.output == "screen")
+    {
+      int returnCode = process_->Wait();
+      (void)returnCode;
+    }
+    
+    return Result<void>();
+  }
 }
 
 Error ExecuteProcess::Shutdown()
 {
+  if (options_.enableSafety && processExecutor_ && processId_ != 0)
+  {
+    auto result = processExecutor_->Terminate(
+      processId_, 
+      std::chrono::seconds(options_.sigtermTimeout));
+    return result.IsSuccess() ? Error() : 
+           Error(ErrorCode::kInternalError, result.GetErrorMessage());
+  }
+  
+  // Legacy path
   if (process_ && process_->IsRunning())
   {
     kill(process_->GetPid(), SIGTERM);
@@ -130,6 +266,16 @@ Error ExecuteProcess::Shutdown()
 
 Error ExecuteProcess::Terminate()
 {
+  if (options_.enableSafety && processExecutor_ && processId_ != 0)
+  {
+    auto result = processExecutor_->Terminate(
+      processId_,
+      std::chrono::seconds(options_.sigtermTimeout));
+    return result.IsSuccess() ? Error() : 
+           Error(ErrorCode::kInternalError, result.GetErrorMessage());
+  }
+  
+  // Legacy path
   if (process_ && process_->IsRunning())
   {
     kill(process_->GetPid(), SIGTERM);
@@ -139,6 +285,14 @@ Error ExecuteProcess::Terminate()
 
 Error ExecuteProcess::Kill()
 {
+  if (options_.enableSafety && processExecutor_ && processId_ != 0)
+  {
+    auto result = processExecutor_->Kill(processId_);
+    return result.IsSuccess() ? Error() : 
+           Error(ErrorCode::kInternalError, result.GetErrorMessage());
+  }
+  
+  // Legacy path
   if (process_ && process_->IsRunning())
   {
     kill(process_->GetPid(), SIGKILL);
@@ -148,6 +302,13 @@ Error ExecuteProcess::Kill()
 
 void ExecuteProcess::SendSignal(std::int32_t signal)
 {
+  if (options_.enableSafety && processExecutor_ && processId_ != 0)
+  {
+    processExecutor_->SendSignal(processId_, signal);
+    return;
+  }
+  
+  // Legacy path
   if (process_)
   {
     kill(process_->GetPid(), signal);
@@ -156,6 +317,17 @@ void ExecuteProcess::SendSignal(std::int32_t signal)
 
 bool ExecuteProcess::IsRunning() const noexcept
 {
+  if (options_.enableSafety && processExecutor_ && processId_ != 0)
+  {
+    auto result = processExecutor_->IsRunning(processId_);
+    if (result.IsSuccess())
+    {
+      return result.GetValue();
+    }
+    return false;
+  }
+  
+  // Legacy path
   if (!process_)
   {
     return false;
@@ -165,6 +337,18 @@ bool ExecuteProcess::IsRunning() const noexcept
 
 Result<std::int32_t> ExecuteProcess::GetReturnCode() const
 {
+  if (options_.enableSafety && processId_ != 0)
+  {
+    // For safety-enabled processes, we'd need to track return codes separately
+    // For now, return the legacy path result if available
+    if (process_)
+    {
+      return Result<std::int32_t>(process_->GetReturnCode());
+    }
+    return Result<std::int32_t>(-1);
+  }
+  
+  // Legacy path
   if (!process_)
   {
     return Result<std::int32_t>(Error(ErrorCode::kInternalError, "Process not started"));
@@ -174,6 +358,12 @@ Result<std::int32_t> ExecuteProcess::GetReturnCode() const
 
 Result<std::int32_t> ExecuteProcess::GetPid() const
 {
+  if (options_.enableSafety && processId_ != 0)
+  {
+    return Result<std::int32_t>(static_cast<std::int32_t>(processId_));
+  }
+  
+  // Legacy path
   if (!process_)
   {
     return Result<std::int32_t>(Error(ErrorCode::kInternalError, "Process not started"));
@@ -184,6 +374,32 @@ Result<std::int32_t> ExecuteProcess::GetPid() const
 std::string ExecuteProcess::GetName() const
 {
   return resolvedName_;
+}
+
+void ExecuteProcess::SetProcessExecutor(std::shared_ptr<ara::exec::ProcessExecutor> executor)
+{
+  processExecutor_ = executor;
+}
+
+void ExecuteProcess::SetResourceMonitor(std::shared_ptr<ara::exec::ResourceMonitor> monitor)
+{
+  resourceMonitor_ = monitor;
+}
+
+void ExecuteProcess::SetWatchdog(std::shared_ptr<ara::exec::Watchdog> watchdog)
+{
+  watchdog_ = watchdog;
+}
+
+bool ExecuteProcess::CheckResourcesAvailable(std::uint64_t estimatedMemory) const
+{
+  if (!resourceMonitor_)
+  {
+    return true;  // No monitor, assume resources available
+  }
+  
+  auto result = resourceMonitor_->AreResourcesAvailable(estimatedMemory);
+  return result.IsSuccess() && result.GetValue();
 }
 
 }  // namespace cpp_launch

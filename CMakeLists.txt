@@ -18,6 +18,7 @@ find_package(ament_cmake REQUIRED)
 include_directories(
   include
   src
+  include/cpp_launch/safety
 )
 
 # Core library
@@ -42,6 +43,11 @@ set(CPP_LAUNCH_CORE_SOURCES
   src/conditions/if_condition.cpp
   src/conditions/launch_configuration_equals.cpp
   src/conditions/unless_condition.cpp
+  # Safety architecture sources
+  src/safety/posix_process_executor.cpp
+  src/safety/posix_resource_monitor.cpp
+  src/safety/posix_watchdog.cpp
+  src/safety/mock_osal.cpp
 )
 
 add_library(cpp_launch_core ${CPP_LAUNCH_CORE_SOURCES})
