@@ -30,7 +30,7 @@
 #include <atomic>
 #include <algorithm>
 
-namespace cpp_launch {
+namespace launch_cpp {
 
 
 // ============================================================================
@@ -296,4 +296,4 @@ bool PosixWatchdog::Impl::ValidateHeartbeat(const HeartbeatMessage& message) {
     return (message.checksum == expected);
 }
 
-} // namespace cpp_launch
+} // namespace launch_cpp

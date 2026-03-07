@@ -25,7 +25,7 @@
 #include <map>
 #include <atomic>
 
-namespace cpp_launch {
+namespace launch_cpp {
 
 
 // ============================================================================
@@ -130,4 +130,4 @@ OsalResult<ProcessState> MockProcessExecutor::GetState(ProcessId pid) {
     return OsalResult<ProcessState>(ProcessState::kUnknown);
 }
 
-} // namespace cpp_launch
+} // namespace launch_cpp

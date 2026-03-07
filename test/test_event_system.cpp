@@ -18,14 +18,14 @@
 #include <thread>
 #include <chrono>
 #include <atomic>
-#include "cpp_launch/event.hpp"
-#include "cpp_launch/event_queue.hpp"
-#include "cpp_launch/event_dispatcher.hpp"
-#include "cpp_launch/event_handler.hpp"
-#include "cpp_launch/launch_context.hpp"
-#include "cpp_launch/launch_description_entity.hpp"
+#include "launch_cpp/event.hpp"
+#include "launch_cpp/event_queue.hpp"
+#include "launch_cpp/event_dispatcher.hpp"
+#include "launch_cpp/event_handler.hpp"
+#include "launch_cpp/launch_context.hpp"
+#include "launch_cpp/launch_description_entity.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 // Mock LaunchContext for testing
 class MockLaunchContext : public LaunchContext

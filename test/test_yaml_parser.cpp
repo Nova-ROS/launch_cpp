@@ -17,9 +17,9 @@
 #include <gtest/gtest.h>
 #include <fstream>
 #include <cstdio>
-#include "cpp_launch/yaml_parser.hpp"
+#include "launch_cpp/yaml_parser.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 // Test: Parse empty content
 TEST(YamlParserTest, ParseEmpty)

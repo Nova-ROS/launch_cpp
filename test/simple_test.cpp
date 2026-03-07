@@ -21,18 +21,18 @@
 #include <unordered_map>
 
 // Include core headers
-#include "cpp_launch/types.hpp"
-#include "cpp_launch/error_code.hpp"
-#include "cpp_launch/singleton.hpp"
-#include "cpp_launch/thread_pool.hpp"
-#include "cpp_launch/event.hpp"
-#include "cpp_launch/launch_description_entity.hpp"
-#include "cpp_launch/launch_description.hpp"
-#include "cpp_launch/substitutions/text_substitution.hpp"
-#include "cpp_launch/event_handler.hpp"
-#include "cpp_launch/launch_context.hpp"
+#include "launch_cpp/types.hpp"
+#include "launch_cpp/error_code.hpp"
+#include "launch_cpp/singleton.hpp"
+#include "launch_cpp/thread_pool.hpp"
+#include "launch_cpp/event.hpp"
+#include "launch_cpp/launch_description_entity.hpp"
+#include "launch_cpp/launch_description.hpp"
+#include "launch_cpp/substitutions/text_substitution.hpp"
+#include "launch_cpp/event_handler.hpp"
+#include "launch_cpp/launch_context.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 // Test counter
 int tests_passed = 0;
@@ -210,7 +210,7 @@ TEST(singleton_pattern)
 
 int main()
 {
-  std::cout << "=== cpp_launch Simple Tests ===" << std::endl;
+  std::cout << "=== launch_cpp Simple Tests ===" << std::endl;
   std::cout << std::endl;
   
   RUN_TEST(error_code_success);

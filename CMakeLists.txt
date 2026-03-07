@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(cpp_launch VERSION 0.1.0 LANGUAGES CXX)
+project(launch_cpp VERSION 0.1.0 LANGUAGES CXX)
 
 # C++14 Standard (AUTOSAR Compliance)
 set(CMAKE_CXX_STANDARD 14)
@@ -18,7 +18,7 @@ find_package(ament_cmake REQUIRED)
 include_directories(
   include
   src
-  include/cpp_launch/safety
+  include/launch_cpp/safety
 )
 
 # Core library
@@ -50,35 +50,35 @@ set(CPP_LAUNCH_CORE_SOURCES
   src/safety/mock_osal.cpp
 )
 
-add_library(cpp_launch_core ${CPP_LAUNCH_CORE_SOURCES})
+add_library(launch_cpp_core ${CPP_LAUNCH_CORE_SOURCES})
 
-target_include_directories(cpp_launch_core PUBLIC
+target_include_directories(launch_cpp_core PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
 
 # Executable
-add_executable(cpp_launch_exec src/main.cpp)
-set_target_properties(cpp_launch_exec PROPERTIES OUTPUT_NAME cpp_launch)
-target_link_libraries(cpp_launch_exec cpp_launch_core)
+add_executable(launch_cpp_exec src/main.cpp)
+set_target_properties(launch_cpp_exec PROPERTIES OUTPUT_NAME launch_cpp)
+target_link_libraries(launch_cpp_exec launch_cpp_core)
 
 # Install
 install(TARGETS
-  cpp_launch_core
-  EXPORT cpp_launch
+  launch_cpp_core
+  EXPORT launch_cpp
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
 
-install(EXPORT cpp_launch
-  FILE cpp_launchTargets.cmake
-  DESTINATION share/cpp_launch/cmake
+install(EXPORT launch_cpp
+  FILE launch_cppTargets.cmake
+  DESTINATION share/launch_cpp/cmake
 )
 
-ament_export_targets(cpp_launch)
+ament_export_targets(launch_cpp)
 ament_export_include_directories(include)
-ament_export_libraries(cpp_launch_core)
+ament_export_libraries(launch_cpp_core)
 
 install(DIRECTORY include/
   DESTINATION include
@@ -86,7 +86,7 @@ install(DIRECTORY include/
 
 # Debug executable for YAML parser
 add_executable(test_yaml_debug test/test_yaml_debug.cpp)
-target_link_libraries(test_yaml_debug cpp_launch_core)
+target_link_libraries(test_yaml_debug launch_cpp_core)
 
 # Testing
 if(BUILD_TESTING)
@@ -94,51 +94,51 @@ if(BUILD_TESTING)
   
   # Comprehensive test suites
   ament_add_gtest(test_yaml_parser test/test_yaml_parser.cpp)
-  target_link_libraries(test_yaml_parser cpp_launch_core)
+  target_link_libraries(test_yaml_parser launch_cpp_core)
   
   ament_add_gtest(test_thread_pool_comprehensive test/test_thread_pool.cpp)
-  target_link_libraries(test_thread_pool_comprehensive cpp_launch_core)
+  target_link_libraries(test_thread_pool_comprehensive launch_cpp_core)
   
   ament_add_gtest(test_actions_comprehensive test/test_actions.cpp)
-  target_link_libraries(test_actions_comprehensive cpp_launch_core)
+  target_link_libraries(test_actions_comprehensive launch_cpp_core)
   
   ament_add_gtest(test_substitutions_comprehensive test/test_substitutions.cpp)
-  target_link_libraries(test_substitutions_comprehensive cpp_launch_core)
+  target_link_libraries(test_substitutions_comprehensive launch_cpp_core)
   
   ament_add_gtest(test_conditions_comprehensive test/test_conditions.cpp)
-  target_link_libraries(test_conditions_comprehensive cpp_launch_core)
+  target_link_libraries(test_conditions_comprehensive launch_cpp_core)
   
   ament_add_gtest(test_event_system_comprehensive test/test_event_system.cpp)
-  target_link_libraries(test_event_system_comprehensive cpp_launch_core)
+  target_link_libraries(test_event_system_comprehensive launch_cpp_core)
   
   ament_add_gtest(test_launch_service_comprehensive test/test_launch_service.cpp)
-  target_link_libraries(test_launch_service_comprehensive cpp_launch_core)
+  target_link_libraries(test_launch_service_comprehensive launch_cpp_core)
   
   # Keep original simple test
   ament_add_gtest(test_integration test/simple_test.cpp)
-  target_link_libraries(test_integration cpp_launch_core)
+  target_link_libraries(test_integration launch_cpp_core)
 
   # Extended tests for low coverage files
   ament_add_gtest(test_substitutions_extended test/test_substitutions_extended.cpp)
-  target_link_libraries(test_substitutions_extended cpp_launch_core)
+  target_link_libraries(test_substitutions_extended launch_cpp_core)
 
   ament_add_gtest(test_conditions_extended test/test_conditions_extended.cpp)
-  target_link_libraries(test_conditions_extended cpp_launch_core)
+  target_link_libraries(test_conditions_extended launch_cpp_core)
 
   # Safety integration tests
   ament_add_gtest(test_execute_process_safety test/test_execute_process_safety.cpp)
-  target_link_libraries(test_execute_process_safety cpp_launch_core)
+  target_link_libraries(test_execute_process_safety launch_cpp_core)
   
   ament_add_gtest(test_safety_integration test/test_safety_integration.cpp)
-  target_link_libraries(test_safety_integration cpp_launch_core)
+  target_link_libraries(test_safety_integration launch_cpp_core)
   
   # Comprehensive safety features tests
   ament_add_gtest(test_safety_features test/test_safety_features.cpp)
-  target_link_libraries(test_safety_features cpp_launch_core)
+  target_link_libraries(test_safety_features launch_cpp_core)
   
   # Mock-based safety tests
   ament_add_gtest(test_safety_mock test/test_safety_mock.cpp)
-  target_link_libraries(test_safety_mock cpp_launch_core)
+  target_link_libraries(test_safety_mock launch_cpp_core)
 endif()
 
 ament_package()

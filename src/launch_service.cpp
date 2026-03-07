@@ -13,13 +13,13 @@
 // limitations under the License.
 
 
-#include "cpp_launch/launch_service.hpp"
+#include "launch_cpp/launch_service.hpp"
 #include "launch_context_impl.hpp"
-#include "cpp_launch/launch_description.hpp"
-#include "cpp_launch/event.hpp"
+#include "launch_cpp/launch_description.hpp"
+#include "launch_cpp/event.hpp"
 #include <iostream>
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 class LaunchService::Impl
@@ -153,4 +153,4 @@ const LaunchContext& LaunchService::GetContext() const
   return impl_->context_;
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

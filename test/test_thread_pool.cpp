@@ -20,9 +20,9 @@
 #include <thread>
 #include <vector>
 #include <future>
-#include "cpp_launch/thread_pool.hpp"
+#include "launch_cpp/thread_pool.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 // Test: Thread pool creation with different sizes
 TEST(ThreadPoolTest, Creation)

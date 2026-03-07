@@ -13,11 +13,11 @@
 // limitations under the License.
 
 
-#include "cpp_launch/substitutions/environment_variable.hpp"
-#include "cpp_launch/launch_context.hpp"
+#include "launch_cpp/substitutions/environment_variable.hpp"
+#include "launch_cpp/launch_context.hpp"
 #include <cstdlib>
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 std::string EnvironmentVariable::Perform(const LaunchContext& context) const
@@ -34,4 +34,4 @@ std::string EnvironmentVariable::Perform(const LaunchContext& context) const
   return std::string(value);
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

@@ -13,11 +13,11 @@
 // limitations under the License.
 
 
-#include "cpp_launch/action.hpp"
-#include "cpp_launch/launch_context.hpp"
-#include "cpp_launch/condition.hpp"
+#include "launch_cpp/action.hpp"
+#include "launch_cpp/launch_context.hpp"
+#include "launch_cpp/condition.hpp"
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 Result<LaunchDescriptionEntityVector> Action::Visit(LaunchContext& context)
@@ -43,4 +43,4 @@ Result<LaunchDescriptionEntityVector> Action::Visit(LaunchContext& context)
   return Result<LaunchDescriptionEntityVector>(LaunchDescriptionEntityVector{});
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

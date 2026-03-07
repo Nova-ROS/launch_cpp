@@ -13,16 +13,16 @@
 // limitations under the License.
 
 
-#include "cpp_launch/actions/execute_process.hpp"
-#include "cpp_launch/launch_context.hpp"
-#include "cpp_launch/substitution.hpp"
+#include "launch_cpp/actions/execute_process.hpp"
+#include "launch_cpp/launch_context.hpp"
+#include "launch_cpp/substitution.hpp"
 #include <unistd.h>
 #include <sys/wait.h>
 #include <vector>
 #include <string>
 #include <iostream>
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 class Process
@@ -67,9 +67,9 @@ ExecuteProcess::ExecuteProcess(const Options& options)
   if (options_.enableSafety)
   {
     // By default, use Posix implementations
-    processExecutor_ = std::make_shared<cpp_launch::PosixProcessExecutor>();
-    resourceMonitor_ = std::make_shared<cpp_launch::PosixResourceMonitor>();
-    watchdog_ = std::make_shared<cpp_launch::PosixWatchdog>();
+    processExecutor_ = std::make_shared<launch_cpp::PosixProcessExecutor>();
+    resourceMonitor_ = std::make_shared<launch_cpp::PosixResourceMonitor>();
+    watchdog_ = std::make_shared<launch_cpp::PosixWatchdog>();
     
     // Start watchdog if timeout is configured
     if (options_.watchdogTimeoutMs > 0 && watchdog_)
@@ -136,7 +136,7 @@ Result<void> ExecuteProcess::Execute(LaunchContext& context)
   if (options_.enableSafety && processExecutor_)
   {
     // Build OSAL command line
-    cpp_launch::CommandLine command;
+    launch_cpp::CommandLine command;
     if (!cmd.empty())
     {
       command.program = cmd[0];
@@ -147,7 +147,7 @@ Result<void> ExecuteProcess::Execute(LaunchContext& context)
     }
     
     // Build options
-    cpp_launch::ProcessOptions processOptions;
+    launch_cpp::ProcessOptions processOptions;
     processOptions.startup_timeout = std::chrono::milliseconds(5000);
     processOptions.shutdown_timeout = std::chrono::seconds(options_.sigtermTimeout);
     processOptions.capture_stdout = (options_.output != "log");
@@ -377,17 +377,17 @@ std::string ExecuteProcess::GetName() const
   return resolvedName_;
 }
 
-void ExecuteProcess::SetProcessExecutor(std::shared_ptr<cpp_launch::ProcessExecutor> executor)
+void ExecuteProcess::SetProcessExecutor(std::shared_ptr<launch_cpp::ProcessExecutor> executor)
 {
   processExecutor_ = executor;
 }
 
-void ExecuteProcess::SetResourceMonitor(std::shared_ptr<cpp_launch::ResourceMonitor> monitor)
+void ExecuteProcess::SetResourceMonitor(std::shared_ptr<launch_cpp::ResourceMonitor> monitor)
 {
   resourceMonitor_ = monitor;
 }
 
-void ExecuteProcess::SetWatchdog(std::shared_ptr<cpp_launch::Watchdog> watchdog)
+void ExecuteProcess::SetWatchdog(std::shared_ptr<launch_cpp::Watchdog> watchdog)
 {
   watchdog_ = watchdog;
 }
@@ -403,4 +403,4 @@ bool ExecuteProcess::CheckResourcesAvailable(std::uint64_t estimatedMemory) cons
   return result.IsSuccess() && result.GetValue();
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

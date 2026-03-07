@@ -17,18 +17,18 @@
 #include <gtest/gtest.h>
 #include <chrono>
 #include <thread>
-#include "cpp_launch/action.hpp"
-#include "cpp_launch/actions/execute_process.hpp"
-#include "cpp_launch/actions/declare_launch_argument.hpp"
-#include "cpp_launch/actions/set_launch_configuration.hpp"
-#include "cpp_launch/actions/timer_action.hpp"
-#include "cpp_launch/actions/group_action.hpp"
-#include "cpp_launch/actions/include_launch_description.hpp"
-#include "cpp_launch/launch_context.hpp"
-#include "cpp_launch/conditions/if_condition.hpp"
-#include "cpp_launch/substitutions/text_substitution.hpp"
+#include "launch_cpp/action.hpp"
+#include "launch_cpp/actions/execute_process.hpp"
+#include "launch_cpp/actions/declare_launch_argument.hpp"
+#include "launch_cpp/actions/set_launch_configuration.hpp"
+#include "launch_cpp/actions/timer_action.hpp"
+#include "launch_cpp/actions/group_action.hpp"
+#include "launch_cpp/actions/include_launch_description.hpp"
+#include "launch_cpp/launch_context.hpp"
+#include "launch_cpp/conditions/if_condition.hpp"
+#include "launch_cpp/substitutions/text_substitution.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 // Mock LaunchContext for testing
 class MockLaunchContext : public LaunchContext

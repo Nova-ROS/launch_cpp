@@ -13,10 +13,10 @@
 // limitations under the License.
 
 
-#include "cpp_launch/thread_pool.hpp"
+#include "launch_cpp/thread_pool.hpp"
 #include <algorithm>
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 ThreadPool::ThreadPool(std::size_t numThreads)
@@ -113,4 +113,4 @@ void ThreadPool::WorkerThread()
   }
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

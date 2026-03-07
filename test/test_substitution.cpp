@@ -15,9 +15,9 @@
 
 // Test: Substitutions
 #include <gtest/gtest.h>
-#include "cpp_launch/substitutions/text_substitution.hpp"
+#include "launch_cpp/substitutions/text_substitution.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 // Mock LaunchContext for testing
 class MockLaunchContext : public LaunchContext

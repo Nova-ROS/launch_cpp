@@ -2,9 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "cpp_launch/yaml_parser.hpp"
+#include "launch_cpp/yaml_parser.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 int main()
 {
@@ -52,7 +52,7 @@ int main()
   // Test 3: Parse from file
   std::cout << "\nTest 3: Parse from file" << std::endl;
   {
-    std::string filePath = "/home/bingdian/work/ros2/jazzy/src/ros2/cpp_launch/examples/test_simple.yaml";
+    std::string filePath = "/home/bingdian/work/ros2/jazzy/src/ros2/launch_cpp/examples/test_simple.yaml";
     
     auto result = YamlParser::ParseFile(filePath);
     if (result.HasError()) {

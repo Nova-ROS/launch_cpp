@@ -17,13 +17,13 @@
 #include <gtest/gtest.h>
 #include <thread>
 #include <chrono>
-#include "cpp_launch/launch_service.hpp"
-#include "cpp_launch/launch_description.hpp"
-#include "cpp_launch/actions/set_launch_configuration.hpp"
-#include "cpp_launch/actions/declare_launch_argument.hpp"
-#include "cpp_launch/substitutions/text_substitution.hpp"
+#include "launch_cpp/launch_service.hpp"
+#include "launch_cpp/launch_description.hpp"
+#include "launch_cpp/actions/set_launch_configuration.hpp"
+#include "launch_cpp/actions/declare_launch_argument.hpp"
+#include "launch_cpp/substitutions/text_substitution.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 // Test: LaunchService basic creation
 TEST(LaunchServiceTest, BasicCreation)

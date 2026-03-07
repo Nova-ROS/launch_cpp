@@ -19,15 +19,15 @@
 
 // Include implementation files for testing
 #include "../src/launch_context_impl.hpp"
-#include "cpp_launch/launch_service.hpp"
-#include "cpp_launch/launch_description.hpp"
-#include "cpp_launch/actions/execute_process.hpp"
-#include "cpp_launch/actions/declare_launch_argument.hpp"
-#include "cpp_launch/substitutions/text_substitution.hpp"
-#include "cpp_launch/substitutions/launch_configuration.hpp"
-#include "cpp_launch/conditions/if_condition.hpp"
+#include "launch_cpp/launch_service.hpp"
+#include "launch_cpp/launch_description.hpp"
+#include "launch_cpp/actions/execute_process.hpp"
+#include "launch_cpp/actions/declare_launch_argument.hpp"
+#include "launch_cpp/substitutions/text_substitution.hpp"
+#include "launch_cpp/substitutions/launch_configuration.hpp"
+#include "launch_cpp/conditions/if_condition.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 TEST(LaunchContextTest, ConfigurationManagement)
 {

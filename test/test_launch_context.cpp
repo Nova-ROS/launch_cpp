@@ -15,9 +15,9 @@
 
 // Test: Launch Context
 #include <gtest/gtest.h>
-#include "cpp_launch/launch_context.hpp"
+#include "launch_cpp/launch_context.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 TEST(LaunchContextTest, ConfigurationManagement)
 {

@@ -34,7 +34,7 @@
 #include <thread>
 #include <fcntl.h>
 
-namespace cpp_launch {
+namespace launch_cpp {
 
 
 // ============================================================================
@@ -415,4 +415,4 @@ void PosixProcessExecutor::Impl::SetupChildEnvironment(
     }
 }
 
-} // namespace cpp_launch
+} // namespace launch_cpp

@@ -13,14 +13,14 @@
 // limitations under the License.
 
 
-#include "cpp_launch/substitutions/find_executable.hpp"
-#include "cpp_launch/launch_context.hpp"
+#include "launch_cpp/substitutions/find_executable.hpp"
+#include "launch_cpp/launch_context.hpp"
 #include <cstdlib>
 #include <sstream>
 #include <sys/stat.h>
 #include <unistd.h>
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 std::string FindExecutable::Perform(const LaunchContext& context) const
@@ -56,4 +56,4 @@ std::string FindExecutable::Perform(const LaunchContext& context) const
   return name_;
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

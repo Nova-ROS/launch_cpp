@@ -13,11 +13,11 @@
 // limitations under the License.
 
 
-#include "cpp_launch/substitutions/this_launch_file_dir.hpp"
-#include "cpp_launch/launch_context.hpp"
+#include "launch_cpp/substitutions/this_launch_file_dir.hpp"
+#include "launch_cpp/launch_context.hpp"
 #include <string>
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 std::string ThisLaunchFileDir::Perform(const LaunchContext& context) const
@@ -37,4 +37,4 @@ std::string ThisLaunchFileDir::Perform(const LaunchContext& context) const
   return launch_file.substr(0, last_slash);
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

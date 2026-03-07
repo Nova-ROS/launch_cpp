@@ -13,13 +13,13 @@
 // limitations under the License.
 
 
-#include "cpp_launch/launch_description.hpp"
-#include "cpp_launch/launch_context.hpp"
-#include "cpp_launch/launch_description_entity.hpp"
-#include "cpp_launch/error_code.hpp"
-#include "cpp_launch/yaml_parser.hpp"
+#include "launch_cpp/launch_description.hpp"
+#include "launch_cpp/launch_context.hpp"
+#include "launch_cpp/launch_description_entity.hpp"
+#include "launch_cpp/error_code.hpp"
+#include "launch_cpp/yaml_parser.hpp"
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 LaunchDescription::LaunchDescription(const LaunchDescriptionEntityVector& entities)
@@ -97,4 +97,4 @@ Result<LaunchDescriptionPtr> LaunchDescription::FromYamlFile(const std::string& 
   return YamlLaunchBuilder::Build(yamlResult.GetValue());
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

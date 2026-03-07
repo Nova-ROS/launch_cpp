@@ -15,12 +15,12 @@
 
 // Basic example: Execute a simple process
 #include <iostream>
-#include "cpp_launch/launch_service.hpp"
-#include "cpp_launch/launch_description.hpp"
-#include "cpp_launch/actions/execute_process.hpp"
-#include "cpp_launch/substitutions/text_substitution.hpp"
+#include "launch_cpp/launch_service.hpp"
+#include "launch_cpp/launch_description.hpp"
+#include "launch_cpp/actions/execute_process.hpp"
+#include "launch_cpp/substitutions/text_substitution.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 int main()
 {

@@ -13,16 +13,16 @@
 // limitations under the License.
 
 
-#include "cpp_launch/yaml_parser.hpp"
-#include "cpp_launch/actions/execute_process.hpp"
-#include "cpp_launch/actions/declare_launch_argument.hpp"
-#include "cpp_launch/substitutions/text_substitution.hpp"
-#include "cpp_launch/substitutions/launch_configuration.hpp"
-#include "cpp_launch/conditions/if_condition.hpp"
+#include "launch_cpp/yaml_parser.hpp"
+#include "launch_cpp/actions/execute_process.hpp"
+#include "launch_cpp/actions/declare_launch_argument.hpp"
+#include "launch_cpp/substitutions/text_substitution.hpp"
+#include "launch_cpp/substitutions/launch_configuration.hpp"
+#include "launch_cpp/conditions/if_condition.hpp"
 #include <cctype>
 #include <algorithm>
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 Result<YamlValue> YamlParser::Parse(const std::string& content)
@@ -446,4 +446,4 @@ Result<ConditionPtr> YamlLaunchBuilder::BuildCondition(const YamlValue& conditio
   return Result<ConditionPtr>(Error(ErrorCode::kNotImplemented, "Condition building not yet implemented"));
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

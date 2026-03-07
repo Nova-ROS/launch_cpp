@@ -15,13 +15,13 @@
 
 // Comprehensive Conditions Tests
 #include <gtest/gtest.h>
-#include "cpp_launch/conditions/if_condition.hpp"
-#include "cpp_launch/conditions/unless_condition.hpp"
-#include "cpp_launch/conditions/launch_configuration_equals.hpp"
-#include "cpp_launch/substitutions/text_substitution.hpp"
-#include "cpp_launch/launch_context.hpp"
+#include "launch_cpp/conditions/if_condition.hpp"
+#include "launch_cpp/conditions/unless_condition.hpp"
+#include "launch_cpp/conditions/launch_configuration_equals.hpp"
+#include "launch_cpp/substitutions/text_substitution.hpp"
+#include "launch_cpp/launch_context.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 // Mock LaunchContext for testing
 class MockLaunchContext : public LaunchContext

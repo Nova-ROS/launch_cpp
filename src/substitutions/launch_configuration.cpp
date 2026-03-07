@@ -13,10 +13,10 @@
 // limitations under the License.
 
 
-#include "cpp_launch/substitutions/launch_configuration.hpp"
-#include "cpp_launch/launch_context.hpp"
+#include "launch_cpp/substitutions/launch_configuration.hpp"
+#include "launch_cpp/launch_context.hpp"
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 std::string LaunchConfiguration::Perform(const LaunchContext& context) const
@@ -31,4 +31,4 @@ std::string LaunchConfiguration::Perform(const LaunchContext& context) const
   return result.GetValue();
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

@@ -16,16 +16,16 @@
 // Comprehensive Substitutions Tests
 #include <gtest/gtest.h>
 #include <cstdlib>
-#include "cpp_launch/substitutions/text_substitution.hpp"
-#include "cpp_launch/substitutions/launch_configuration.hpp"
-#include "cpp_launch/substitutions/environment_variable.hpp"
-#include "cpp_launch/substitutions/command.hpp"
-#include "cpp_launch/substitutions/find_executable.hpp"
-#include "cpp_launch/substitutions/this_launch_file.hpp"
-#include "cpp_launch/substitutions/this_launch_file_dir.hpp"
-#include "cpp_launch/launch_context.hpp"
+#include "launch_cpp/substitutions/text_substitution.hpp"
+#include "launch_cpp/substitutions/launch_configuration.hpp"
+#include "launch_cpp/substitutions/environment_variable.hpp"
+#include "launch_cpp/substitutions/command.hpp"
+#include "launch_cpp/substitutions/find_executable.hpp"
+#include "launch_cpp/substitutions/this_launch_file.hpp"
+#include "launch_cpp/substitutions/this_launch_file_dir.hpp"
+#include "launch_cpp/launch_context.hpp"
 
-using namespace cpp_launch;
+using namespace launch_cpp;
 
 // Mock LaunchContext for testing
 class MockLaunchContext : public LaunchContext

@@ -13,11 +13,11 @@
 // limitations under the License.
 
 
-#include "cpp_launch/actions/group_action.hpp"
-#include "cpp_launch/launch_context.hpp"
-#include "cpp_launch/condition.hpp"
+#include "launch_cpp/actions/group_action.hpp"
+#include "launch_cpp/launch_context.hpp"
+#include "launch_cpp/condition.hpp"
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 GroupAction::GroupAction(const Options& options)
@@ -51,4 +51,4 @@ Result<void> GroupAction::Execute(LaunchContext& context)
   return Result<void>();
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

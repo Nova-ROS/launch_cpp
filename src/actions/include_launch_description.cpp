@@ -13,13 +13,13 @@
 // limitations under the License.
 
 
-#include "cpp_launch/actions/include_launch_description.hpp"
-#include "cpp_launch/launch_context.hpp"
-#include "cpp_launch/launch_description.hpp"
-#include "cpp_launch/substitution.hpp"
+#include "launch_cpp/actions/include_launch_description.hpp"
+#include "launch_cpp/launch_context.hpp"
+#include "launch_cpp/launch_description.hpp"
+#include "launch_cpp/substitution.hpp"
 #include <fstream>
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 IncludeLaunchDescription::IncludeLaunchDescription(const Options& options)
@@ -72,4 +72,4 @@ Result<void> IncludeLaunchDescription::Execute(LaunchContext& context)
   return Result<void>();
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

@@ -13,11 +13,11 @@
 // limitations under the License.
 
 
-#include "cpp_launch/actions/timer_action.hpp"
-#include "cpp_launch/launch_context.hpp"
+#include "launch_cpp/actions/timer_action.hpp"
+#include "launch_cpp/launch_context.hpp"
 #include <thread>
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 TimerAction::TimerAction(const Options& options)
@@ -44,4 +44,4 @@ Result<void> TimerAction::Execute(LaunchContext& context)
   return Result<void>();
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

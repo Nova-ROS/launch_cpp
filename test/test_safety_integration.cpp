@@ -2,23 +2,23 @@
  * @file test_safety_integration.cpp
  * @brief Unit tests for safety architecture integration
  * 
- * Tests the integration of OSAL safety components with cpp_launch.
+ * Tests the integration of OSAL safety components with launch_cpp.
  */
 
 #include <gtest/gtest.h>
 #include <chrono>
 #include <thread>
 #include <unordered_map>
-#include "cpp_launch/actions/execute_process.hpp"
-#include "cpp_launch/launch_context.hpp"
-#include "cpp_launch/substitutions/text_substitution.hpp"
-#include "cpp_launch/safety/osal.hpp"
-#include "cpp_launch/event.hpp"
-#include "cpp_launch/event_handler.hpp"
-#include "cpp_launch/error_code.hpp"
+#include "launch_cpp/actions/execute_process.hpp"
+#include "launch_cpp/launch_context.hpp"
+#include "launch_cpp/substitutions/text_substitution.hpp"
+#include "launch_cpp/safety/osal.hpp"
+#include "launch_cpp/event.hpp"
+#include "launch_cpp/event_handler.hpp"
+#include "launch_cpp/error_code.hpp"
 
-using namespace cpp_launch;
-using namespace cpp_launch;
+using namespace launch_cpp;
+using namespace launch_cpp;
 
 // Mock LaunchContext for testing
 class MockLaunchContext : public LaunchContext

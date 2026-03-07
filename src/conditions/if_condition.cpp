@@ -13,11 +13,11 @@
 // limitations under the License.
 
 
-#include "cpp_launch/conditions/if_condition.hpp"
-#include "cpp_launch/launch_context.hpp"
-#include "cpp_launch/substitution.hpp"
+#include "launch_cpp/conditions/if_condition.hpp"
+#include "launch_cpp/launch_context.hpp"
+#include "launch_cpp/substitution.hpp"
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 bool IfCondition::Evaluate(const LaunchContext& context) const
@@ -43,4 +43,4 @@ bool IfCondition::Evaluate(const LaunchContext& context) const
   return true;
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

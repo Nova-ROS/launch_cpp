@@ -13,11 +13,11 @@
 // limitations under the License.
 
 
-#include "cpp_launch/actions/declare_launch_argument.hpp"
-#include "cpp_launch/launch_context.hpp"
-#include "cpp_launch/substitution.hpp"
+#include "launch_cpp/actions/declare_launch_argument.hpp"
+#include "launch_cpp/launch_context.hpp"
+#include "launch_cpp/substitution.hpp"
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 DeclareLaunchArgument::DeclareLaunchArgument(const Options& options)
@@ -43,4 +43,4 @@ Result<void> DeclareLaunchArgument::Execute(LaunchContext& context)
   return Result<void>();
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp

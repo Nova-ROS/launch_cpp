@@ -13,17 +13,17 @@
 // limitations under the License.
 
 
-#ifndef CPP_LAUNCH__LAUNCH_CONTEXT_IMPL_HPP_
-#define CPP_LAUNCH__LAUNCH_CONTEXT_IMPL_HPP_
+#ifndef LAUNCH_CPP__LAUNCH_CONTEXT_IMPL_HPP_
+#define LAUNCH_CPP__LAUNCH_CONTEXT_IMPL_HPP_
 
-#include "cpp_launch/launch_context.hpp"
-#include "cpp_launch/event.hpp"
-#include "cpp_launch/event_handler.hpp"
+#include "launch_cpp/launch_context.hpp"
+#include "launch_cpp/event.hpp"
+#include "launch_cpp/event_handler.hpp"
 #include <unordered_map>
 #include <mutex>
 #include <cstdlib>
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 class LaunchContextImpl final : public LaunchContext
@@ -127,6 +127,6 @@ class LaunchContextImpl final : public LaunchContext
   mutable std::mutex launchFileMutex_;
 };
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp
 
-#endif  // CPP_LAUNCH__LAUNCH_CONTEXT_IMPL_HPP_
+#endif  // LAUNCH_CPP__LAUNCH_CONTEXT_IMPL_HPP_

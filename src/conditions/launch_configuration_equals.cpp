@@ -13,11 +13,11 @@
 // limitations under the License.
 
 
-#include "cpp_launch/conditions/launch_configuration_equals.hpp"
-#include "cpp_launch/launch_context.hpp"
-#include "cpp_launch/substitution.hpp"
+#include "launch_cpp/conditions/launch_configuration_equals.hpp"
+#include "launch_cpp/launch_context.hpp"
+#include "launch_cpp/substitution.hpp"
 
-namespace cpp_launch
+namespace launch_cpp
 {
 
 bool LaunchConfigurationEquals::Evaluate(const LaunchContext& context) const
@@ -39,4 +39,4 @@ bool LaunchConfigurationEquals::Evaluate(const LaunchContext& context) const
   return actual.GetValue() == expectedValue;
 }
 
-}  // namespace cpp_launch
+}  // namespace launch_cpp
