@@ -28,19 +28,6 @@
 namespace launch_cpp
 {
 
-// AUTOSAR C++14: Use fixed-width integer types
-using Int8 = int8_t;
-using Int16 = int16_t;
-using Int32 = int32_t;
-using Int64 = int64_t;
-using UInt8 = uint8_t;
-using UInt16 = uint16_t;
-using UInt32 = uint32_t;
-using UInt64 = uint64_t;
-
-// String types
-using String = std::string;
-
 // AUTOSAR C++14: A18-5-3 - Use std::make_unique for unique_ptr creation
 template<typename T, typename... Args>
 inline std::unique_ptr<T> MakeUnique(Args&&... args)
@@ -67,8 +54,6 @@ class Substitution;
 class Condition;
 
 // Smart pointer aliases
-using LaunchServicePtr = std::shared_ptr<LaunchService>;
-using LaunchContextPtr = std::shared_ptr<LaunchContext>;
 using LaunchDescriptionPtr = std::shared_ptr<LaunchDescription>;
 using LaunchDescriptionEntityPtr = std::shared_ptr<LaunchDescriptionEntity>;
 using ActionPtr = std::shared_ptr<Action>;
@@ -78,7 +63,6 @@ using SubstitutionPtr = std::shared_ptr<Substitution>;
 using ConditionPtr = std::shared_ptr<Condition>;
 
 // Vector aliases
-using StringVector = std::vector<String>;
 using LaunchDescriptionEntityVector = std::vector<LaunchDescriptionEntityPtr>;
 using ActionVector = std::vector<ActionPtr>;
 using EventHandlerVector = std::vector<EventHandlerPtr>;
