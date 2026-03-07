@@ -124,6 +124,13 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_conditions_extended test/test_conditions_extended.cpp)
   target_link_libraries(test_conditions_extended cpp_launch_core)
+
+  # Safety integration tests
+  ament_add_gtest(test_execute_process_safety test/test_execute_process_safety.cpp)
+  target_link_libraries(test_execute_process_safety cpp_launch_core)
+  
+  ament_add_gtest(test_safety_integration test/test_safety_integration.cpp)
+  target_link_libraries(test_safety_integration cpp_launch_core)
 endif()
 
 ament_package()

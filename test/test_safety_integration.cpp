@@ -157,11 +157,11 @@ TEST(SafetyIntegrationTest, ExecuteWithMockExecutor)
   MockLaunchContext context;
   auto result = action->Execute(context);
   
-  EXPECT_TRUE(result.IsSuccess());
+  EXPECT_TRUE(result.HasValue());
   
   // Verify PID is from mock
   auto pidResult = action->GetPid();
-  EXPECT_TRUE(pidResult.IsSuccess());
+  EXPECT_TRUE(pidResult.HasValue());
   EXPECT_EQ(pidResult.GetValue(), 1234);
 }
 
@@ -187,7 +187,7 @@ TEST(SafetyIntegrationTest, ExecuteWithMockExecutorFailure)
   MockLaunchContext context;
   auto result = action->Execute(context);
   
-  EXPECT_FALSE(result.IsSuccess());
+  EXPECT_TRUE(result.HasError());
 }
 
 // ============================================================================
@@ -315,7 +315,7 @@ TEST(SafetyIntegrationTest, ExecuteWithResourceCheck)
   MockLaunchContext context;
   auto result = action->Execute(context);
   
-  EXPECT_TRUE(result.IsSuccess());
+  EXPECT_TRUE(result.HasValue());
   EXPECT_TRUE(executeCalled);
 }
 
@@ -363,7 +363,7 @@ TEST(SafetyIntegrationTest, ProcessControlWithSafety)
   MockLaunchContext context;
   options.output = "log";
   auto execResult = action->Execute(context);
-  EXPECT_TRUE(execResult.IsSuccess());
+  EXPECT_TRUE(execResult.HasValue());
   
   // Test terminate
   auto termResult = action->Terminate();
@@ -401,14 +401,14 @@ TEST(SafetyIntegrationTest, GetStatusWithSafety)
   
   MockLaunchContext context;
   auto result = action->Execute(context);
-  EXPECT_TRUE(result.IsSuccess());
+  EXPECT_TRUE(result.HasValue());
   
   // Check status
   EXPECT_TRUE(action->IsRunning());
   
   // Check PID
   auto pidResult = action->GetPid();
-  EXPECT_TRUE(pidResult.IsSuccess());
+  EXPECT_TRUE(pidResult.HasValue());
   EXPECT_EQ(pidResult.GetValue(), 1234);
 }
 
@@ -430,7 +430,7 @@ TEST(SafetyIntegrationTest, BackwardCompatibilityDisabled)
   EXPECT_FALSE(action->IsRunning());
   
   auto pidResult = action->GetPid();
-  EXPECT_FALSE(pidResult.IsSuccess());  // Process not started
+  EXPECT_FALSE(pidResult.HasValue());  // Process not started
 }
 
 TEST(SafetyIntegrationTest, SendSignalWithSafety)
@@ -462,7 +462,7 @@ TEST(SafetyIntegrationTest, SendSignalWithSafety)
   
   MockLaunchContext context;
   auto result = action->Execute(context);
-  EXPECT_TRUE(result.IsSuccess());
+  EXPECT_TRUE(result.HasValue());
   
   // Send SIGUSR1
   action->SendSignal(SIGUSR1);
