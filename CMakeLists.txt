@@ -135,6 +135,10 @@ if(BUILD_TESTING)
   # Comprehensive safety features tests
   ament_add_gtest(test_safety_features test/test_safety_features.cpp)
   target_link_libraries(test_safety_features cpp_launch_core)
+  
+  # Mock-based safety tests
+  ament_add_gtest(test_safety_mock test/test_safety_mock.cpp)
+  target_link_libraries(test_safety_mock cpp_launch_core)
 endif()
 
 ament_package()
