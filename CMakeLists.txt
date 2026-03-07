@@ -131,6 +131,10 @@ if(BUILD_TESTING)
   
   ament_add_gtest(test_safety_integration test/test_safety_integration.cpp)
   target_link_libraries(test_safety_integration cpp_launch_core)
+  
+  # Comprehensive safety features tests
+  ament_add_gtest(test_safety_features test/test_safety_features.cpp)
+  target_link_libraries(test_safety_features cpp_launch_core)
 endif()
 
 ament_package()

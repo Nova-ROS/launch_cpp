@@ -434,4 +434,4 @@ double PosixResourceMonitor::Impl::GetProcessUptime(ProcessId pid) {
     return sys_uptime - (static_cast<double>(starttime) / ticks_per_sec);
 }
 
-// namespace cpp_launch
+} // namespace cpp_launch

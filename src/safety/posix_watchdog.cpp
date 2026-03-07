@@ -296,4 +296,4 @@ bool PosixWatchdog::Impl::ValidateHeartbeat(const HeartbeatMessage& message) {
     return (message.checksum == expected);
 }
 
-// namespace cpp_launch
+} // namespace cpp_launch

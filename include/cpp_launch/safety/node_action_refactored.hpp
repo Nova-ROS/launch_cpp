@@ -1,20 +1,16 @@
-/**
- * @file node_action_refactored.hpp
- * @brief Refactored NodeAction with dependency injection
- * 
- * This is the refactored version of NodeAction that separates
- * business logic from system calls for testability.
- * 
- * ISO 26262 Compliance:
- * - ASIL: B
- * - Requirement: TSR-001 ~ TSR-005
- * - Test Coverage Target: 95%+
- * 
- * Architecture:
- * - Uses Dependency Injection for OSAL components
- * - Business logic extracted to NodeActionLogic
- * - System calls isolated through interfaces
- */
+// Copyright 2026 Nova ROS, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #ifndef CPP_LAUNCH_NODE_ACTION_REFACTORED_HPP_
 #define CPP_LAUNCH_NODE_ACTION_REFACTORED_HPP_
@@ -65,26 +61,26 @@ struct NodeStatistics {
 
 /**
  * @brief Refactored NodeAction with dependency injection
- * 
+ *
  * This class implements the Action interface and manages a ROS2 node lifecycle.
  * It uses dependency injection to accept OSAL components, enabling:
  * - Unit testing with mock implementations
  * - Configuration of different behaviors
  * - Separation of concerns
- * 
+ *
  * @requirement TSR-001 ~ TSR-005: Node lifecycle management
  */
 class NodeActionRefactored : public Action {
 public:
     /**
      * @brief Construct with dependencies
-     * 
+     *
      * @param options Node configuration
      * @param executor Process executor (OSAL)
      * @param watchdog Watchdog for monitoring
      * @param error_handler Error handler
      * @param retry_policy Retry policy
-     * 
+     *
      * All dependencies are injected and can be mocked for testing.
      */
     NodeActionRefactored(
@@ -102,7 +98,7 @@ public:
     // Non-copyable
     NodeActionRefactored(const NodeActionRefactored&) = delete;
     NodeActionRefactored& operator=(const NodeActionRefactored&) = delete;
-    
+
     // Non-movable (contains state)
     NodeActionRefactored(NodeActionRefactored&&) = delete;
     NodeActionRefactored& operator=(NodeActionRefactored&&) = delete;
@@ -111,14 +107,14 @@ public:
      * @brief Execute the node action
      * @param context Launch context
      * @return Result of execution
-     * 
+     *
      * This is the main entry point. It:
      * 1. Validates configuration
      * 2. Builds command line
      * 3. Starts process with retry logic
      * 4. Registers with watchdog
      * 5. Returns result
-     * 
+     *
      * @requirement TSR-001: Configuration validation
      * @requirement TSR-003: Startup failure detection
      * @requirement TSR-004: Retry mechanism
@@ -129,7 +125,7 @@ public:
     /**
      * @brief Stop the node
      * @return Success or error
-     * 
+     *
      * Implements graceful shutdown:
      * 1. Unregister from watchdog
      * 2. Send SIGTERM
@@ -179,14 +175,14 @@ public:
     /**
      * @brief Handle heartbeat from node
      * @param message Heartbeat message
-     * 
+     *
      * Called by watchdog when heartbeat received.
      */
     void OnHeartbeat(const cpp_launch::HeartbeatMessage& message);
 
     /**
      * @brief Handle heartbeat timeout
-     * 
+     *
      * Called by watchdog when heartbeat timeout occurs.
      * Implements recovery logic per TSR-009.
      */
@@ -196,7 +192,7 @@ public:
      * @brief Handle process exit
      * @param exit_code Process exit code
      * @param state Process state
-     * 
+     *
      * Called when process exits (normally or abnormally).
      */
     void OnProcessExit(int32_t exit_code, cpp_launch::ProcessState state);
@@ -204,24 +200,24 @@ public:
 private:
     // Configuration
     NodeActionOptions options_;
-    
+
     // Injected dependencies (OSAL)
     std::shared_ptr<cpp_launch::ProcessExecutor> executor_;
     std::shared_ptr<cpp_launch::Watchdog> watchdog_;
     std::shared_ptr<cpp_launch::ErrorHandler> error_handler_;
     std::shared_ptr<RetryPolicy> retry_policy_;
-    
+
     // Business logic (extracted)
     std::unique_ptr<CommandBuilder> command_builder_;
-    
+
     // State
     std::atomic<NodeState> state_{NodeState::kUninitialized};
     std::atomic<cpp_launch::ProcessId> current_pid_{-1};
-    
+
     // Statistics
     NodeStatistics stats_;
     mutable std::mutex stats_mutex_;
-    
+
     // Constants
     static constexpr std::chrono::milliseconds kDefaultStartupTimeout{30000};
     static constexpr std::chrono::milliseconds kDefaultShutdownTimeout{5000};
@@ -230,57 +226,57 @@ private:
      * @brief Execute with retry logic
      */
     Result<void> ExecuteWithRetry(LaunchContext& context);
-    
+
     /**
      * @brief Single attempt to start node
      */
     Result<void> AttemptStart(LaunchContext& context);
-    
+
     /**
      * @brief Register node with watchdog
      */
     Result<void> RegisterWithWatchdog();
-    
+
     /**
      * @brief Unregister node from watchdog
      */
     void UnregisterFromWatchdog();
-    
+
     /**
      * @brief Update node state
      */
     void UpdateState(NodeState new_state);
-    
+
     /**
      * @brief Report error through error handler
      */
     void ReportError(ErrorCode code, const std::string& message);
-    
+
     /**
      * @brief Calculate startup timeout
      */
     std::chrono::milliseconds GetStartupTimeout() const;
-    
+
     /**
      * @brief Calculate shutdown timeout
      */
     std::chrono::milliseconds GetShutdownTimeout() const;
-    
+
     /**
      * @brief Check if restart is allowed
      */
     bool IsRestartAllowed() const;
-    
+
     /**
      * @brief Increment restart count
      */
     void IncrementRestartCount();
-    
+
     /**
      * @brief Reset restart count
      */
     void ResetRestartCount();
-    
+
     /**
      * @brief Update runtime statistics
      */
@@ -293,7 +289,7 @@ private:
 
 inline void NodeActionRefactored::UpdateState(NodeState new_state) {
     NodeState old_state = state_.exchange(new_state);
-    
+
     // Log state transition
     if (error_handler_) {
         // Only log significant transitions
@@ -303,7 +299,7 @@ inline void NodeActionRefactored::UpdateState(NodeState new_state) {
     }
 }
 
-inline void NodeActionRefactored::ReportError(ErrorCode code, 
+inline void NodeActionRefactored::ReportError(ErrorCode code,
                                                const std::string& message) {
     if (error_handler_) {
         cpp_launch::ErrorInfo error;
@@ -313,7 +309,7 @@ inline void NodeActionRefactored::ReportError(ErrorCode code,
         error.error_message = message;
         error.context = "NodeAction: " + options_.name;
         // file, line, function would be set by macro
-        
+
         error_handler_->ReportError(error);
     }
 }
@@ -332,7 +328,7 @@ inline bool NodeActionRefactored::IsRestartAllowed() const {
     if (!retry_policy_) {
         return false;
     }
-    
+
     return stats_.restart_count < retry_policy_->GetMaxAttempts();
 }
 
@@ -348,7 +344,7 @@ inline void NodeActionRefactored::ResetRestartCount() {
 
 inline void NodeActionRefactored::UpdateRuntimeStats() {
     std::lock_guard<std::mutex> lock(stats_mutex_);
-    
+
     if (stats_.start_time.time_since_epoch().count() > 0) {
         auto now = std::chrono::steady_clock::now();
         auto runtime = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -374,7 +370,7 @@ public:
         std::shared_ptr<cpp_launch::ErrorHandler> error_handler;
         std::shared_ptr<RetryPolicy> retry_policy;
     };
-    
+
     MockDependencies CreateMockDependencies() const {
         MockDependencies deps;
         // In real implementation, these would be Google Mock objects
@@ -383,7 +379,7 @@ public:
         // etc.
         return deps;
     }
-    
+
     NodeActionOptions CreateValidOptions() const {
         NodeActionOptions options;
         options.package = "demo_nodes_cpp";
@@ -392,7 +388,7 @@ public:
         options.namespace_ = "/test";
         return options;
     }
-    
+
     std::shared_ptr<NodeActionRefactored> CreateNodeAction(
         const NodeActionOptions& options,
         const MockDependencies& deps) const {

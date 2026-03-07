@@ -16,7 +16,7 @@
 /**
  * @file substitution_mock.hpp
  * @brief Minimal mock of Substitution for testing
- * 
+ *
  * This provides a minimal implementation to allow compilation
  * without requiring the full cpp_launch headers.
  */
@@ -36,14 +36,14 @@ class Substitution {
 public:
     Substitution() = default;
     virtual ~Substitution() = default;
-    
+
     Substitution(const Substitution&) = default;
     Substitution& operator=(const Substitution&) = default;
     Substitution(Substitution&&) = default;
     Substitution& operator=(Substitution&&) = default;
-    
+
     virtual std::string Perform(const LaunchContext& context) const = 0;
-    
+
     std::string operator()(const LaunchContext& context) const {
         return Perform(context);
     }

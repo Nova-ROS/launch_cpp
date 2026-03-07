@@ -1,12 +1,16 @@
-/**
- * @file retry_policy.hpp
- * @brief Configurable retry policy implementation
- * 
- * ISO 26262 Compliance:
- * - ASIL: B (Business Logic)
- * - Requirement: TSR-004 (Retry Mechanism)
- * - Test Coverage Target: 100%
- */
+// Copyright 2026 Nova ROS, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #ifndef CPP_LAUNCH_RETRY_POLICY_HPP_
 #define CPP_LAUNCH_RETRY_POLICY_HPP_
@@ -44,7 +48,7 @@ struct RetryConfig {
     std::chrono::milliseconds initial_delay{5000};     ///< Initial delay between retries
     double backoff_multiplier{1.0};                     ///< Multiplier for exponential backoff (1.0 = linear)
     std::set<ErrorCode> retryable_errors;              ///< Set of error codes that should trigger retry
-    
+
     RetryConfig() {
         // Default retryable errors
         retryable_errors = {
@@ -53,7 +57,7 @@ struct RetryConfig {
             ErrorCode::kTimeout
         };
     }
-    
+
     /**
      * @brief Check if an error code is retryable
      */
@@ -69,19 +73,19 @@ template<typename T>
 class RetryableResult {
 public:
     RetryableResult() : success_(true), error_code_(ErrorCode::kSuccess) {}
-    explicit RetryableResult(T value) 
+    explicit RetryableResult(T value)
         : success_(true), error_code_(ErrorCode::kSuccess), value_(std::move(value)) {}
     explicit RetryableResult(ErrorCode code, const std::string& message = "")
         : success_(false), error_code_(code), error_message_(message) {}
-    
+
     bool IsSuccess() const { return success_; }
     bool HasError() const { return !success_; }
     ErrorCode GetErrorCode() const { return error_code_; }
     const std::string& GetErrorMessage() const { return error_message_; }
-    
+
     T& GetValue() { return value_; }
     const T& GetValue() const { return value_; }
-    
+
 private:
     bool success_;
     ErrorCode error_code_;
@@ -91,13 +95,13 @@ private:
 
 /**
  * @brief Retry policy implementation
- * 
+ *
  * Implements configurable retry logic with:
  * - Maximum attempt limit
  * - Exponential or linear backoff
  * - Selective retry based on error type
  * - Timeout support
- * 
+ *
  * @requirement TSR-004: Retry mechanism
  */
 class RetryPolicy {
@@ -106,18 +110,18 @@ public:
      * @brief Construct with configuration
      */
     explicit RetryPolicy(const RetryConfig& config) : config_(config) {}
-    
+
     /**
      * @brief Default constructor with default config
      */
     RetryPolicy() = default;
-    
+
     ~RetryPolicy() = default;
-    
+
     // Non-copyable (config can be large)
     RetryPolicy(const RetryPolicy&) = delete;
     RetryPolicy& operator=(const RetryPolicy&) = delete;
-    
+
     // Movable
     RetryPolicy(RetryPolicy&&) = default;
     RetryPolicy& operator=(RetryPolicy&&) = default;
@@ -126,7 +130,7 @@ public:
      * @brief Execute an operation with retry logic
      * @param operation Function to execute (returns RetryableResult<T>)
      * @return Final result (success or last error)
-     * 
+     *
      * Example:
      * @code
      * RetryPolicy policy(config);
@@ -139,34 +143,34 @@ public:
     RetryableResult<T> Execute(std::function<RetryableResult<T>()> operation) const {
         uint32_t attempt = 0;
         RetryableResult<T> last_result;
-        
+
         while (attempt < config_.max_attempts) {
             // Execute operation
             last_result = operation();
-            
+
             // Check if successful
             if (last_result.IsSuccess()) {
                 return last_result;
             }
-            
+
             // Check if error is retryable
             if (!ShouldRetry(last_result.GetErrorCode())) {
                 return last_result;
             }
-            
+
             // Increment attempt counter
             attempt++;
-            
+
             // If we've reached max attempts, return last error
             if (attempt >= config_.max_attempts) {
                 break;
             }
-            
+
             // Calculate and apply delay
             auto delay = CalculateDelay(attempt);
             Sleep(delay);
         }
-        
+
         // Max retries exceeded
         return RetryableResult<T>(
             ErrorCode::kMaxRetriesExceeded,
@@ -187,9 +191,9 @@ public:
      * @brief Calculate delay for a specific attempt
      * @param attempt_number Current attempt (1-based)
      * @return Delay duration
-     * 
+     *
      * Formula: delay = initial_delay * (backoff_multiplier ^ (attempt - 1))
-     * 
+     *
      * Example with initial_delay=1000ms, multiplier=1.5:
      * - Attempt 1: 1000ms
      * - Attempt 2: 1500ms
@@ -199,16 +203,16 @@ public:
         if (attempt_number == 0) {
             return std::chrono::milliseconds(0);
         }
-        
+
         double multiplier = 1.0;
         for (uint32_t i = 1; i < attempt_number; ++i) {
             multiplier *= config_.backoff_multiplier;
         }
-        
+
         auto delay_ms = static_cast<uint32_t>(
             config_.initial_delay.count() * multiplier
         );
-        
+
         return std::chrono::milliseconds(delay_ms);
     }
 
@@ -225,17 +229,17 @@ public:
     /**
      * @brief Get initial delay
      */
-    std::chrono::milliseconds GetInitialDelay() const { 
-        return config_.initial_delay; 
+    std::chrono::milliseconds GetInitialDelay() const {
+        return config_.initial_delay;
     }
 
 private:
     RetryConfig config_;
-    
+
     /**
      * @brief Sleep for specified duration
      * @param duration Sleep duration
-     * 
+     *
      * @note Uses std::this_thread::sleep_for
      * @note Can be mocked in tests
      */
@@ -257,9 +261,9 @@ public:
     RetryableResult<T> Execute(std::function<RetryableResult<T>()> operation) const {
         return operation();
     }
-    
+
     bool ShouldRetry(ErrorCode) const { return false; }
-    
+
     std::chrono::milliseconds CalculateDelay(uint32_t) const {
         return std::chrono::milliseconds(0);
     }
@@ -274,14 +278,14 @@ public:
  */
 class FixedRetryPolicy {
 public:
-    explicit FixedRetryPolicy(uint32_t max_attempts, 
+    explicit FixedRetryPolicy(uint32_t max_attempts,
                                std::chrono::milliseconds delay)
         : max_attempts_(max_attempts), delay_(delay) {}
-    
+
     template<typename T>
     RetryableResult<T> Execute(std::function<RetryableResult<T>()> operation) const {
         RetryableResult<T> last_result;
-        
+
         for (uint32_t i = 0; i < max_attempts_; ++i) {
             last_result = operation();
             if (last_result.IsSuccess()) {
@@ -291,14 +295,14 @@ public:
                 std::this_thread::sleep_for(delay_);
             }
         }
-        
+
         return last_result;
     }
-    
+
     bool ShouldRetry(ErrorCode) const { return true; }
-    
+
     std::chrono::milliseconds CalculateDelay(uint32_t) const { return delay_; }
-    
+
 private:
     uint32_t max_attempts_;
     std::chrono::milliseconds delay_;
@@ -317,7 +321,7 @@ public:
     RetryPolicy CreateDefaultPolicy() const {
         return RetryPolicy();
     }
-    
+
     RetryPolicy CreateExponentialBackoffPolicy() const {
         RetryConfig config;
         config.max_attempts = 5;
@@ -325,7 +329,7 @@ public:
         config.backoff_multiplier = 2.0;  // Exponential
         return RetryPolicy(config);
     }
-    
+
     RetryPolicy CreateLinearPolicy() const {
         RetryConfig config;
         config.max_attempts = 3;
@@ -333,18 +337,18 @@ public:
         config.backoff_multiplier = 1.0;  // Linear
         return RetryPolicy(config);
     }
-    
+
     RetryPolicy CreateNoRetryPolicy() const {
         RetryConfig config;
         config.max_attempts = 1;
         return RetryPolicy(config);
     }
-    
+
     // Helper to create a failing operation that succeeds after N attempts
     std::function<RetryableResult<int>()> CreateFailNTimesOperation(
-        uint32_t fail_count, 
+        uint32_t fail_count,
         ErrorCode error_code = ErrorCode::kTimeout) const {
-        
+
         auto counter = std::make_shared<uint32_t>(0);
         return [counter, fail_count, error_code]() -> RetryableResult<int> {
             if (*counter < fail_count) {
@@ -354,20 +358,20 @@ public:
             return RetryableResult<int>(42);  // Success
         };
     }
-    
+
     // Helper to create an always failing operation
     std::function<RetryableResult<int>()> CreateAlwaysFailOperation(
         ErrorCode error_code = ErrorCode::kTimeout) const {
-        
+
         return [error_code]() -> RetryableResult<int> {
             return RetryableResult<int>(error_code, "Always fails");
         };
     }
-    
+
     // Helper to create an always succeeding operation
     std::function<RetryableResult<int>()> CreateAlwaysSucceedOperation(
         int value = 42) const {
-        
+
         return [value]() -> RetryableResult<int> {
             return RetryableResult<int>(value);
         };

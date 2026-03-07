@@ -130,4 +130,4 @@ OsalResult<ProcessState> MockProcessExecutor::GetState(ProcessId pid) {
     return OsalResult<ProcessState>(ProcessState::kUnknown);
 }
 
-// namespace cpp_launch
+} // namespace cpp_launch

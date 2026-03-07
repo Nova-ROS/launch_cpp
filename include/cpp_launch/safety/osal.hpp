@@ -15,11 +15,11 @@
 /**
  * @file osal.hpp
  * @brief Operating System Abstraction Layer Interface
- * 
+ *
  * This file defines the OSAL interfaces for ISO 26262 compliant
  * process management. These interfaces abstract system calls to
  * enable testing and portability.
- * 
+ *
  */
 
 #ifndef CPP_LAUNCH_OSAL_HPP_
@@ -56,7 +56,7 @@ enum class OsalStatus {
 
 /**
  * @brief Result type for OSAL operations (non-void types)
- * 
+ *
  * Similar to cpp_launch::Result but specific to OSAL
  */
 template<typename T>
@@ -65,15 +65,15 @@ public:
     OsalResult() : status_(OsalStatus::kSuccess) {}
     explicit OsalResult(T value) : status_(OsalStatus::kSuccess), value_(std::move(value)) {}
     explicit OsalResult(OsalStatus status) : status_(status) {}
-    OsalResult(OsalStatus status, const std::string& message) 
+    OsalResult(OsalStatus status, const std::string& message)
         : status_(status), error_message_(message) {}
 
     bool IsSuccess() const { return status_ == OsalStatus::kSuccess; }
     bool HasError() const { return status_ != OsalStatus::kSuccess; }
-    
+
     OsalStatus GetStatus() const { return status_; }
     const std::string& GetErrorMessage() const { return error_message_; }
-    
+
     T& GetValue() { return value_; }
     const T& GetValue() const { return value_; }
 
@@ -91,12 +91,12 @@ class OsalResult<void> {
 public:
     OsalResult() : status_(OsalStatus::kSuccess) {}
     explicit OsalResult(OsalStatus status) : status_(status) {}
-    OsalResult(OsalStatus status, const std::string& message) 
+    OsalResult(OsalStatus status, const std::string& message)
         : status_(status), error_message_(message) {}
 
     bool IsSuccess() const { return status_ == OsalStatus::kSuccess; }
     bool HasError() const { return status_ != OsalStatus::kSuccess; }
-    
+
     OsalStatus GetStatus() const { return status_; }
     const std::string& GetErrorMessage() const { return error_message_; }
 
@@ -131,7 +131,7 @@ struct CommandLine {
     std::vector<std::string> arguments;     ///< Command arguments
     std::string working_directory;          ///< Working directory (empty = current)
     std::vector<std::pair<std::string, std::string>> environment; ///< Environment variables
-    
+
     /**
      * @brief Convert to argv format for exec
      * @return Vector of char* (null-terminated)
@@ -168,7 +168,7 @@ struct ProcessResult {
 
 /**
  * @brief Process executor interface
- * 
+ *
  * Abstracts process creation and management operations.
  * Enables mocking for unit testing.
  */
@@ -181,11 +181,11 @@ public:
      * @param command Command to execute
      * @param options Execution options
      * @return Result containing process ID or error
-     * 
+     *
      * @pre command.program must not be empty
      * @post On success, returns valid ProcessId
      * @post On failure, returns error status
-     * 
+     *
      * @thread_safety Thread-safe
      */
     virtual OsalResult<ProcessId> Execute(
@@ -197,10 +197,10 @@ public:
      * @param pid Process ID
      * @param timeout Maximum time to wait
      * @return Result containing exit information or error
-     * 
+     *
      * @pre pid must be valid
      * @post Returns when process exits or timeout occurs
-     * 
+     *
      * @thread_safety Thread-safe
      */
     virtual OsalResult<ProcessResult> Wait(
@@ -211,7 +211,7 @@ public:
      * @brief Check if process is still running
      * @param pid Process ID
      * @return Result containing true if running, false otherwise
-     * 
+     *
      * @thread_safety Thread-safe
      */
     virtual OsalResult<bool> IsRunning(ProcessId pid) = 0;
@@ -221,10 +221,10 @@ public:
      * @param pid Process ID
      * @param timeout Time to wait for graceful termination
      * @return Success or error
-     * 
+     *
      * @pre pid must be valid
      * @post Sends SIGTERM, waits for timeout, then SIGKILL if needed
-     * 
+     *
      * @thread_safety Thread-safe
      */
     virtual OsalResult<void> Terminate(
@@ -235,10 +235,10 @@ public:
      * @brief Kill a process immediately
      * @param pid Process ID
      * @return Success or error
-     * 
+     *
      * @pre pid must be valid
      * @post Sends SIGKILL
-     * 
+     *
      * @thread_safety Thread-safe
      */
     virtual OsalResult<void> Kill(ProcessId pid) = 0;
@@ -248,7 +248,7 @@ public:
      * @param pid Process ID
      * @param signal Signal number
      * @return Success or error
-     * 
+     *
      * @thread_safety Thread-safe
      */
     virtual OsalResult<void> SendSignal(ProcessId pid, int32_t signal) = 0;
@@ -257,7 +257,7 @@ public:
      * @brief Get process state
      * @param pid Process ID
      * @return Result containing process state
-     * 
+     *
      * @thread_safety Thread-safe
      */
     virtual OsalResult<ProcessState> GetState(ProcessId pid) = 0;
@@ -265,7 +265,7 @@ public:
 
 /**
  * @brief Concrete implementation using POSIX system calls
- * 
+ *
  * This is the production implementation.
  * ASIL: Simple adapter, code reviewed, minimal logic
  */
@@ -301,7 +301,7 @@ private:
 
 /**
  * @brief Mock implementation for unit testing
- * 
+ *
  * Allows injection of mock behavior for testing.
  * ASIL: Not used in production, for testing only
  */
@@ -309,7 +309,7 @@ class MockProcessExecutor : public ProcessExecutor {
 public:
     MockProcessExecutor();
     ~MockProcessExecutor() override;
-    
+
     // Function types for mock callbacks
     using ExecuteCallback = std::function<OsalResult<ProcessId>(
         const CommandLine&, const ProcessOptions&)>;
@@ -390,7 +390,7 @@ struct SystemResources {
 
 /**
  * @brief Resource monitor interface
- * 
+ *
  * Monitors system and process resource usage.
  */
 class ResourceMonitor {
@@ -480,7 +480,7 @@ struct HeartbeatMessage {
      */
     uint32_t CalculateChecksum() const {
         // Simple checksum: sum of all fields except checksum itself
-        uint32_t sum = node_id + sequence + static_cast<uint32_t>(timestamp_us & 0xFFFFFFFF) 
+        uint32_t sum = node_id + sequence + static_cast<uint32_t>(timestamp_us & 0xFFFFFFFF)
                       + static_cast<uint32_t>((timestamp_us >> 32) & 0xFFFFFFFF)
                       + static_cast<uint32_t>(state);
         return ~sum + 1;  // Two's complement for simple integrity check
@@ -494,7 +494,7 @@ using HeartbeatCallback = std::function<void(const HeartbeatMessage&)>;
 
 /**
  * @brief Watchdog interface
- * 
+ *
  * Monitors node health via heartbeat mechanism.
  */
 class Watchdog {
@@ -613,7 +613,7 @@ struct ErrorInfo {
 
 /**
  * @brief Error handler interface
- * 
+ *
  * Centralized error handling and reporting.
  */
 class ErrorHandler {
@@ -705,6 +705,6 @@ private:
 #define OSAL_REPORT_CRITICAL(handler, code, message) \
     OSAL_REPORT_ERROR(handler, cpp_launch::ErrorSeverity::kCritical, code, message)
 
-// namespace cpp_launch
+} // namespace cpp_launch
 
 #endif // CPP_LAUNCH_OSAL_HPP_

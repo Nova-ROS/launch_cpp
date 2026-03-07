@@ -1,13 +1,16 @@
-/**
- * @file command_builder.hpp
- * @brief Command line construction logic - ISO 26262 compliant
- * 
- * This component is part of the Business Logic Layer.
- * It is 100% testable with no system dependencies.
- * 
- * ASIL: B (Business Logic)
- * Test Coverage Target: 100%
- */
+// Copyright 2026 Nova ROS, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #ifndef CPP_LAUNCH_COMMAND_BUILDER_HPP_
 #define CPP_LAUNCH_COMMAND_BUILDER_HPP_
@@ -30,15 +33,15 @@ struct NodeActionOptions {
     std::string executable;
     std::string name;
     std::string namespace_;
-    
+
     // Node configuration
     std::map<std::string, std::shared_ptr<Substitution>> parameters;
     std::map<std::string, std::string> remappings;
     std::vector<std::string> arguments;
-    
+
     // Execution options
     std::string cwd;
-    
+
     // Validation
     bool IsValid() const;
     std::vector<std::string> GetValidationErrors() const;
@@ -66,15 +69,15 @@ public:
     BuildResult() : status_(BuildStatus::kSuccess) {}
     explicit BuildResult(T value) : status_(BuildStatus::kSuccess), value_(std::move(value)) {}
     explicit BuildResult(BuildStatus status) : status_(status) {}
-    BuildResult(BuildStatus status, const std::string& message) 
+    BuildResult(BuildStatus status, const std::string& message)
         : status_(status), error_message_(message) {}
 
     bool IsSuccess() const { return status_ == BuildStatus::kSuccess; }
     bool HasError() const { return status_ != BuildStatus::kSuccess; }
-    
+
     BuildStatus GetStatus() const { return status_; }
     const std::string& GetErrorMessage() const { return error_message_; }
-    
+
     T& GetValue() { return value_; }
     const T& GetValue() const { return value_; }
 
@@ -92,12 +95,12 @@ class BuildResult<void> {
 public:
     BuildResult() : status_(BuildStatus::kSuccess) {}
     explicit BuildResult(BuildStatus status) : status_(status) {}
-    BuildResult(BuildStatus status, const std::string& message) 
+    BuildResult(BuildStatus status, const std::string& message)
         : status_(status), error_message_(message) {}
 
     bool IsSuccess() const { return status_ == BuildStatus::kSuccess; }
     bool HasError() const { return status_ != BuildStatus::kSuccess; }
-    
+
     BuildStatus GetStatus() const { return status_; }
     const std::string& GetErrorMessage() const { return error_message_; }
 
@@ -108,10 +111,10 @@ private:
 
 /**
  * @brief Command line builder - pure business logic, 100% testable
- * 
+ *
  * This class contains NO system calls, NO fork/exec, NO file operations.
  * All I/O is passed in through parameters or returned as results.
- * 
+ *
  * ISO 26262 Compliance:
  * - ASIL B: Business logic
  * - Testable: Yes (100% coverage target)
@@ -125,7 +128,7 @@ public:
     // Non-copyable (no need to copy builders)
     CommandBuilder(const CommandBuilder&) = delete;
     CommandBuilder& operator=(const CommandBuilder&) = delete;
-    
+
     // Movable
     CommandBuilder(CommandBuilder&&) = default;
     CommandBuilder& operator=(CommandBuilder&&) = default;
@@ -135,11 +138,11 @@ public:
      * @param options Node configuration options
      * @param context Launch context for substitution evaluation
      * @return BuildResult containing CommandLine or error
-     * 
+     *
      * @pre options must be valid (check with ValidateOptions)
      * @post On success, returns valid CommandLine
      * @post On failure, returns error status and message
-     * 
+     *
      * @thread_safety Thread-safe (const method)
      */
     BuildResult<cpp_launch::CommandLine> Build(
@@ -150,7 +153,7 @@ public:
      * @brief Validate options without building
      * @param options Node configuration options
      * @return BuildResult with success or validation errors
-     * 
+     *
      * @requirement TSR-001: Configuration validation
      */
     BuildResult<void> ValidateOptions(const NodeActionOptions& options) const;
@@ -158,7 +161,7 @@ public:
     /**
      * @brief Build just the program path (ros2 run)
      * @return Path to ros2 executable or "ros2"
-     * 
+     *
      * @note Checks ROS2_PATH environment variable
      */
     std::string BuildProgramPath() const;
@@ -184,7 +187,7 @@ public:
      * @param parameters Parameter map
      * @param context Launch context for substitution
      * @return Arguments for -p parameters
-     * 
+     *
      * @requirement TSR-001.5: Parameter type validation
      */
     BuildResult<std::vector<std::string>> BuildParameters(
@@ -211,7 +214,7 @@ public:
      * @brief Validate package name
      * @param package Package name
      * @return true if valid
-     * 
+     *
      * Rules:
      * - Non-empty
      * - No spaces
@@ -264,7 +267,7 @@ inline bool CommandBuilder::IsValidPackageName(const std::string& package) const
     if (package.empty()) {
         return false;
     }
-    
+
     // Package name rules:
     // - Must start with letter
     // - Can contain letters, numbers, underscores, hyphens
@@ -272,13 +275,13 @@ inline bool CommandBuilder::IsValidPackageName(const std::string& package) const
     if (!std::isalpha(package[0])) {
         return false;
     }
-    
+
     for (char c : package) {
         if (!std::isalnum(c) && c != '_' && c != '-') {
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -286,18 +289,18 @@ inline bool CommandBuilder::IsValidExecutableName(const std::string& executable)
     if (executable.empty()) {
         return false;
     }
-    
+
     // Similar to package name rules
     if (!std::isalpha(executable[0]) && executable[0] != '_') {
         return false;
     }
-    
+
     for (char c : executable) {
         if (!std::isalnum(c) && c != '_' && c != '-') {
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -305,7 +308,7 @@ inline bool CommandBuilder::IsValidNodeName(const std::string& name) const {
     if (name.empty()) {
         return true;  // Empty is valid (will use default)
     }
-    
+
     // Node name rules:
     // - Must start with letter or underscore
     // - Can contain letters, numbers, underscores
@@ -313,13 +316,13 @@ inline bool CommandBuilder::IsValidNodeName(const std::string& name) const {
     if (!std::isalpha(name[0]) && name[0] != '_') {
         return false;
     }
-    
+
     for (char c : name) {
         if (!std::isalnum(c) && c != '_') {
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -327,20 +330,20 @@ inline bool CommandBuilder::IsValidParameterName(const std::string& name) const 
     if (name.empty()) {
         return false;
     }
-    
+
     // Parameter name rules:
     // - Must start with letter or underscore
     // - Can contain letters, numbers, underscores, dots (for nested params)
     if (!std::isalpha(name[0]) && name[0] != '_') {
         return false;
     }
-    
+
     for (char c : name) {
         if (!std::isalnum(c) && c != '_' && c != '.') {
             return false;
         }
     }
-    
+
     return true;
 }
 
@@ -357,7 +360,7 @@ inline std::string CommandBuilder::EscapeArgument(const std::string& arg) const 
     if (!NeedsQuoting(arg)) {
         return arg;
     }
-    
+
     // Simple quoting: wrap in double quotes, escape existing quotes
     std::string result = "\"";
     for (char c : arg) {
@@ -376,31 +379,31 @@ inline std::string CommandBuilder::EscapeArgument(const std::string& arg) const 
 
 inline BuildResult<void> CommandBuilder::ValidateOptions(
     const NodeActionOptions& options) const {
-    
+
     if (!IsValidPackageName(options.package)) {
         return BuildResult<void>(
             BuildStatus::kInvalidPackage,
             "Invalid package name: " + options.package);
     }
-    
+
     if (!IsValidExecutableName(options.executable)) {
         return BuildResult<void>(
             BuildStatus::kInvalidExecutable,
             "Invalid executable name: " + options.executable);
     }
-    
+
     if (!IsValidNodeName(options.name)) {
         return BuildResult<void>(
             BuildStatus::kInvalidName,
             "Invalid node name: " + options.name);
     }
-    
+
     return BuildResult<void>();
 }
 
 inline std::vector<std::string> CommandBuilder::BuildNodeIdentification(
     const NodeActionOptions& options) const {
-    
+
     std::vector<std::string> args;
     args.push_back("run");
     args.push_back(options.package);
@@ -410,20 +413,20 @@ inline std::vector<std::string> CommandBuilder::BuildNodeIdentification(
 
 inline std::vector<std::string> CommandBuilder::BuildNameAndNamespace(
     const NodeActionOptions& options) const {
-    
+
     std::vector<std::string> args;
     args.push_back("--ros-args");
-    
+
     if (!options.name.empty()) {
         args.push_back("-r");
         args.push_back("__node:=" + options.name);
     }
-    
+
     if (!options.namespace_.empty()) {
         args.push_back("-r");
         args.push_back("__ns:=" + options.namespace_);
     }
-    
+
     return args;
 }
 
@@ -434,7 +437,7 @@ inline std::vector<std::string> CommandBuilder::BuildNameAndNamespace(
 #ifdef BUILD_TESTING
 /**
  * @brief Test fixture for CommandBuilder tests
- * 
+ *
  * Provides helper methods for testing CommandBuilder
  */
 class CommandBuilderTestFixture {
@@ -442,7 +445,7 @@ public:
     CommandBuilder CreateBuilder() const {
         return CommandBuilder();
     }
-    
+
     NodeActionOptions CreateValidOptions() const {
         NodeActionOptions options;
         options.package = "demo_nodes_cpp";
@@ -451,7 +454,7 @@ public:
         options.namespace_ = "/test_ns";
         return options;
     }
-    
+
     NodeActionOptions CreateInvalidOptions() const {
         NodeActionOptions options;
         options.package = "";  // Invalid: empty
