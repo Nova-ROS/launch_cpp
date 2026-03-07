@@ -19,7 +19,7 @@
 #include <vector>
 #include <map>
 #include <memory>
-#include "../src/osal.hpp"
+#include "osal.hpp"
 #include "substitution_mock.hpp"
 
 namespace launch_cpp {

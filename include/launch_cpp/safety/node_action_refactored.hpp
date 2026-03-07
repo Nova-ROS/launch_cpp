@@ -20,8 +20,8 @@
 #include <atomic>
 #include "launch_cpp/action.hpp"
 #include "launch_cpp/launch_context.hpp"
-#include "launch_cpp/result.hpp"
-#include "../src/osal.hpp"
+#include "launch_cpp/error_code.hpp"
+#include "osal.hpp"
 #include "command_builder.hpp"
 #include "dependency_resolver.hpp"
 #include "retry_policy.hpp"
