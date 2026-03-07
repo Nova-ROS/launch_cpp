@@ -22,6 +22,7 @@
 #include <string>
 #include <iostream>
 #include <thread>
+#include <cstdint>
 
 namespace launch_cpp
 {
@@ -106,6 +107,36 @@ std::vector<std::string> ExecuteProcess::ResolveCommand(LaunchContext& context) 
     }
   }
   return cmd;
+}
+
+Result<std::vector<std::string>> ExecuteProcess::ValidateAndEscapeCommand(
+    const std::vector<std::string>& cmd) const
+{
+  if (cmd.empty())
+  {
+    return Result<std::vector<std::string>>(
+        Error(ErrorCode::kInvalidArgument, "Empty command"));
+  }
+
+  // Use CommandBuilder for validation and escaping
+  CommandBuilder builder;
+  std::vector<std::string> validatedCmd;
+
+  // Validate and escape each argument
+  for (const auto& arg : cmd)
+  {
+    if (arg.empty())
+    {
+      return Result<std::vector<std::string>>(
+          Error(ErrorCode::kInvalidArgument, "Empty argument in command"));
+    }
+
+    // Escape argument if needed
+    std::string escapedArg = builder.EscapeArgument(arg);
+    validatedCmd.push_back(escapedArg);
+  }
+
+  return Result<std::vector<std::string>>(validatedCmd);
 }
 
 Result<void> ExecuteProcess::ExecuteSingleAttempt(LaunchContext& context, 
@@ -243,20 +274,24 @@ Result<void> ExecuteProcess::ExecuteSingleAttempt(LaunchContext& context,
 
 Result<void> ExecuteProcess::Execute(LaunchContext& context)
 {
-  // Resolve command
-  std::vector<std::string> cmd = ResolveCommand(context);
-  
-  if (cmd.empty())
+  // Resolve command from substitutions
+  std::vector<std::string> rawCmd = ResolveCommand(context);
+
+  // Validate and escape command using CommandBuilder
+  auto validationResult = ValidateAndEscapeCommand(rawCmd);
+  if (!validationResult.HasValue())
   {
-    return Result<void>(Error(ErrorCode::kInvalidArgument, "Empty command"));
+    return Result<void>(validationResult.GetError());
   }
-  
+
+  std::vector<std::string> cmd = validationResult.GetValue();
+
   // Execute with retry logic if configured
   if (options_.maxRetries > 0)
   {
     return ExecuteWithRetry(context, cmd);
   }
-  
+
   // Single attempt (no retry)
   return ExecuteSingleAttempt(context, cmd);
 }
@@ -510,9 +545,9 @@ void ExecuteProcess::SetResourceMonitor(std::shared_ptr<launch_cpp::ResourceMoni
   resourceMonitor_ = monitor;
 }
 
-void ExecuteProcess::SetWatchdog(std::shared_ptr<launch_cpp::Watchdog> watchdog)
+void ExecuteProcess::SetWatchdog(std::shared_ptr<launch_cpp::Watchdog> wd)
 {
-  watchdog_ = watchdog;
+  watchdog_ = wd;
 }
 
 bool ExecuteProcess::CheckResourcesAvailable(std::uint64_t estimatedMemory) const

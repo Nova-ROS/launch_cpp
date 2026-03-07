@@ -20,6 +20,7 @@
 #include "launch_cpp/substitution.hpp"
 #include "launch_cpp/types.hpp"
 #include "launch_cpp/safety/osal.hpp"
+#include "launch_cpp/safety/command_builder.hpp"
 #include <vector>
 #include <unordered_map>
 #include <memory>
@@ -93,6 +94,10 @@ class ExecuteProcess final : public Action
 
   // Convert Substitutions to command line
   std::vector<std::string> ResolveCommand(LaunchContext& context) const;
+
+  // Validate and escape command line arguments
+  Result<std::vector<std::string>> ValidateAndEscapeCommand(
+      const std::vector<std::string>& cmd) const;
 
   // Retry logic implementation
   Result<void> ExecuteSingleAttempt(LaunchContext& context,

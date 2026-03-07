@@ -243,11 +243,12 @@ public:
      */
     bool IsValidParameterName(const std::string& name) const;
 
-private:
     /**
      * @brief Escape special characters in argument
      * @param arg Argument string
      * @return Escaped string
+     *
+     * @note Public for use by ExecuteProcess
      */
     std::string EscapeArgument(const std::string& arg) const;
 
@@ -255,6 +256,8 @@ private:
      * @brief Check if string contains spaces or special chars
      * @param str String to check
      * @return true if quoting needed
+     *
+     * @note Public for use by ExecuteProcess
      */
     bool NeedsQuoting(const std::string& str) const;
 };
