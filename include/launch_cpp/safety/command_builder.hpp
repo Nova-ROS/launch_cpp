@@ -20,7 +20,7 @@
 #include <map>
 #include <memory>
 #include "osal.hpp"
-#include "substitution_mock.hpp"
+#include "launch_cpp/substitution.hpp"
 
 namespace launch_cpp {
 
@@ -466,4 +466,4 @@ public:
 
 } // namespace launch_cpp
 
-#endif // CPP_LAUNCH_COMMAND_BUILDER_HPP_
+#endif // LAUNCH_CPP_COMMAND_BUILDER_HPP_

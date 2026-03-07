@@ -65,6 +65,8 @@ enum class ErrorCode : std::int32_t
   kShutdownRequested = 9,    ///< System shutdown in progress
   kNotImplemented = 10,      ///< Feature not implemented
   kInternalError = 11,       ///< Internal inconsistency or bug
+  kResourceExhausted = 12,   ///< System resources exhausted
+  kMaxRetriesExceeded = 13,  ///< Maximum retry attempts exceeded
   kUnknownError = 99         ///< Unclassified error
 };
 

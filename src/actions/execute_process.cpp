@@ -21,6 +21,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <thread>
 
 namespace launch_cpp
 {
@@ -107,16 +108,9 @@ std::vector<std::string> ExecuteProcess::ResolveCommand(LaunchContext& context) 
   return cmd;
 }
 
-Result<void> ExecuteProcess::Execute(LaunchContext& context)
+Result<void> ExecuteProcess::ExecuteSingleAttempt(LaunchContext& context, 
+                                                    const std::vector<std::string>& cmd)
 {
-  // Resolve command
-  std::vector<std::string> cmd = ResolveCommand(context);
-  
-  if (cmd.empty())
-  {
-    return Result<void>(Error(ErrorCode::kInvalidArgument, "Empty command"));
-  }
-  
   // Safety: Check resources if safety is enabled
   if (options_.enableSafety && resourceMonitor_)
   {
@@ -222,7 +216,8 @@ Result<void> ExecuteProcess::Execute(LaunchContext& context)
       std::vector<char*> args;
       for (auto& arg : cmd)
       {
-        args.push_back(&arg[0]);
+        // Safe const_cast: execvp doesn't modify args, and we exit immediately after
+        args.push_back(const_cast<char*>(arg.c_str()));
       }
       args.push_back(nullptr);
       
@@ -244,6 +239,134 @@ Result<void> ExecuteProcess::Execute(LaunchContext& context)
     
     return Result<void>();
   }
+}
+
+Result<void> ExecuteProcess::Execute(LaunchContext& context)
+{
+  // Resolve command
+  std::vector<std::string> cmd = ResolveCommand(context);
+  
+  if (cmd.empty())
+  {
+    return Result<void>(Error(ErrorCode::kInvalidArgument, "Empty command"));
+  }
+  
+  // Execute with retry logic if configured
+  if (options_.maxRetries > 0)
+  {
+    return ExecuteWithRetry(context, cmd);
+  }
+  
+  // Single attempt (no retry)
+  return ExecuteSingleAttempt(context, cmd);
+}
+
+Result<void> ExecuteProcess::ExecuteWithRetry(LaunchContext& context,
+                                               const std::vector<std::string>& cmd)
+{
+  uint32_t attempt = 0;
+  Result<void> lastResult;
+  
+  while (attempt <= options_.maxRetries)
+  {
+    // Execute single attempt
+    lastResult = ExecuteSingleAttempt(context, cmd);
+    
+    // Check if successful
+    if (lastResult.HasValue())
+    {
+      return lastResult;
+    }
+    
+    // Check if we should retry
+    attempt++;
+    if (attempt > options_.maxRetries)
+    {
+      break;
+    }
+    
+    // Check if error is retryable
+    if (!IsRetryableError(lastResult.GetError().GetCode()))
+    {
+      return lastResult;
+    }
+    
+    // Clean up before retry
+    CleanupBeforeRetry();
+    
+    // Calculate delay for this attempt
+    auto delay = CalculateRetryDelay(attempt);
+    
+    std::cerr << "Process execution failed (attempt " << attempt 
+              << "/" << options_.maxRetries + 1 << "), retrying in " 
+              << delay.count() << "ms..." << std::endl;
+    
+    // Sleep before retry
+    std::this_thread::sleep_for(delay);
+  }
+  
+  // All retries exhausted
+  return Result<void>(Error(ErrorCode::kMaxRetriesExceeded,
+                            "Max retry attempts exceeded"));
+}
+
+bool ExecuteProcess::IsRetryableError(ErrorCode code) const
+{
+  // Retryable errors:
+  // - Resource exhaustion (might be temporary)
+  // - Fork failures (might recover)
+  // - Timeout (might succeed next time)
+  switch (code)
+  {
+    case ErrorCode::kProcessSpawnFailed:
+    case ErrorCode::kTimeout:
+    case ErrorCode::kResourceExhausted:
+      return true;
+    default:
+      return false;
+  }
+}
+
+std::chrono::milliseconds ExecuteProcess::CalculateRetryDelay(uint32_t attemptNumber) const
+{
+  if (attemptNumber == 0 || options_.retryBackoffMultiplier <= 0.0)
+  {
+    return options_.retryDelay;
+  }
+  
+  // Calculate exponential backoff: delay * multiplier^(attempt-1)
+  double multiplier = 1.0;
+  for (uint32_t i = 1; i < attemptNumber; ++i)
+  {
+    multiplier *= options_.retryBackoffMultiplier;
+  }
+  
+  auto delayMs = static_cast<uint32_t>(options_.retryDelay.count() * multiplier);
+  return std::chrono::milliseconds(delayMs);
+}
+
+void ExecuteProcess::CleanupBeforeRetry()
+{
+  // Clean up any resources from failed attempt
+  if (process_)
+  {
+    if (process_->IsRunning())
+    {
+      kill(process_->GetPid(), SIGTERM);
+      // Give it a moment to terminate
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    process_.reset();
+  }
+  
+  // Unregister from watchdog if registered
+  if (watchdog_ && processId_ != 0)
+  {
+    watchdog_->UnregisterNode(static_cast<uint32_t>(processId_));
+  }
+  
+  // Reset process ID
+  processId_ = 0;
 }
 
 Error ExecuteProcess::Shutdown()
