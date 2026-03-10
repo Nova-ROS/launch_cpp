@@ -25,8 +25,6 @@
 #include "launch_cpp/substitutions/launch_configuration.hpp"
 #include "launch_cpp/conditions/if_condition.hpp"
 
-using namespace launch_cpp;
-
 void print_usage(const char* program)
 {
   std::cout << "Usage: " << program << " <launch_file.yaml> [args...]" << std::endl;
@@ -58,7 +56,7 @@ std::int32_t main(std::int32_t argc, char* argv[])
   }
 
   // Parse arguments
-  LaunchService::Options options;
+  launch_cpp::LaunchService::Options options;
   options.debug = false;
 
   for (std::int32_t i = 2; i < argc; ++i)
@@ -74,10 +72,10 @@ std::int32_t main(std::int32_t argc, char* argv[])
   }
 
   // Create service
-  LaunchService service(options);
+  launch_cpp::LaunchService service(options);
 
   // Load launch file
-  Result<LaunchDescriptionPtr> loadResult = LaunchDescription::from_yaml_file(launchFile);
+  launch_cpp::Result<launch_cpp::LaunchDescriptionPtr> loadResult = launch_cpp::LaunchDescription::from_yaml_file(launchFile);
 
   if (loadResult.has_error())
   {
@@ -86,7 +84,7 @@ std::int32_t main(std::int32_t argc, char* argv[])
   }
 
   // Include launch description
-  Error includeError = service.include_launch_description(loadResult.get_value());
+  launch_cpp::Error includeError = service.include_launch_description(loadResult.get_value());
 
   if (includeError.is_error())
   {

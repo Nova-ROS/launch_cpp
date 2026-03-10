@@ -1,6 +1,6 @@
 # ROS 2 Jazzy C++ clang-tidy configuration
 # Based on ament_clang_tidy defaults (Google/default style)
-# Reference: /opt/ros/jazzy/share/ament_clang_tidy/ament_clang_tidy/configuration/.clang-tidy
+# Reference: ament_clang_tidy/ament_clang_tidy/configuration/.clang-tidy
 #
 # Usage:
 #   Place this file at your workspace/package root, or pass via:

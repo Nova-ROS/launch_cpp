@@ -477,11 +477,14 @@ std::string YamlParser::trim(const std::string& str)
 int YamlParser::get_indent(const std::string& line)
 {
   int indent = 0;
-  for (char c : line)
-  {
-    if (c == ' ') indent++;
-    else if (c == '\t') indent += 2;
-    else break;
+  for (char c : line) {
+    if (c == ' ') {
+      indent++;
+    } else if (c == '\t') {
+      indent += 2;
+    } else {
+      break;
+    }
   }
   return indent;
 }
