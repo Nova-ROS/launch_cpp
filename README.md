@@ -31,32 +31,10 @@
 ### Build
 
 ```bash
-cd ~/work/ros2/jazzy
-./build.sh
-```
-
-Or manually:
-
-```bash
 cd src/ros2/launch_cpp
 mkdir -p build && cd build
 cmake ..
 make -j$(nproc)
-```
-
-### Run Tests
-
-```bash
-cd build/launch_cpp
-ctest -V
-```
-
-Or run specific tests:
-```bash
-./test_integration
-./test_yaml_parser
-./test_actions_comprehensive
-./test_dependency_manager
 ```
 
 ### Run Examples
@@ -88,45 +66,17 @@ int main()
 {
   LaunchService service;
   auto desc = std::make_shared<LaunchDescription>();
-  
+
   ExecuteProcess::Options options;
   options.cmd.push_back(std::make_shared<TextSubstitution>("echo"));
   options.cmd.push_back(std::make_shared<TextSubstitution>("Hello!"));
   options.output = "screen";
-  
+
   desc->Add(std::make_shared<ExecuteProcess>(options));
-  
+
   service.IncludeLaunchDescription(desc);
   return service.Run();
 }
-```
-
-## Project Structure
-
-```
-launch_cpp/
-├── include/launch_cpp/              # Public headers
-│   ├── types.hpp                   # Basic types and smart pointers
-│   ├── error_code.hpp              # Error handling (AUTOSAR compliant)
-│   ├── result.hpp                  # Result<T> template
-│   ├── launch_service.hpp          # Main launch service
-│   ├── launch_description.hpp      # Launch description
-│   ├── action.hpp                  # Action base class
-│   ├── event.hpp                   # Event system
-│   ├── substitution.hpp            # Substitution interface
-│   ├── condition.hpp               # Condition interface
-│   ├── dependency_manager.hpp      # Process dependency management
-│   └── safety/                     # ISO 26262 Safety Architecture
-│       ├── osal.hpp               # OSAL interface
-│       ├── dependency_resolver.hpp # Dependency resolution
-│       └── command_builder.hpp    # Command building
-│   ├── actions/                    # Action implementations
-│   ├── substitutions/              # Substitution implementations
-│   └── conditions/                 # Condition implementations
-├── src/                           # Implementation files
-├── test/                          # Unit tests (18 test suites)
-├── examples/                      # Example launch files
-└── docs/                          # Documentation
 ```
 
 ## YAML Launch Files
@@ -150,7 +100,7 @@ entities:
     name: database
     cmd: [echo, "Starting database..."]
     output: screen
-  
+
   - type: execute_process
     name: api_server
     cmd: [echo, "Starting API server..."]
@@ -166,7 +116,7 @@ entities:
   - type: declare_launch_argument
     name: message
     default_value: "Hello World"
-  
+
   - type: execute_process
     cmd:
       - echo
@@ -203,81 +153,6 @@ if (result.HasError()) {
 }
 ```
 
-## AUTOSAR C++14 Compliance
-
-| Rule | Description | Implementation |
-|------|-------------|----------------|
-| A15-0-1 | No exceptions | `Result<T>` for error handling |
-| A18-5-2 | No std::exception | Custom `Error` class |
-| A7-2-4 | enum class | All enumerations |
-| A12-8-4 | Virtual destructor | All base classes |
-| M0-1-9 | noexcept | Critical functions |
-| A10-3-3 | Special functions | All classes |
-| A12-1-1 | Member initialization | All constructors |
-| A2-1-1 | No type aliases | Direct std:: types |
-
-## Test Coverage
-
-### Test Suites (18 total)
-
-| Test Suite | Tests | Status |
-|-----------|-------|--------|
-| test_integration | 10 | ✅ |
-| test_yaml_parser | 26 | ✅ |
-| test_actions_comprehensive | 19 | ✅ |
-| test_dependency_manager | 11 | ✅ |
-| test_variable_substitution | 7 | ✅ |
-| test_execute_process_safety | 10 | ✅ |
-| test_safety_mock | 12 | ✅ |
-| test_event_system_comprehensive | 19 | ✅ |
-| test_launch_service_comprehensive | 17 | ✅ |
-| test_thread_pool_comprehensive | 15 | ✅ |
-| ... | ... | ... |
-
-**Total: 200+ tests**
-
-### Running Tests
-
-```bash
-# All tests
-colcon test --packages-select launch_cpp
-
-# Specific test
-./build/launch_cpp/test_yaml_parser
-
-# With verbose output
-./build/launch_cpp/test_yaml_parser --gtest_verbose
-```
-
-## Configuration Options
-
-### ExecuteProcess Options
-
-```cpp
-ExecuteProcess::Options options;
-options.cmd = {text("ros2"), text("run"), text("pkg"), text("node")};
-options.name = text("my_node");
-options.output = "screen";  // or "log", "both"
-options.enableSafety = true;
-options.maxMemoryBytes = 100 * 1024 * 1024;  // 100MB
-options.maxCpuPercent = 50.0;  // 50%
-options.watchdogTimeoutMs = 1000;  // 1 second
-options.maxRetries = 3;
-options.dependsOn = {"database", "config_server"};
-```
-
-## Dependencies
-
-### Required
-- CMake >= 3.14
-- C++14 compiler
-- **Zero external libraries** - Only C++ standard library
-
-### Optional (for development)
-- Google Test (via ament_cmake_gtest)
-- Doxygen (for documentation)
-- gcovr/lcov (for coverage)
-
 ## Performance
 
 - **Startup Time**: <10ms for typical launch files
@@ -313,7 +188,7 @@ Apache License 2.0 - See [LICENSE](LICENSE) for details.
 ## Support
 
 For issues and questions:
-- GitHub Issues: [Report a bug](https://github.com/yourusername/launch_cpp/issues)
+- GitHub Issues: [Report a bug](https://github.com/Nova-ROS/launch_cpp/issues)
 - Documentation: See `docs/` directory
 - Examples: See `examples/` directory
 

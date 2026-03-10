@@ -1,0 +1,51 @@
+# Comprehensive test suites
+ament_add_gtest(test_yaml_parser test_yaml_parser.cpp)
+target_link_libraries(test_yaml_parser launch_cpp_core)
+
+ament_add_gtest(test_thread_pool_comprehensive test_thread_pool.cpp)
+target_link_libraries(test_thread_pool_comprehensive launch_cpp_core)
+
+ament_add_gtest(test_actions_comprehensive test_actions.cpp)
+target_link_libraries(test_actions_comprehensive launch_cpp_core)
+
+ament_add_gtest(test_substitutions_comprehensive test_substitutions.cpp)
+target_link_libraries(test_substitutions_comprehensive launch_cpp_core)
+
+ament_add_gtest(test_conditions_comprehensive test_conditions.cpp)
+target_link_libraries(test_conditions_comprehensive launch_cpp_core)
+
+ament_add_gtest(test_event_system_comprehensive test_event_system.cpp)
+target_link_libraries(test_event_system_comprehensive launch_cpp_core)
+
+ament_add_gtest(test_launch_service_comprehensive test_launch_service.cpp)
+target_link_libraries(test_launch_service_comprehensive launch_cpp_core)
+
+# Extended tests for low coverage files
+ament_add_gtest(test_substitutions_extended test_substitutions_extended.cpp)
+target_link_libraries(test_substitutions_extended launch_cpp_core)
+
+ament_add_gtest(test_conditions_extended test_conditions_extended.cpp)
+target_link_libraries(test_conditions_extended launch_cpp_core)
+
+# Safety integration tests
+ament_add_gtest(test_execute_process_safety test_execute_process_safety.cpp)
+target_link_libraries(test_execute_process_safety launch_cpp_core)
+
+ament_add_gtest(test_safety_integration test_safety_integration.cpp)
+target_link_libraries(test_safety_integration launch_cpp_core)
+
+# Comprehensive safety features tests
+ament_add_gtest(test_safety_features test_safety_features.cpp)
+target_link_libraries(test_safety_features launch_cpp_core)
+
+# Mock-based safety tests
+ament_add_gtest(test_safety_mock test_safety_mock.cpp)
+target_link_libraries(test_safety_mock launch_cpp_core)
+
+# Dependency manager tests
+ament_add_gtest(test_dependency_manager test_dependency_manager.cpp)
+target_link_libraries(test_dependency_manager launch_cpp_core)
+
+# Variable substitution tests
+ament_add_gtest(test_variable_substitution test_variable_substitution.cpp)
+target_link_libraries(test_variable_substitution launch_cpp_core)
