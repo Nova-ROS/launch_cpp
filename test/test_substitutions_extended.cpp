@@ -83,7 +83,7 @@ TEST(CommandExtendedTest, EmptyCommand)
   MockLaunchContext ctx;
   Command sub({});
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_EQ(result, "");
 }
 
@@ -92,7 +92,7 @@ TEST(CommandExtendedTest, SingleCommand)
   MockLaunchContext ctx;
   Command sub({std::make_shared<TextSubstitution>("echo")});
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_EQ(result, "");
 }
 
@@ -105,7 +105,7 @@ TEST(CommandExtendedTest, CommandWithMultipleArgs)
     std::make_shared<TextSubstitution>("world")
   });
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_EQ(result, "hello world");
 }
 
@@ -114,7 +114,7 @@ TEST(CommandExtendedTest, InvalidCommand)
   MockLaunchContext ctx;
   Command sub({std::make_shared<TextSubstitution>("this_command_does_not_exist_12345")});
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_EQ(result, "");
 }
 
@@ -126,7 +126,7 @@ TEST(CommandExtendedTest, CommandWithSpaces)
     std::make_shared<TextSubstitution>("hello world")
   });
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_EQ(result, "hello world");
 }
 
@@ -139,7 +139,7 @@ TEST(FindExecutableExtendedTest, FindEcho)
   MockLaunchContext ctx;
   FindExecutable sub("echo");
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_FALSE(result.empty());
   EXPECT_NE(result.find("echo"), std::string::npos);
 }
@@ -149,7 +149,7 @@ TEST(FindExecutableExtendedTest, FindLs)
   MockLaunchContext ctx;
   FindExecutable sub("ls");
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_FALSE(result.empty());
 }
 
@@ -158,7 +158,7 @@ TEST(FindExecutableExtendedTest, NonExistentCommand)
   MockLaunchContext ctx;
   FindExecutable sub("this_command_definitely_does_not_exist_12345");
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_EQ(result, "this_command_definitely_does_not_exist_12345");
 }
 
@@ -167,7 +167,7 @@ TEST(FindExecutableExtendedTest, EmptyName)
   MockLaunchContext ctx;
   FindExecutable sub("");
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_EQ(result, "");
 }
 
@@ -183,7 +183,7 @@ TEST(EnvironmentVariableExtendedTest, ExistingVar)
   EnvironmentVariable sub("TEST_VAR");
   // Note: MockLaunchContext stores in internal map, but substitution reads from actual env
   // So this tests the code path, but result depends on implementation
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   // In mock, we can verify the internal state was set
   // The actual result depends on how substitution reads from context
   (void)result;  // Suppress unused warning
@@ -194,14 +194,14 @@ TEST(EnvironmentVariableExtendedTest, NonExistingVar)
 {
   MockLaunchContext ctx;
   EnvironmentVariable sub("NON_EXISTING_VAR_12345");
-  EXPECT_EQ(sub.Perform(ctx), "");
+  EXPECT_EQ(sub.perform(ctx), "");
 }
 
 TEST(EnvironmentVariableExtendedTest, EmptyVarName)
 {
   MockLaunchContext ctx;
   EnvironmentVariable sub("");
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_EQ(result, "");
 }
 
@@ -215,7 +215,7 @@ TEST(ThisLaunchFileExtendedTest, Basic)
   ctx.SetCurrentLaunchFile("/path/to/test.launch");
   
   ThisLaunchFile sub;
-  EXPECT_EQ(sub.Perform(ctx), "/path/to/test.launch");
+  EXPECT_EQ(sub.perform(ctx), "/path/to/test.launch");
 }
 
 TEST(ThisLaunchFileExtendedTest, RelativePath)
@@ -224,7 +224,7 @@ TEST(ThisLaunchFileExtendedTest, RelativePath)
   ctx.SetCurrentLaunchFile("relative/path.launch");
   
   ThisLaunchFile sub;
-  EXPECT_EQ(sub.Perform(ctx), "relative/path.launch");
+  EXPECT_EQ(sub.perform(ctx), "relative/path.launch");
 }
 
 TEST(ThisLaunchFileExtendedTest, EmptyPath)
@@ -233,7 +233,7 @@ TEST(ThisLaunchFileExtendedTest, EmptyPath)
   ctx.SetCurrentLaunchFile("");
   
   ThisLaunchFile sub;
-  EXPECT_EQ(sub.Perform(ctx), "");
+  EXPECT_EQ(sub.perform(ctx), "");
 }
 
 // ============================================
@@ -246,7 +246,7 @@ TEST(ThisLaunchFileDirExtendedTest, Basic)
   ctx.SetCurrentLaunchFile("/path/to/test.launch");
   
   ThisLaunchFileDir sub;
-  EXPECT_EQ(sub.Perform(ctx), "/path/to");
+  EXPECT_EQ(sub.perform(ctx), "/path/to");
 }
 
 TEST(ThisLaunchFileDirExtendedTest, RelativePath)
@@ -255,7 +255,7 @@ TEST(ThisLaunchFileDirExtendedTest, RelativePath)
   ctx.SetCurrentLaunchFile("relative/path.launch");
   
   ThisLaunchFileDir sub;
-  EXPECT_EQ(sub.Perform(ctx), "relative");
+  EXPECT_EQ(sub.perform(ctx), "relative");
 }
 
 TEST(ThisLaunchFileDirExtendedTest, NoDirectory)
@@ -264,7 +264,7 @@ TEST(ThisLaunchFileDirExtendedTest, NoDirectory)
   ctx.SetCurrentLaunchFile("test.launch");
   
   ThisLaunchFileDir sub;
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   // Implementation returns "." when no directory separator found
   EXPECT_EQ(result, ".");
 }
@@ -275,7 +275,7 @@ TEST(ThisLaunchFileDirExtendedTest, EmptyPath)
   ctx.SetCurrentLaunchFile("");
   
   ThisLaunchFileDir sub;
-  EXPECT_EQ(sub.Perform(ctx), "");
+  EXPECT_EQ(sub.perform(ctx), "");
 }
 
 // ============================================
@@ -288,14 +288,14 @@ TEST(LaunchConfigurationExtendedTest, ExistingConfig)
   ctx.SetLaunchConfiguration("my_key", "my_value");
   
   LaunchConfiguration sub("my_key");
-  EXPECT_EQ(sub.Perform(ctx), "my_value");
+  EXPECT_EQ(sub.perform(ctx), "my_value");
 }
 
 TEST(LaunchConfigurationExtendedTest, NonExistingConfig)
 {
   MockLaunchContext ctx;
   LaunchConfiguration sub("non_existing_key");
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_EQ(result, "");
 }
 
@@ -303,7 +303,7 @@ TEST(LaunchConfigurationExtendedTest, EmptyKey)
 {
   MockLaunchContext ctx;
   LaunchConfiguration sub("");
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_EQ(result, "");
 }
 
@@ -318,9 +318,9 @@ TEST(LaunchConfigurationExtendedTest, MultipleConfigs)
   LaunchConfiguration sub2("key2");
   LaunchConfiguration sub3("key3");
   
-  EXPECT_EQ(sub1.Perform(ctx), "value1");
-  EXPECT_EQ(sub2.Perform(ctx), "value2");
-  EXPECT_EQ(sub3.Perform(ctx), "value3");
+  EXPECT_EQ(sub1.perform(ctx), "value1");
+  EXPECT_EQ(sub2.perform(ctx), "value2");
+  EXPECT_EQ(sub3.perform(ctx), "value3");
 }
 
 // ============================================
@@ -338,9 +338,9 @@ TEST(SubstitutionIntegrationTest, FullWorkflow)
   LaunchConfiguration name_sub("name");
   EnvironmentVariable greeting_sub("GREETING");
   
-  std::string dir = dir_sub.Perform(ctx);
-  std::string name = name_sub.Perform(ctx);
-  std::string greeting = greeting_sub.Perform(ctx);
+  std::string dir = dir_sub.perform(ctx);
+  std::string name = name_sub.perform(ctx);
+  std::string greeting = greeting_sub.perform(ctx);
   
   EXPECT_EQ(dir, "/workspace");
   EXPECT_EQ(name, "world");

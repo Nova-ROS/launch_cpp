@@ -25,7 +25,7 @@ TimerAction::TimerAction(const Options& options)
 {
 }
 
-Result<void> TimerAction::Execute(LaunchContext& context)
+Result<void> TimerAction::execute(LaunchContext& context)
 {
   std::this_thread::sleep_for(options_.period);
 
@@ -33,8 +33,8 @@ Result<void> TimerAction::Execute(LaunchContext& context)
   {
     if (action)
     {
-      Result<void> result = action->Execute(context);
-      if (result.HasError())
+      Result<void> result = action->execute(context);
+      if (result.has_error())
       {
         return result;
       }

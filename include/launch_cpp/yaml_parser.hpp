@@ -55,16 +55,16 @@ class YamlValue
   explicit YamlValue(double value) : type_(YamlType::kNumber), numberValue_(value) {}
   explicit YamlValue(bool value) : type_(YamlType::kBoolean), boolValue_(value) {}
   
-  YamlType GetType() const { return type_; }
+  YamlType get_type() const { return type_; }
   
-  bool IsNull() const { return type_ == YamlType::kNull; }
-  bool IsString() const { return type_ == YamlType::kString; }
+  bool is_null() const { return type_ == YamlType::kNull; }
+  bool is_string() const { return type_ == YamlType::kString; }
   bool IsNumber() const { return type_ == YamlType::kNumber; }
   bool IsBoolean() const { return type_ == YamlType::kBoolean; }
   bool IsArray() const { return type_ == YamlType::kArray; }
   bool IsObject() const { return type_ == YamlType::kObject; }
   
-  const std::string& AsString() const { return stringValue_; }
+  const std::string& as_string() const { return stringValue_; }
   double AsNumber() const { return numberValue_; }
   bool AsBoolean() const { return boolValue_; }
   

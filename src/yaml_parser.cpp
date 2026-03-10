@@ -155,11 +155,11 @@ Result<YamlValue> YamlParser::ParseArray(std::istringstream& stream, int& line, 
       {
         // Multi-line value or object starts on next line
         auto nextResult = ParseValue(stream, line);
-        if (nextResult.HasError())
+        if (nextResult.has_error())
         {
           return nextResult;
         }
-        result.AddArrayElement(nextResult.GetValue());
+        result.AddArrayElement(nextResult.get_value());
       }
       else if (content.find(':') != std::string::npos)
       {
@@ -172,11 +172,11 @@ Result<YamlValue> YamlParser::ParseArray(std::istringstream& stream, int& line, 
       {
         // Simple scalar value
         auto scalarResult = ParseScalar(content);
-        if (scalarResult.HasError())
+        if (scalarResult.has_error())
         {
           return scalarResult;
         }
-        result.AddArrayElement(scalarResult.GetValue());
+        result.AddArrayElement(scalarResult.get_value());
       }
     }
   }
@@ -217,9 +217,9 @@ YamlValue launch_cpp::YamlParser::ParseArrayElementObject(std::istringstream& st
           stream.seekg(pos);
           line--;
           auto arrayResult = ParseArray(stream, line, nextIndent);
-          if (!arrayResult.HasError())
+          if (!arrayResult.has_error())
           {
-            objectValue.SetObjectField(key, arrayResult.GetValue());
+            objectValue.SetObjectField(key, arrayResult.get_value());
           }
         }
         else
@@ -228,9 +228,9 @@ YamlValue launch_cpp::YamlParser::ParseArrayElementObject(std::istringstream& st
           stream.seekg(pos);
           line--;
           auto nestedResult = ParseValue(stream, line);
-          if (!nestedResult.HasError())
+          if (!nestedResult.has_error())
           {
-            objectValue.SetObjectField(key, nestedResult.GetValue());
+            objectValue.SetObjectField(key, nestedResult.get_value());
           }
         }
       }
@@ -244,9 +244,9 @@ YamlValue launch_cpp::YamlParser::ParseArrayElementObject(std::istringstream& st
     {
       // Inline value
       auto scalarResult = ParseScalar(value);
-      if (!scalarResult.HasError())
+      if (!scalarResult.has_error())
       {
-        objectValue.SetObjectField(key, scalarResult.GetValue());
+        objectValue.SetObjectField(key, scalarResult.get_value());
       }
     }
   }
@@ -308,9 +308,9 @@ YamlValue launch_cpp::YamlParser::ParseArrayElementObject(std::istringstream& st
             stream.seekg(afterKeyPos);
             line--;
             auto arrayResult = ParseArray(stream, line, nextIndent2);
-            if (!arrayResult.HasError())
+            if (!arrayResult.has_error())
             {
-              objectValue.SetObjectField(key, arrayResult.GetValue());
+              objectValue.SetObjectField(key, arrayResult.get_value());
             }
           }
           else
@@ -319,9 +319,9 @@ YamlValue launch_cpp::YamlParser::ParseArrayElementObject(std::istringstream& st
             stream.seekg(afterKeyPos);
             line--;
             auto valueResult = ParseValue(stream, line);
-            if (!valueResult.HasError())
+            if (!valueResult.has_error())
             {
-              objectValue.SetObjectField(key, valueResult.GetValue());
+              objectValue.SetObjectField(key, valueResult.get_value());
             }
           }
         }
@@ -335,9 +335,9 @@ YamlValue launch_cpp::YamlParser::ParseArrayElementObject(std::istringstream& st
       {
         // Inline value
         auto scalarResult = ParseScalar(value);
-        if (!scalarResult.HasError())
+        if (!scalarResult.has_error())
         {
-          objectValue.SetObjectField(key, scalarResult.GetValue());
+          objectValue.SetObjectField(key, scalarResult.get_value());
         }
       }
     }
@@ -348,7 +348,7 @@ YamlValue launch_cpp::YamlParser::ParseArrayElementObject(std::istringstream& st
       stream.seekg(pos);
       line--;
       auto arrayResult = ParseArray(stream, line, indent);
-      if (!arrayResult.HasError())
+      if (!arrayResult.has_error())
       {
         // This array becomes the value of the previous key
         // But we don't have the key here... this is getting complex
@@ -426,20 +426,20 @@ Result<YamlValue> YamlParser::ParseObject(std::istringstream& stream, int& line,
           if (Trim(nextLine)[0] == '-')
           {
             auto arrayResult = ParseArray(stream, line, nextIndent);
-            if (arrayResult.HasError())
+            if (arrayResult.has_error())
             {
               return arrayResult;
             }
-            result.SetObjectField(key, arrayResult.GetValue());
+            result.SetObjectField(key, arrayResult.get_value());
           }
           else
           {
             auto objResult = ParseObject(stream, line, nextIndent);
-            if (objResult.HasError())
+            if (objResult.has_error())
             {
               return objResult;
             }
-            result.SetObjectField(key, objResult.GetValue());
+            result.SetObjectField(key, objResult.get_value());
           }
         }
         else
@@ -470,9 +470,9 @@ Result<YamlValue> YamlParser::ParseObject(std::istringstream& stream, int& line,
         if (!elem.empty())
         {
           auto elemResult = ParseScalar(elem);
-          if (elemResult.HasValue())
+          if (elemResult.has_value())
           {
-            arr.AddArrayElement(elemResult.GetValue());
+            arr.AddArrayElement(elemResult.get_value());
           }
         }
         start = end + 1;
@@ -483,11 +483,11 @@ Result<YamlValue> YamlParser::ParseObject(std::istringstream& stream, int& line,
     {
       // Simple value
       auto valResult = ParseScalar(value);
-      if (valResult.HasError())
+      if (valResult.has_error())
       {
         return valResult;
       }
-      result.SetObjectField(key, valResult.GetValue());
+      result.SetObjectField(key, valResult.get_value());
     }
   }
   
@@ -551,12 +551,12 @@ Result<LaunchDescriptionPtr> YamlLaunchBuilder::Build(const YamlValue& yaml)
     }
     
     auto actionResult = BuildAction(entityYaml);
-    if (actionResult.HasError())
+    if (actionResult.has_error())
     {
       continue;
     }
     
-    desc->Add(actionResult.GetValue());
+    desc->add(actionResult.get_value());
   }
   
   return Result<LaunchDescriptionPtr>(desc);
@@ -565,12 +565,12 @@ Result<LaunchDescriptionPtr> YamlLaunchBuilder::Build(const YamlValue& yaml)
 Result<ActionPtr> YamlLaunchBuilder::BuildAction(const YamlValue& actionYaml)
 {
   auto typeIt = actionYaml.AsObject().find("type");
-  if (typeIt == actionYaml.AsObject().end() || !typeIt->second.IsString())
+  if (typeIt == actionYaml.AsObject().end() || !typeIt->second.is_string())
   {
     return Result<ActionPtr>(Error(ErrorCode::kInvalidConfiguration, "Action missing 'type' field"));
   }
   
-  std::string type = typeIt->second.AsString();
+  std::string type = typeIt->second.as_string();
   
   if (type == "execute_process")
   {
@@ -578,9 +578,9 @@ Result<ActionPtr> YamlLaunchBuilder::BuildAction(const YamlValue& actionYaml)
     
     // Parse process name
     auto nameIt = actionYaml.AsObject().find("name");
-    if (nameIt != actionYaml.AsObject().end() && nameIt->second.IsString())
+    if (nameIt != actionYaml.AsObject().end() && nameIt->second.is_string())
     {
-      options.name = std::make_shared<TextSubstitution>(nameIt->second.AsString());
+      options.name = std::make_shared<TextSubstitution>(nameIt->second.as_string());
     }
     
     // Parse command with variable substitution support
@@ -589,17 +589,17 @@ Result<ActionPtr> YamlLaunchBuilder::BuildAction(const YamlValue& actionYaml)
     {
       for (const auto& cmdElem : cmdIt->second.AsArray())
       {
-        if (cmdElem.IsString())
+        if (cmdElem.is_string())
         {
-          auto substResult = BuildSubstitution(cmdElem.AsString());
-          if (substResult.HasValue())
+          auto substResult = BuildSubstitution(cmdElem.as_string());
+          if (substResult.has_value())
           {
-            options.cmd.push_back(substResult.GetValue());
+            options.cmd.push_back(substResult.get_value());
           }
           else
           {
             // Fallback to text if substitution building fails
-            options.cmd.push_back(std::make_shared<TextSubstitution>(cmdElem.AsString()));
+            options.cmd.push_back(std::make_shared<TextSubstitution>(cmdElem.as_string()));
           }
         }
       }
@@ -607,9 +607,9 @@ Result<ActionPtr> YamlLaunchBuilder::BuildAction(const YamlValue& actionYaml)
     
     // Parse output
     auto outputIt = actionYaml.AsObject().find("output");
-    if (outputIt != actionYaml.AsObject().end() && outputIt->second.IsString())
+    if (outputIt != actionYaml.AsObject().end() && outputIt->second.is_string())
     {
-      options.output = outputIt->second.AsString();
+      options.output = outputIt->second.as_string();
     }
     
     // Parse dependencies
@@ -618,9 +618,9 @@ Result<ActionPtr> YamlLaunchBuilder::BuildAction(const YamlValue& actionYaml)
     {
       for (const auto& depElem : dependsIt->second.AsArray())
       {
-        if (depElem.IsString())
+        if (depElem.is_string())
         {
-          options.dependsOn.push_back(depElem.AsString());
+          options.depends_on.push_back(depElem.as_string());
         }
       }
     }
@@ -632,21 +632,21 @@ Result<ActionPtr> YamlLaunchBuilder::BuildAction(const YamlValue& actionYaml)
     DeclareLaunchArgument::Options options;
     
     auto nameIt = actionYaml.AsObject().find("name");
-    if (nameIt != actionYaml.AsObject().end() && nameIt->second.IsString())
+    if (nameIt != actionYaml.AsObject().end() && nameIt->second.is_string())
     {
-      options.name = nameIt->second.AsString();
+      options.name = nameIt->second.as_string();
     }
     
     auto defaultIt = actionYaml.AsObject().find("default_value");
-    if (defaultIt != actionYaml.AsObject().end() && defaultIt->second.IsString())
+    if (defaultIt != actionYaml.AsObject().end() && defaultIt->second.is_string())
     {
-      options.defaultValue = std::make_shared<TextSubstitution>(defaultIt->second.AsString());
+      options.defaultValue = std::make_shared<TextSubstitution>(defaultIt->second.as_string());
     }
     
     auto descIt = actionYaml.AsObject().find("description");
-    if (descIt != actionYaml.AsObject().end() && descIt->second.IsString())
+    if (descIt != actionYaml.AsObject().end() && descIt->second.is_string())
     {
-      options.description = descIt->second.AsString();
+      options.description = descIt->second.as_string();
     }
     
     return Result<ActionPtr>(std::make_shared<DeclareLaunchArgument>(options));

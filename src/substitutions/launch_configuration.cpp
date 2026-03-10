@@ -19,16 +19,16 @@
 namespace launch_cpp
 {
 
-std::string LaunchConfiguration::Perform(const LaunchContext& context) const
+std::string LaunchConfiguration::perform(const LaunchContext& context) const
 {
   Result<std::string> result = context.GetLaunchConfiguration(name_);
   
-  if (result.HasError())
+  if (result.has_error())
   {
     return "";
   }
   
-  return result.GetValue();
+  return result.get_value();
 }
 
 }  // namespace launch_cpp

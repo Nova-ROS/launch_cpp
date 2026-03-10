@@ -30,7 +30,7 @@ class IfCondition final : public Condition
   
   ~IfCondition() override = default;
   
-  bool Evaluate(const LaunchContext& context) const override;
+  bool evaluate(const LaunchContext& context) const override;
   
   const SubstitutionPtr& GetExpression() const noexcept { return expression_; }
   

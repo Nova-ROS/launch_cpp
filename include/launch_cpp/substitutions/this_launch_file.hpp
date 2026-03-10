@@ -27,7 +27,7 @@ class ThisLaunchFile final : public Substitution
   ThisLaunchFile() = default;
   ~ThisLaunchFile() override = default;
 
-  std::string Perform(const LaunchContext& context) const override;
+  std::string perform(const LaunchContext& context) const override;
 };
 
 }  // namespace launch_cpp

@@ -16,16 +16,16 @@ int main()
     std::string yaml = "key: value\n";
     
     auto result = YamlParser::Parse(yaml);
-    if (result.HasError()) {
-      std::cout << "Error: " << result.GetError().GetMessage() << std::endl;
+    if (result.has_error()) {
+      std::cout << "Error: " << result.get_error().get_message() << std::endl;
     } else {
       std::cout << "Parsed successfully!" << std::endl;
-      auto& val = result.GetValue();
-      std::cout << "Type: " << static_cast<int>(val.GetType()) << std::endl;
+      auto& val = result.get_value();
+      std::cout << "Type: " << static_cast<int>(val.get_type()) << std::endl;
       if (val.IsObject()) {
         std::cout << "Is object with " << val.AsObject().size() << " fields" << std::endl;
         for (const auto& field : val.AsObject()) {
-          std::cout << "  " << field.first << " = " << field.second.AsString() << std::endl;
+          std::cout << "  " << field.first << " = " << field.second.as_string() << std::endl;
         }
       }
     }
@@ -37,12 +37,12 @@ int main()
     std::string yaml = "entities:\n  - type: test\n    name: hello\n";
     
     auto result = YamlParser::Parse(yaml);
-    if (result.HasError()) {
-      std::cout << "Error: " << result.GetError().GetMessage() << std::endl;
+    if (result.has_error()) {
+      std::cout << "Error: " << result.get_error().get_message() << std::endl;
     } else {
       std::cout << "Parsed successfully!" << std::endl;
-      auto& val = result.GetValue();
-      std::cout << "Type: " << static_cast<int>(val.GetType()) << std::endl;
+      auto& val = result.get_value();
+      std::cout << "Type: " << static_cast<int>(val.get_type()) << std::endl;
       if (val.IsObject()) {
         std::cout << "Is object with " << val.AsObject().size() << " fields" << std::endl;
       }
@@ -55,12 +55,12 @@ int main()
     std::string filePath = "/home/bingdian/work/ros2/jazzy/src/ros2/launch_cpp/examples/test_simple.yaml";
     
     auto result = YamlParser::ParseFile(filePath);
-    if (result.HasError()) {
-      std::cout << "Error: " << result.GetError().GetMessage() << std::endl;
+    if (result.has_error()) {
+      std::cout << "Error: " << result.get_error().get_message() << std::endl;
     } else {
       std::cout << "Parsed file successfully!" << std::endl;
-      auto& val = result.GetValue();
-      std::cout << "Root type: " << static_cast<int>(val.GetType()) << std::endl;
+      auto& val = result.get_value();
+      std::cout << "Root type: " << static_cast<int>(val.get_type()) << std::endl;
       
       if (val.IsObject()) {
         std::cout << "Root object has " << val.AsObject().size() << " fields" << std::endl;
@@ -71,7 +71,7 @@ int main()
           if (entities->second.IsArray()) {
             std::cout << "Entities is array with " << entities->second.AsArray().size() << " items" << std::endl;
           } else {
-            std::cout << "Entities is NOT an array, type: " << static_cast<int>(entities->second.GetType()) << std::endl;
+            std::cout << "Entities is NOT an array, type: " << static_cast<int>(entities->second.get_type()) << std::endl;
           }
         } else {
           std::cout << "'entities' field not found" << std::endl;

@@ -43,12 +43,12 @@ class Substitution
   Substitution& operator=(Substitution&&) = default;
   
   // AUTOSAR C++14: M0-1-9 - Pure virtual function
-  virtual std::string Perform(const LaunchContext& context) const = 0;
+  virtual std::string perform(const LaunchContext& context) const = 0;
   
   // Convenience operator
   std::string operator()(const LaunchContext& context) const
   {
-    return Perform(context);
+    return perform(context);
   }
 };
 

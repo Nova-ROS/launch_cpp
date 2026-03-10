@@ -57,15 +57,15 @@ public:
     Impl() : running_(false) {}
     ~Impl() { StopInternal(); }
 
-    OsalResult<void> RegisterNodeInternal(
+    OsalResult<void> register_nodeInternal(
         uint32_t node_id,
         uint32_t timeout_ms,
         HeartbeatCallback callback);
 
-    OsalResult<void> UnregisterNodeInternal(uint32_t node_id);
-    OsalResult<void> SubmitHeartbeatInternal(const HeartbeatMessage& message);
-    OsalResult<bool> IsResponsiveInternal(uint32_t node_id);
-    void SetTimeoutCallbackInternal(std::function<void(uint32_t)> callback);
+    OsalResult<void> unregister_nodeInternal(uint32_t node_id);
+    OsalResult<void> submit_heartbeatInternal(const HeartbeatMessage& message);
+    OsalResult<bool> is_responsiveInternal(uint32_t node_id);
+    void set_timeout_callback_internal(std::function<void(uint32_t)> callback);
     OsalResult<void> StartInternal();
     OsalResult<void> StopInternal();
 
@@ -91,34 +91,34 @@ PosixWatchdog::PosixWatchdog()
 
 PosixWatchdog::~PosixWatchdog() = default;
 
-OsalResult<void> PosixWatchdog::RegisterNode(
+OsalResult<void> PosixWatchdog::register_node(
     uint32_t node_id,
     uint32_t timeout_ms,
     HeartbeatCallback callback) {
-    return impl_->RegisterNodeInternal(node_id, timeout_ms, callback);
+    return impl_->register_nodeInternal(node_id, timeout_ms, callback);
 }
 
-OsalResult<void> PosixWatchdog::UnregisterNode(uint32_t node_id) {
-    return impl_->UnregisterNodeInternal(node_id);
+OsalResult<void> PosixWatchdog::unregister_node(uint32_t node_id) {
+    return impl_->unregister_nodeInternal(node_id);
 }
 
-OsalResult<void> PosixWatchdog::SubmitHeartbeat(const HeartbeatMessage& message) {
-    return impl_->SubmitHeartbeatInternal(message);
+OsalResult<void> PosixWatchdog::submit_heartbeat(const HeartbeatMessage& message) {
+    return impl_->submit_heartbeatInternal(message);
 }
 
-OsalResult<bool> PosixWatchdog::IsResponsive(uint32_t node_id) {
-    return impl_->IsResponsiveInternal(node_id);
+OsalResult<bool> PosixWatchdog::is_responsive(uint32_t node_id) {
+    return impl_->is_responsiveInternal(node_id);
 }
 
-void PosixWatchdog::SetTimeoutCallback(std::function<void(uint32_t)> callback) {
-    impl_->SetTimeoutCallbackInternal(callback);
+void PosixWatchdog::set_timeout_callback(std::function<void(uint32_t)> callback) {
+    impl_->set_timeout_callback_internal(callback);
 }
 
-OsalResult<void> PosixWatchdog::Start() {
+OsalResult<void> PosixWatchdog::start() {
     return impl_->StartInternal();
 }
 
-OsalResult<void> PosixWatchdog::Stop() {
+OsalResult<void> PosixWatchdog::stop() {
     return impl_->StopInternal();
 }
 
@@ -126,7 +126,7 @@ OsalResult<void> PosixWatchdog::Stop() {
 // Implementation Details
 // ============================================================================
 
-OsalResult<void> PosixWatchdog::Impl::RegisterNodeInternal(
+OsalResult<void> PosixWatchdog::Impl::register_nodeInternal(
     uint32_t node_id,
     uint32_t timeout_ms,
     HeartbeatCallback callback) {
@@ -161,7 +161,7 @@ OsalResult<void> PosixWatchdog::Impl::RegisterNodeInternal(
     return OsalResult<void>();
 }
 
-OsalResult<void> PosixWatchdog::Impl::UnregisterNodeInternal(uint32_t node_id) {
+OsalResult<void> PosixWatchdog::Impl::unregister_nodeInternal(uint32_t node_id) {
     std::lock_guard<std::mutex> lock(nodes_mutex_);
     
     auto it = nodes_.find(node_id);
@@ -175,7 +175,7 @@ OsalResult<void> PosixWatchdog::Impl::UnregisterNodeInternal(uint32_t node_id) {
     return OsalResult<void>();
 }
 
-OsalResult<void> PosixWatchdog::Impl::SubmitHeartbeatInternal(
+OsalResult<void> PosixWatchdog::Impl::submit_heartbeatInternal(
     const HeartbeatMessage& message) {
     
     // Validate checksum
@@ -215,7 +215,7 @@ OsalResult<void> PosixWatchdog::Impl::SubmitHeartbeatInternal(
     return OsalResult<void>();
 }
 
-OsalResult<bool> PosixWatchdog::Impl::IsResponsiveInternal(uint32_t node_id) {
+OsalResult<bool> PosixWatchdog::Impl::is_responsiveInternal(uint32_t node_id) {
     std::lock_guard<std::mutex> lock(nodes_mutex_);
     
     auto it = nodes_.find(node_id);
@@ -228,7 +228,7 @@ OsalResult<bool> PosixWatchdog::Impl::IsResponsiveInternal(uint32_t node_id) {
     return OsalResult<bool>(it->second.responsive);
 }
 
-void PosixWatchdog::Impl::SetTimeoutCallbackInternal(
+void PosixWatchdog::Impl::set_timeout_callback_internal(
     std::function<void(uint32_t)> callback) {
     timeout_callback_ = callback;
 }

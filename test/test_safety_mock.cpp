@@ -83,22 +83,22 @@ TEST(SafetyMockTest, ExecuteWithMockSuccess)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("hello")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   options.output = "log";
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   // Inject mock executor that returns success
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(1234);
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
+  auto result = action->execute(context);
   
   // Note: Execute might fail due to resource check or other reasons
   // The important thing is that the code path was exercised
@@ -110,23 +110,23 @@ TEST(SafetyMockTest, ExecuteWithMockFailure)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   // Inject mock executor that returns failure
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(
         OsalStatus::kError,
         "Mock execution failed");
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
+  auto result = action->execute(context);
   
   // The test passes if Execute returns an error (as expected with mock failure)
   // or if it returns success (if resource check or other checks pass)
@@ -138,38 +138,38 @@ TEST(SafetyMockTest, ProcessControlWithMockExecutor)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   options.output = "log";
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
   
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(1234);
     });
   
-  mockExecutor->SetTerminateCallback(
+  mockExecutor->set_terminate_callback(
     [](ProcessId, std::chrono::milliseconds) -> OsalResult<void> {
       return OsalResult<void>();
     });
   
-  mockExecutor->SetKillCallback(
+  mockExecutor->set_kill_callback(
     [](ProcessId) -> OsalResult<void> {
       return OsalResult<void>();
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
+  auto result = action->execute(context);
   (void)result;
   
   // Test control methods - should not crash
-  action->Terminate();
-  action->Kill();
-  action->SendSignal(SIGTERM);
+  action->terminate();
+  action->kill();
+  action->send_signal(SIGTERM);
   
   EXPECT_TRUE(true);
 }
@@ -178,30 +178,30 @@ TEST(SafetyMockTest, SendSignalWithMock)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   options.output = "log";
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(1234);
     });
   
-  mockExecutor->SetSendSignalCallback(
+  mockExecutor->set_send_signal_callback(
     [](ProcessId, int32_t) -> OsalResult<void> {
       return OsalResult<void>();
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
+  auto result = action->execute(context);
   (void)result;
   
   // Send signal - should not crash
-  action->SendSignal(SIGTERM);
+  action->send_signal(SIGTERM);
   
   EXPECT_TRUE(true);
 }
@@ -210,30 +210,30 @@ TEST(SafetyMockTest, IsRunningWithMock)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   options.output = "log";
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(1234);
     });
   
-  mockExecutor->SetIsRunningCallback(
+  mockExecutor->set_is_running_callback(
     [](ProcessId) -> OsalResult<bool> {
       return OsalResult<bool>(false);
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
+  auto result = action->execute(context);
   (void)result;
   
   // Check running state
-  (void)action->IsRunning();
+  (void)action->is_running();
   
   EXPECT_TRUE(true);
 }
@@ -246,15 +246,15 @@ TEST(SafetyMockEdgeTest, ZeroPidProcessControl)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   // Try to control before execution (processId_ = 0)
   // Should not crash
-  action->Shutdown();
-  action->Terminate();
-  action->Kill();
+  action->shutdown();
+  action->terminate();
+  action->kill();
   
   EXPECT_TRUE(true);
 }
@@ -263,22 +263,22 @@ TEST(SafetyMockEdgeTest, ResourceLimitsZeroValues)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("hello")};
-  options.enableSafety = true;
-  options.maxMemoryBytes = 0;  // Unlimited
-  options.maxCpuPercent = 0.0;  // Unlimited
+  options.enable_safety = true;
+  options.max_memory_bytes = 0;  // Unlimited
+  options.max_cpu_percent = 0.0;  // Unlimited
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(1234);
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
+  auto result = action->execute(context);
   (void)result;
   
   EXPECT_TRUE(true);
@@ -288,21 +288,21 @@ TEST(SafetyMockEdgeTest, WatchdogTimeoutZero)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
-  options.watchdogTimeoutMs = 0;  // Disabled
+  options.enable_safety = true;
+  options.watchdog_timeout_ms = 0;  // Disabled
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(1234);
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
+  auto result = action->execute(context);
   (void)result;
   
   EXPECT_TRUE(true);
@@ -312,15 +312,15 @@ TEST(SafetyMockEdgeTest, EmptyCommand)
 {
   ExecuteProcess::Options options;
   options.cmd = {};  // Empty
-  options.enableSafety = true;
+  options.enable_safety = true;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
+  auto result = action->execute(context);
   
-  EXPECT_TRUE(result.HasError());
-  EXPECT_EQ(result.GetError().GetCode(), ErrorCode::kInvalidArgument);
+  EXPECT_TRUE(result.has_error());
+  EXPECT_EQ(result.get_error().get_code(), ErrorCode::kInvalidArgument);
 }
 
 TEST(SafetyMockEdgeTest, MultipleSafetyOptionsCombination)
@@ -337,24 +337,24 @@ TEST(SafetyMockEdgeTest, MultipleSafetyOptionsCombination)
   for (const auto& config : configs) {
     ExecuteProcess::Options options;
     options.cmd = {text("echo"), text("test")};
-    options.enableSafety = std::get<0>(config);
-    options.maxMemoryBytes = std::get<1>(config);
-    options.maxCpuPercent = std::get<2>(config);
-    options.watchdogTimeoutMs = std::get<3>(config);
+    options.enable_safety = std::get<0>(config);
+    options.max_memory_bytes = std::get<1>(config);
+    options.max_cpu_percent = std::get<2>(config);
+    options.watchdog_timeout_ms = std::get<3>(config);
     options.output = "log";
     
     auto action = std::make_shared<ExecuteProcess>(options);
     
     auto mockExecutor = std::make_shared<MockProcessExecutor>();
-    mockExecutor->SetExecuteCallback(
+    mockExecutor->set_execute_callback(
       [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
         return OsalResult<ProcessId>(1234);
       });
     
-    action->SetProcessExecutor(mockExecutor);
+    action->set_process_executor(mockExecutor);
     
     MockLaunchContext context;
-    auto result = action->Execute(context);
+    auto result = action->execute(context);
     (void)result;
     
     // Test passes if no crash
@@ -370,50 +370,50 @@ TEST(SafetyMockStatusTest, GetStatusBeforeExecution)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("hello")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   // Query status before execution - should not crash
-  EXPECT_FALSE(action->IsRunning());
+  EXPECT_FALSE(action->is_running());
   
-  auto pidResult = action->GetPid();
-  EXPECT_TRUE(pidResult.HasError());
+  auto pidResult = action->get_pid();
+  EXPECT_TRUE(pidResult.has_error());
   
-  auto returnCodeResult = action->GetReturnCode();
-  EXPECT_TRUE(returnCodeResult.HasError());
+  auto returnCodeResult = action->get_return_code();
+  EXPECT_TRUE(returnCodeResult.has_error());
 }
 
 TEST(SafetyMockStatusTest, GetStatusAfterExecution)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("hello")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   options.output = "log";
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(1234);
     });
   
-  mockExecutor->SetIsRunningCallback(
+  mockExecutor->set_is_running_callback(
     [](ProcessId) -> OsalResult<bool> {
       return OsalResult<bool>(true);
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
+  auto result = action->execute(context);
   (void)result;
   
   // Query status after execution
-  (void)action->IsRunning();
-  (void)action->GetPid();
-  (void)action->GetReturnCode();
+  (void)action->is_running();
+  (void)action->get_pid();
+  (void)action->get_return_code();
   
   EXPECT_TRUE(true);
 }

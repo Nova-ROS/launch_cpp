@@ -43,8 +43,8 @@ struct NodeActionOptions {
     std::string cwd;
 
     // Validation
-    bool IsValid() const;
-    std::vector<std::string> GetValidationErrors() const;
+    bool is_valid() const;
+    std::vector<std::string> get_validation_errors() const;
 };
 
 /**
@@ -72,14 +72,14 @@ public:
     BuildResult(BuildStatus status, const std::string& message)
         : status_(status), error_message_(message) {}
 
-    bool IsSuccess() const { return status_ == BuildStatus::kSuccess; }
-    bool HasError() const { return status_ != BuildStatus::kSuccess; }
+    bool is_success() const { return status_ == BuildStatus::kSuccess; }
+    bool has_error() const { return status_ != BuildStatus::kSuccess; }
 
-    BuildStatus GetStatus() const { return status_; }
-    const std::string& GetErrorMessage() const { return error_message_; }
+    BuildStatus get_status() const { return status_; }
+    const std::string& get_error_message() const { return error_message_; }
 
-    T& GetValue() { return value_; }
-    const T& GetValue() const { return value_; }
+    T& get_value() { return value_; }
+    const T& get_value() const { return value_; }
 
 private:
     BuildStatus status_;
@@ -98,11 +98,11 @@ public:
     BuildResult(BuildStatus status, const std::string& message)
         : status_(status), error_message_(message) {}
 
-    bool IsSuccess() const { return status_ == BuildStatus::kSuccess; }
-    bool HasError() const { return status_ != BuildStatus::kSuccess; }
+    bool is_success() const { return status_ == BuildStatus::kSuccess; }
+    bool has_error() const { return status_ != BuildStatus::kSuccess; }
 
-    BuildStatus GetStatus() const { return status_; }
-    const std::string& GetErrorMessage() const { return error_message_; }
+    BuildStatus get_status() const { return status_; }
+    const std::string& get_error_message() const { return error_message_; }
 
 private:
     BuildStatus status_;
@@ -220,28 +220,28 @@ public:
      * - No spaces
      * - No special characters except _ and -
      */
-    bool IsValidPackageName(const std::string& package) const;
+    bool is_valid_package_name(const std::string& package) const;
 
     /**
      * @brief Validate executable name
      * @param executable Executable name
      * @return true if valid
      */
-    bool IsValidExecutableName(const std::string& executable) const;
+    bool is_valid_executable_name(const std::string& executable) const;
 
     /**
      * @brief Validate node name
      * @param name Node name
      * @return true if valid (or empty)
      */
-    bool IsValidNodeName(const std::string& name) const;
+    bool is_valid_node_name(const std::string& name) const;
 
     /**
      * @brief Validate parameter name
      * @param name Parameter name
      * @return true if valid
      */
-    bool IsValidParameterName(const std::string& name) const;
+    bool is_valid_parameter_name(const std::string& name) const;
 
     /**
      * @brief Escape special characters in argument
@@ -250,7 +250,7 @@ public:
      *
      * @note Public for use by ExecuteProcess
      */
-    std::string EscapeArgument(const std::string& arg) const;
+    std::string escape_argument(const std::string& arg) const;
 
     /**
      * @brief Check if string contains spaces or special chars
@@ -259,14 +259,14 @@ public:
      *
      * @note Public for use by ExecuteProcess
      */
-    bool NeedsQuoting(const std::string& str) const;
+    bool needs_quoting(const std::string& str) const;
 };
 
 // ============================================================================
 // Inline Implementation - Simple Methods
 // ============================================================================
 
-inline bool CommandBuilder::IsValidPackageName(const std::string& package) const {
+inline bool CommandBuilder::is_valid_package_name(const std::string& package) const {
     if (package.empty()) {
         return false;
     }
@@ -288,7 +288,7 @@ inline bool CommandBuilder::IsValidPackageName(const std::string& package) const
     return true;
 }
 
-inline bool CommandBuilder::IsValidExecutableName(const std::string& executable) const {
+inline bool CommandBuilder::is_valid_executable_name(const std::string& executable) const {
     if (executable.empty()) {
         return false;
     }
@@ -307,7 +307,7 @@ inline bool CommandBuilder::IsValidExecutableName(const std::string& executable)
     return true;
 }
 
-inline bool CommandBuilder::IsValidNodeName(const std::string& name) const {
+inline bool CommandBuilder::is_valid_node_name(const std::string& name) const {
     if (name.empty()) {
         return true;  // Empty is valid (will use default)
     }
@@ -329,7 +329,7 @@ inline bool CommandBuilder::IsValidNodeName(const std::string& name) const {
     return true;
 }
 
-inline bool CommandBuilder::IsValidParameterName(const std::string& name) const {
+inline bool CommandBuilder::is_valid_parameter_name(const std::string& name) const {
     if (name.empty()) {
         return false;
     }
@@ -350,7 +350,7 @@ inline bool CommandBuilder::IsValidParameterName(const std::string& name) const 
     return true;
 }
 
-inline bool CommandBuilder::NeedsQuoting(const std::string& str) const {
+inline bool CommandBuilder::needs_quoting(const std::string& str) const {
     for (char c : str) {
         if (std::isspace(c) || c == '"' || c == '\\' || c == '$' || c == '`') {
             return true;
@@ -359,8 +359,8 @@ inline bool CommandBuilder::NeedsQuoting(const std::string& str) const {
     return false;
 }
 
-inline std::string CommandBuilder::EscapeArgument(const std::string& arg) const {
-    if (!NeedsQuoting(arg)) {
+inline std::string CommandBuilder::escape_argument(const std::string& arg) const {
+    if (!needs_quoting(arg)) {
         return arg;
     }
 
@@ -383,19 +383,19 @@ inline std::string CommandBuilder::EscapeArgument(const std::string& arg) const 
 inline BuildResult<void> CommandBuilder::ValidateOptions(
     const NodeActionOptions& options) const {
 
-    if (!IsValidPackageName(options.package)) {
+    if (!is_valid_package_name(options.package)) {
         return BuildResult<void>(
             BuildStatus::kInvalidPackage,
             "Invalid package name: " + options.package);
     }
 
-    if (!IsValidExecutableName(options.executable)) {
+    if (!is_valid_executable_name(options.executable)) {
         return BuildResult<void>(
             BuildStatus::kInvalidExecutable,
             "Invalid executable name: " + options.executable);
     }
 
-    if (!IsValidNodeName(options.name)) {
+    if (!is_valid_node_name(options.name)) {
         return BuildResult<void>(
             BuildStatus::kInvalidName,
             "Invalid node name: " + options.name);

@@ -22,7 +22,7 @@
 namespace launch_cpp
 {
 
-std::string Command::Perform(const LaunchContext& context) const
+std::string Command::perform(const LaunchContext& context) const
 {
   // Build command string
   std::string cmd;
@@ -31,7 +31,7 @@ std::string Command::Perform(const LaunchContext& context) const
     if (sub)
     {
       if (!cmd.empty()) cmd += " ";
-      cmd += sub->Perform(context);
+      cmd += sub->perform(context);
     }
   }
   

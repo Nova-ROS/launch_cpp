@@ -131,8 +131,8 @@ class Action : public LaunchDescriptionEntity
    *
    * @requirements REQ-LAUNCH-ACTION-001, REQ-LAUNCH-ACTION-002
    */
-  Result<LaunchDescriptionEntityVector> Visit(LaunchContext& context) override;
-  
+  Result<LaunchDescriptionEntityVector> visit(LaunchContext& context) override;
+
   /**
    * @brief Execute the action
    *
@@ -152,7 +152,7 @@ class Action : public LaunchDescriptionEntity
    *
    * @requirements REQ-LAUNCH-ACTION-001
    */
-  virtual Result<void> Execute(LaunchContext& context) = 0;
+  virtual Result<void> execute(LaunchContext& context) = 0;
   
   /**
    * @brief Check if action has a condition
@@ -166,8 +166,8 @@ class Action : public LaunchDescriptionEntity
    *
    * @thread_safety Thread-safe for read-only access
    */
-  bool HasCondition() const noexcept { return condition_ != nullptr; }
-  
+  bool has_condition() const noexcept { return condition_ != nullptr; }
+
   /**
    * @brief Get the condition
    *
@@ -176,12 +176,12 @@ class Action : public LaunchDescriptionEntity
    * @pre None
    * @post Returns reference to internal condition pointer
    *
-   * @note Check HasCondition() before use
+   * @note Check has_condition() before use
    *
    * @thread_safety Thread-safe for read-only access
    */
-  const ConditionPtr& GetCondition() const noexcept { return condition_; }
-  
+  const ConditionPtr& get_condition() const noexcept { return condition_; }
+
  protected:
   /**
    * @brief Set or update the condition
@@ -193,7 +193,7 @@ class Action : public LaunchDescriptionEntity
    *
    * @note Protected to allow derived classes to modify condition
    */
-  void SetCondition(const ConditionPtr& condition) { condition_ = condition; }
+  void set_condition(const ConditionPtr& condition) { condition_ = condition; }
   
  private:
   ConditionPtr condition_;  ///< Optional condition for conditional execution

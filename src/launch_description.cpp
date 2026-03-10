@@ -32,17 +32,17 @@ LaunchDescription::LaunchDescription(LaunchDescriptionEntityVector&& entities)
 {
 }
 
-void LaunchDescription::Add(const LaunchDescriptionEntityPtr& entity)
+void LaunchDescription::add(const LaunchDescriptionEntityPtr& entity)
 {
   entities_.push_back(entity);
 }
 
-void LaunchDescription::Add(LaunchDescriptionEntityPtr&& entity)
+void LaunchDescription::add(LaunchDescriptionEntityPtr&& entity)
 {
   entities_.push_back(std::move(entity));
 }
 
-Result<LaunchDescriptionEntityVector> LaunchDescription::Visit(LaunchContext& context)
+Result<LaunchDescriptionEntityVector> LaunchDescription::visit(LaunchContext& context)
 {
   LaunchDescriptionEntityVector result;
   result.reserve(entities_.size());
@@ -54,14 +54,14 @@ Result<LaunchDescriptionEntityVector> LaunchDescription::Visit(LaunchContext& co
       continue;
     }
     
-    Result<LaunchDescriptionEntityVector> visitResult = entity->Visit(context);
+    Result<LaunchDescriptionEntityVector> visitResult = entity->visit(context);
     
-    if (visitResult.HasError())
+    if (visitResult.has_error())
     {
       return visitResult;
     }
     
-    LaunchDescriptionEntityVector& childEntities = visitResult.GetValue();
+    LaunchDescriptionEntityVector& childEntities = visitResult.get_value();
     
     for (LaunchDescriptionEntityPtr& child : childEntities)
     {
@@ -75,26 +75,26 @@ Result<LaunchDescriptionEntityVector> LaunchDescription::Visit(LaunchContext& co
   return Result<LaunchDescriptionEntityVector>(std::move(result));
 }
 
-Result<LaunchDescriptionPtr> LaunchDescription::FromYaml(const std::string& yamlString)
+Result<LaunchDescriptionPtr> LaunchDescription::from_yaml(const std::string& yamlString)
 {
   auto yamlResult = YamlParser::Parse(yamlString);
-  if (yamlResult.HasError())
+  if (yamlResult.has_error())
   {
-    return Result<LaunchDescriptionPtr>(yamlResult.GetError());
+    return Result<LaunchDescriptionPtr>(yamlResult.get_error());
   }
   
-  return YamlLaunchBuilder::Build(yamlResult.GetValue());
+  return YamlLaunchBuilder::Build(yamlResult.get_value());
 }
 
-Result<LaunchDescriptionPtr> LaunchDescription::FromYamlFile(const std::string& filePath)
+Result<LaunchDescriptionPtr> LaunchDescription::from_yaml_file(const std::string& filePath)
 {
   auto yamlResult = YamlParser::ParseFile(filePath);
-  if (yamlResult.HasError())
+  if (yamlResult.has_error())
   {
-    return Result<LaunchDescriptionPtr>(yamlResult.GetError());
+    return Result<LaunchDescriptionPtr>(yamlResult.get_error());
   }
   
-  return YamlLaunchBuilder::Build(yamlResult.GetValue());
+  return YamlLaunchBuilder::Build(yamlResult.get_value());
 }
 
 }  // namespace launch_cpp

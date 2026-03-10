@@ -43,7 +43,7 @@ class LaunchDescriptionEntity
   LaunchDescriptionEntity& operator=(LaunchDescriptionEntity&&) = default;
   
   // AUTOSAR C++14: M0-1-9 - Pure virtual function
-  virtual Result<LaunchDescriptionEntityVector> Visit(LaunchContext& context) = 0;
+  virtual Result<LaunchDescriptionEntityVector> visit(LaunchContext& context) = 0;
 };
 
 }  // namespace launch_cpp

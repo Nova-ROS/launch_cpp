@@ -69,7 +69,7 @@ class DependencyManager
    * @param dependencies List of process names this process depends on
    * @return Error if validation fails
    */
-  Error AddProcess(
+  Error add_process(
     const std::string& name,
     const std::shared_ptr<ExecuteProcess>& action,
     const std::vector<std::string>& dependencies);
@@ -77,29 +77,29 @@ class DependencyManager
   /**
    * @brief Resolve dependencies and return execution order
    * @return ResolutionResult containing ordered list or error
-   * 
+   *
    * @requirement REQ-LAUNCH-DEP-001
    */
-  ResolutionResult ResolveDependencies() const;
+  ResolutionResult resolve_dependencies() const;
 
   /**
    * @brief Execute all processes in dependency order
    * @param context Launch context
    * @return Error if execution fails
-   * 
+   *
    * @details Executes processes in topological order, waiting for
    *          dependencies to be ready before starting dependent processes.
-   * 
+   *
    * @requirement REQ-LAUNCH-DEP-003
    */
-  Error ExecuteAll(LaunchContext& context);
+  Error execute_all(LaunchContext& context);
 
   /**
    * @brief Get a process by name
    * @param name Process name
    * @return Shared pointer to process, nullptr if not found
    */
-  std::shared_ptr<ExecuteProcess> GetProcess(const std::string& name) const;
+  std::shared_ptr<ExecuteProcess> get_process(const std::string& name) const;
 
   /**
    * @brief Check if a process is ready to start
@@ -107,17 +107,17 @@ class DependencyManager
    * @param completed Set of already completed process names
    * @return true if all dependencies are satisfied
    */
-  bool IsReady(const std::string& name, const std::set<std::string>& completed) const;
+  bool is_ready(const std::string& name, const std::set<std::string>& completed) const;
 
   /**
    * @brief Clear all registered processes
    */
-  void Clear();
+  void clear();
 
   /**
    * @brief Get number of registered processes
    */
-  size_t GetProcessCount() const { return processes_.size(); }
+  size_t get_process_count() const { return processes_.size(); }
 
  private:
   std::unordered_map<std::string, std::shared_ptr<ExecuteProcess>> processes_;

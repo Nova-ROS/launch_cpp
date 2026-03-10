@@ -86,7 +86,7 @@ class LaunchService::Impl
 LaunchService::LaunchService(const Options& options)
   : impl_(std::make_unique<Impl>(options)),
     status_(LaunchServiceStatus::kIdle),
-    shutdownRequested_(false)
+    shutdown_requested_(false)
 {
 }
 
@@ -107,7 +107,7 @@ LaunchService::~LaunchService() noexcept
 {
   // Ensure clean shutdown even if not explicitly called
   // Safety: Must not throw from destructor
-  Shutdown();
+  shutdown();
 }
 
 /**
@@ -133,14 +133,14 @@ LaunchService::~LaunchService() noexcept
  *
  * @requirements REQ-LAUNCH-SERVICE-001, REQ-LAUNCH-SERVICE-002
  */
-std::int32_t LaunchService::Run(bool shutdownWhenIdle)
+std::int32_t LaunchService::run(bool shutdown_when_idle)
 {
   // Attempt state transition: kIdle -> kRunning
   // Using compare_exchange for thread-safe check-and-set
   LaunchServiceStatus expected = LaunchServiceStatus::kIdle;
-  
+
   if (!status_.compare_exchange_strong(
-        expected, 
+        expected,
         LaunchServiceStatus::kRunning,
         std::memory_order_release,   // Success: synchronize-with readers
         std::memory_order_relaxed))  // Failure: no ordering needed
@@ -149,18 +149,18 @@ std::int32_t LaunchService::Run(bool shutdownWhenIdle)
     std::cerr << "Launch service is not in idle state" << std::endl;
     return 1;
   }
-  
+
   // Visit all registered launch descriptions
   // Copy vector under lock to avoid holding lock during execution
   std::vector<LaunchDescriptionPtr> descriptions;
-  
+
   {
     // Critical section: Access shared descriptions vector
     // Safety: Minimize lock duration, copy vector contents
-    std::lock_guard<std::mutex> lock(descriptionsMutex_);
+    std::lock_guard<std::mutex> lock(descriptions_mutex_);
     descriptions = descriptions_;
   }  // Lock released here
-  
+
   // Process each launch description
   for (const auto& desc : descriptions)
   {
@@ -169,26 +169,26 @@ std::int32_t LaunchService::Run(bool shutdownWhenIdle)
     {
       continue;
     }
-    
+
     // Visit description in context - this executes all contained actions
     // Requirements: REQ-LAUNCH-SERVICE-002
-    Result<LaunchDescriptionEntityVector> result = desc->Visit(impl_->context_);
-    
+    Result<LaunchDescriptionEntityVector> result = desc->visit(impl_->context_);
+
     // Handle execution errors
-    if (result.HasError())
+    if (result.has_error())
     {
-      std::cerr << "Error visiting launch description: " 
-                << result.GetError().GetMessage() << std::endl;
+      std::cerr << "Error visiting launch description: "
+                << result.get_error().get_message() << std::endl;
       return 1;
     }
   }
-  
+
   // Optionally shut down after processing
-  if (shutdownWhenIdle)
+  if (shutdown_when_idle)
   {
-    Shutdown();
+    shutdown();
   }
-  
+
   return 0;
 }
 
@@ -208,19 +208,19 @@ std::int32_t LaunchService::Run(bool shutdownWhenIdle)
  *
  * @requirements REQ-LAUNCH-SERVICE-001
  */
-Error LaunchService::IncludeLaunchDescription(const LaunchDescriptionPtr& description)
+Error LaunchService::include_launch_description(const LaunchDescriptionPtr& description)
 {
   // Validate input
   if (!description)
   {
     return Error(ErrorCode::kInvalidArgument, "Null launch description");
   }
-  
+
   // Critical section: Modify shared descriptions vector
   // Safety: RAII lock guard ensures exception safety
-  std::lock_guard<std::mutex> lock(descriptionsMutex_);
+  std::lock_guard<std::mutex> lock(descriptions_mutex_);
   descriptions_.push_back(description);
-  
+
   return Error();  // Success
 }
 
@@ -235,7 +235,7 @@ Error LaunchService::IncludeLaunchDescription(const LaunchDescriptionPtr& descri
  * @note Currently not implemented - placeholder for future event system
  * @todo Implement event dispatch to registered handlers
  */
-void LaunchService::EmitEvent(EventPtr event)
+void LaunchService::emit_event(EventPtr event)
 {
   (void)event;
   // TODO: Implement event handling
@@ -252,7 +252,7 @@ void LaunchService::EmitEvent(EventPtr event)
  *
  * @pre May be called from any state
  * @post Service transitions to kStopped
- * @post shutdownRequested_ flag set
+ * @post shutdown_requested_ flag set
  *
  * @note Thread-safe state transition
  * @note Idempotent - safe to call multiple times
@@ -264,11 +264,11 @@ void LaunchService::EmitEvent(EventPtr event)
  *
  * @requirements REQ-LAUNCH-SERVICE-003
  */
-Error LaunchService::Shutdown()
+Error LaunchService::shutdown()
 {
   // Attempt state transition: kRunning -> kShuttingDown
   LaunchServiceStatus expected = LaunchServiceStatus::kRunning;
-  
+
   if (!status_.compare_exchange_strong(
         expected,
         LaunchServiceStatus::kShuttingDown,
@@ -278,16 +278,16 @@ Error LaunchService::Shutdown()
     // Already shutting down or stopped - this is OK
     return Error();
   }
-  
+
   // Signal shutdown to all components
-  shutdownRequested_.store(true, std::memory_order_release);
-  
+  shutdown_requested_.store(true, std::memory_order_release);
+
   // TODO: Wait for components to shut down gracefully
   // TODO: Timeout handling for unresponsive components
-  
+
   // Final state transition
   status_.store(LaunchServiceStatus::kStopped, std::memory_order_release);
-  
+
   return Error();  // Success
 }
 
@@ -304,7 +304,7 @@ Error LaunchService::Shutdown()
  *
  * @thread_safety Thread-safe
  */
-bool LaunchService::IsRunning() const noexcept
+bool LaunchService::is_running() const noexcept
 {
   return status_.load(std::memory_order_acquire) == LaunchServiceStatus::kRunning;
 }
@@ -321,7 +321,7 @@ bool LaunchService::IsRunning() const noexcept
  *
  * @thread_safety Thread-safe
  */
-bool LaunchService::IsIdle() const
+bool LaunchService::is_idle() const
 {
   return status_.load(std::memory_order_acquire) == LaunchServiceStatus::kIdle;
 }
@@ -338,7 +338,7 @@ bool LaunchService::IsIdle() const
  *
  * @thread_safety Not thread-safe with context modification
  */
-LaunchContext& LaunchService::GetContext()
+LaunchContext& LaunchService::get_context()
 {
   return impl_->context_;
 }
@@ -355,7 +355,7 @@ LaunchContext& LaunchService::GetContext()
  *
  * @thread_safety Thread-safe for read-only access
  */
-const LaunchContext& LaunchService::GetContext() const
+const LaunchContext& LaunchService::get_context() const
 {
   return impl_->context_;
 }

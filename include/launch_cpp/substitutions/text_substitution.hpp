@@ -33,7 +33,7 @@ class TextSubstitution final : public Substitution
   
   ~TextSubstitution() override = default;
   
-  std::string Perform(const LaunchContext& context) const override
+  std::string perform(const LaunchContext& context) const override
   {
     (void)context;  // AUTOSAR: Explicitly mark unused parameter
     return text_;

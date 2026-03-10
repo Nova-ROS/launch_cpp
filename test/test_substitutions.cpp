@@ -84,7 +84,7 @@ TEST(TextSubstitutionTest, Basic)
   MockLaunchContext ctx;
   TextSubstitution sub("Hello World");
   
-  EXPECT_EQ(sub.Perform(ctx), "Hello World");
+  EXPECT_EQ(sub.perform(ctx), "Hello World");
 }
 
 // Test: TextSubstitution empty string
@@ -93,7 +93,7 @@ TEST(TextSubstitutionTest, EmptyString)
   MockLaunchContext ctx;
   TextSubstitution sub("");
   
-  EXPECT_EQ(sub.Perform(ctx), "");
+  EXPECT_EQ(sub.perform(ctx), "");
 }
 
 // Test: TextSubstitution special characters
@@ -102,7 +102,7 @@ TEST(TextSubstitutionTest, SpecialCharacters)
   MockLaunchContext ctx;
   TextSubstitution sub("Special: !@#$%^&*()");
   
-  EXPECT_EQ(sub.Perform(ctx), "Special: !@#$%^&*()");
+  EXPECT_EQ(sub.perform(ctx), "Special: !@#$%^&*()");
 }
 
 // Test: LaunchConfiguration basic
@@ -112,7 +112,7 @@ TEST(LaunchConfigurationTest, ExistingConfig)
   ctx.SetLaunchConfiguration("my_key", "my_value");
   
   LaunchConfiguration sub("my_key");
-  EXPECT_EQ(sub.Perform(ctx), "my_value");
+  EXPECT_EQ(sub.perform(ctx), "my_value");
 }
 
 // Test: LaunchConfiguration non-existing
@@ -121,7 +121,7 @@ TEST(LaunchConfigurationTest, NonExistingConfig)
   MockLaunchContext ctx;
   
   LaunchConfiguration sub("non_existing_key");
-  EXPECT_EQ(sub.Perform(ctx), "");
+  EXPECT_EQ(sub.perform(ctx), "");
 }
 
 // Test: LaunchConfiguration with special characters in key
@@ -131,7 +131,7 @@ TEST(LaunchConfigurationTest, SpecialKey)
   ctx.SetLaunchConfiguration("key/with/slashes", "value");
   
   LaunchConfiguration sub("key/with/slashes");
-  EXPECT_EQ(sub.Perform(ctx), "value");
+  EXPECT_EQ(sub.perform(ctx), "value");
 }
 
 // Test: EnvironmentVariable basic
@@ -141,7 +141,7 @@ TEST(EnvironmentVariableTest, ExistingVar)
   ctx.SetMockEnvVar("TEST_VAR", "test_value");
   
   EnvironmentVariable sub("TEST_VAR");
-  EXPECT_EQ(sub.Perform(ctx), "test_value");
+  EXPECT_EQ(sub.perform(ctx), "test_value");
 }
 
 // Test: EnvironmentVariable non-existing
@@ -150,7 +150,7 @@ TEST(EnvironmentVariableTest, NonExistingVar)
   MockLaunchContext ctx;
   
   EnvironmentVariable sub("NON_EXISTING_VAR");
-  EXPECT_EQ(sub.Perform(ctx), "");
+  EXPECT_EQ(sub.perform(ctx), "");
 }
 
 // Test: EnvironmentVariable empty value
@@ -160,7 +160,7 @@ TEST(EnvironmentVariableTest, EmptyValue)
   ctx.SetMockEnvVar("EMPTY_VAR", "");
   
   EnvironmentVariable sub("EMPTY_VAR");
-  EXPECT_EQ(sub.Perform(ctx), "");
+  EXPECT_EQ(sub.perform(ctx), "");
 }
 
 // Test: Command substitution
@@ -169,7 +169,7 @@ TEST(CommandTest, Basic)
   MockLaunchContext ctx;
   Command sub({std::make_shared<TextSubstitution>("echo"), std::make_shared<TextSubstitution>("hello")});
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   // Command might not work in test environment, just verify it doesn't crash
   (void)result;
 }
@@ -180,7 +180,7 @@ TEST(CommandTest, WithArgs)
   MockLaunchContext ctx;
   Command sub({std::make_shared<TextSubstitution>("echo"), std::make_shared<TextSubstitution>("test"), std::make_shared<TextSubstitution>("argument")});
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   (void)result;
 }
 
@@ -190,7 +190,7 @@ TEST(FindExecutableTest, Existing)
   MockLaunchContext ctx;
   FindExecutable sub("echo");  // echo should exist on most systems
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   // Should find echo in PATH
   EXPECT_FALSE(result.empty());
 }
@@ -201,7 +201,7 @@ TEST(FindExecutableTest, NonExisting)
   MockLaunchContext ctx;
   FindExecutable sub("nonexistent_executable_xyz");
   
-  std::string result = sub.Perform(ctx);
+  std::string result = sub.perform(ctx);
   EXPECT_EQ(result, "");
 }
 
@@ -212,7 +212,7 @@ TEST(ThisLaunchFileTest, Basic)
   ctx.SetCurrentLaunchFile("/path/to/launch.yaml");
   
   ThisLaunchFile sub;
-  EXPECT_EQ(sub.Perform(ctx), "/path/to/launch.yaml");
+  EXPECT_EQ(sub.perform(ctx), "/path/to/launch.yaml");
 }
 
 // Test: ThisLaunchFile empty
@@ -222,7 +222,7 @@ TEST(ThisLaunchFileTest, Empty)
   // Don't set current launch file
   
   ThisLaunchFile sub;
-  EXPECT_EQ(sub.Perform(ctx), "");
+  EXPECT_EQ(sub.perform(ctx), "");
 }
 
 // Test: ThisLaunchFile with complex path
@@ -232,7 +232,7 @@ TEST(ThisLaunchFileTest, ComplexPath)
   ctx.SetCurrentLaunchFile("/very/long/path/to/the/launch/file.yaml");
   
   ThisLaunchFile sub;
-  EXPECT_EQ(sub.Perform(ctx), "/very/long/path/to/the/launch/file.yaml");
+  EXPECT_EQ(sub.perform(ctx), "/very/long/path/to/the/launch/file.yaml");
 }
 
 // Test: ThisLaunchFileDir basic
@@ -242,7 +242,7 @@ TEST(ThisLaunchFileDirTest, Basic)
   ctx.SetCurrentLaunchFile("/path/to/launch.yaml");
   
   ThisLaunchFileDir sub;
-  EXPECT_EQ(sub.Perform(ctx), "/path/to");
+  EXPECT_EQ(sub.perform(ctx), "/path/to");
 }
 
 // Test: ThisLaunchFileDir empty file
@@ -252,7 +252,7 @@ TEST(ThisLaunchFileDirTest, EmptyFile)
   // Don't set current launch file
   
   ThisLaunchFileDir sub;
-  EXPECT_EQ(sub.Perform(ctx), "");
+  EXPECT_EQ(sub.perform(ctx), "");
 }
 
 // Test: ThisLaunchFileDir root file
@@ -262,7 +262,7 @@ TEST(ThisLaunchFileDirTest, RootFile)
   ctx.SetCurrentLaunchFile("launch.yaml");  // No directory
   
   ThisLaunchFileDir sub;
-  EXPECT_EQ(sub.Perform(ctx), ".");
+  EXPECT_EQ(sub.perform(ctx), ".");
 }
 
 // Test: ThisLaunchFileDir nested path
@@ -272,7 +272,7 @@ TEST(ThisLaunchFileDirTest, NestedPath)
   ctx.SetCurrentLaunchFile("/a/b/c/d/e/f/launch.yaml");
   
   ThisLaunchFileDir sub;
-  EXPECT_EQ(sub.Perform(ctx), "/a/b/c/d/e/f");
+  EXPECT_EQ(sub.perform(ctx), "/a/b/c/d/e/f");
 }
 
 // Test: Substitution base class
@@ -287,7 +287,7 @@ TEST(SubstitutionBaseTest, Polymorphism)
   subs.push_back(std::make_shared<EnvironmentVariable>("VAR"));
   
   for (auto& sub : subs) {
-    std::string result = sub->Perform(ctx);
+    std::string result = sub->perform(ctx);
     (void)result;  // Just verify it doesn't crash
   }
 }
@@ -302,19 +302,19 @@ TEST(SubstitutionBaseTest, InterfaceImplementation)
   
   // Test all substitution types
   TextSubstitution text("hello");
-  EXPECT_EQ(text.Perform(ctx), "hello");
+  EXPECT_EQ(text.perform(ctx), "hello");
   
   LaunchConfiguration config("test");
-  EXPECT_EQ(config.Perform(ctx), "value");
+  EXPECT_EQ(config.perform(ctx), "value");
   
   EnvironmentVariable env("TEST");
-  EXPECT_EQ(env.Perform(ctx), "env_value");
+  EXPECT_EQ(env.perform(ctx), "env_value");
   
   ThisLaunchFile file;
-  EXPECT_EQ(file.Perform(ctx), "/test/launch.yaml");
+  EXPECT_EQ(file.perform(ctx), "/test/launch.yaml");
   
   ThisLaunchFileDir dir;
-  EXPECT_EQ(dir.Perform(ctx), "/test");
+  EXPECT_EQ(dir.perform(ctx), "/test");
 }
 
 int main(int argc, char** argv)

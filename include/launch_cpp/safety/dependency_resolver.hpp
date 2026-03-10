@@ -177,7 +177,7 @@ private:
     /**
      * @brief DFS helper for cycle detection
      */
-    bool DFSVisit(
+    bool DFSvisit(
         const std::string& node,
         const std::map<std::string, std::vector<std::string>>& graph,
         std::map<std::string, int>& color,
@@ -391,7 +391,7 @@ inline std::vector<std::string> DependencyResolver::DetectCycleDFS(
     // DFS from each unvisited node
     for (const auto& [node, _] : graph) {
         if (color[node] == 0) {
-            if (DFSVisit(node, graph, color, path, cycle)) {
+            if (DFSvisit(node, graph, color, path, cycle)) {
                 return cycle;
             }
         }
@@ -400,7 +400,7 @@ inline std::vector<std::string> DependencyResolver::DetectCycleDFS(
     return cycle;  // Empty if no cycle
 }
 
-inline bool DependencyResolver::DFSVisit(
+inline bool DependencyResolver::DFSvisit(
     const std::string& node,
     const std::map<std::string, std::vector<std::string>>& graph,
     std::map<std::string, int>& color,
@@ -425,7 +425,7 @@ inline bool DependencyResolver::DFSVisit(
             }
 
             if (color[neighbor] == 0) {
-                if (DFSVisit(neighbor, graph, color, path, cycle)) {
+                if (DFSvisit(neighbor, graph, color, path, cycle)) {
                     return true;
                 }
             }

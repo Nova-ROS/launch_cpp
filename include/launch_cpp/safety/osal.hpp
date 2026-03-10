@@ -84,7 +84,7 @@ enum class OsalStatus {
  * @details Similar to launch_cpp::Result but specific to OSAL
  *          operations. Provides error status alongside value.
  *
- * @note Check IsSuccess() before accessing value
+ * @note Check is_success() before accessing value
  * @note Default constructs to success state
  *
  * @requirements REQ-LAUNCH-OSAL-001
@@ -121,39 +121,39 @@ public:
      * @brief Check if operation succeeded
      * @return true if status is kSuccess
      */
-    bool IsSuccess() const { return status_ == OsalStatus::kSuccess; }
+    bool is_success() const { return status_ == OsalStatus::kSuccess; }
     
     /**
      * @brief Check if operation failed
      * @return true if status is not kSuccess
      */
-    bool HasError() const { return status_ != OsalStatus::kSuccess; }
+    bool has_error() const { return status_ != OsalStatus::kSuccess; }
 
     /**
      * @brief Get the status code
      * @return OsalStatus value
      */
-    OsalStatus GetStatus() const { return status_; }
+    OsalStatus get_status() const { return status_; }
     
     /**
      * @brief Get error message
      * @return Error description (empty if success)
      */
-    const std::string& GetErrorMessage() const { return error_message_; }
+    const std::string& get_error_message() const { return error_message_; }
 
     /**
      * @brief Get value reference
      * @return Reference to stored value
-     * @pre IsSuccess() must be true
+     * @pre is_success() must be true
      */
-    T& GetValue() { return value_; }
+    T& get_value() { return value_; }
     
     /**
      * @brief Get value const reference
      * @return Const reference to stored value
-     * @pre IsSuccess() must be true
+     * @pre is_success() must be true
      */
-    const T& GetValue() const { return value_; }
+    const T& get_value() const { return value_; }
 
 private:
     OsalStatus status_;      ///< Operation status
@@ -192,25 +192,25 @@ public:
      * @brief Check if operation succeeded
      * @return true if status is kSuccess
      */
-    bool IsSuccess() const { return status_ == OsalStatus::kSuccess; }
+    bool is_success() const { return status_ == OsalStatus::kSuccess; }
     
     /**
      * @brief Check if operation failed
      * @return true if status is not kSuccess
      */
-    bool HasError() const { return status_ != OsalStatus::kSuccess; }
+    bool has_error() const { return status_ != OsalStatus::kSuccess; }
 
     /**
      * @brief Get the status code
      * @return OsalStatus value
      */
-    OsalStatus GetStatus() const { return status_; }
+    OsalStatus get_status() const { return status_; }
     
     /**
      * @brief Get error message
      * @return Error description (empty if success)
      */
-    const std::string& GetErrorMessage() const { return error_message_; }
+    const std::string& get_error_message() const { return error_message_; }
 
 private:
     OsalStatus status_;      ///< Operation status
@@ -290,7 +290,7 @@ struct ProcessOptions {
  * @brief Process execution result
  *
  * @details Contains all information about a completed process execution.
- *          Returned by Wait() and related operations.
+ *          Returned by wait() and related operations.
  *
  * @requirements REQ-LAUNCH-OSAL-001
  */
@@ -337,7 +337,7 @@ public:
      *
      * @requirements REQ-LAUNCH-OSAL-001
      */
-    virtual OsalResult<ProcessId> Execute(
+    virtual OsalResult<ProcessId> execute(
         const CommandLine& command,
         const ProcessOptions& options) = 0;
 
@@ -354,7 +354,7 @@ public:
      *
      * @requirements REQ-LAUNCH-OSAL-001
      */
-    virtual OsalResult<ProcessResult> Wait(
+    virtual OsalResult<ProcessResult> wait(
         ProcessId pid,
         std::chrono::milliseconds timeout) = 0;
 
@@ -367,7 +367,7 @@ public:
      *
      * @requirements REQ-LAUNCH-OSAL-001
      */
-    virtual OsalResult<bool> IsRunning(ProcessId pid) = 0;
+    virtual OsalResult<bool> is_running(ProcessId pid) = 0;
 
     /**
      * @brief Terminate a process gracefully
@@ -382,7 +382,7 @@ public:
      *
      * @requirements REQ-LAUNCH-OSAL-001
      */
-    virtual OsalResult<void> Terminate(
+    virtual OsalResult<void> terminate(
         ProcessId pid,
         std::chrono::milliseconds timeout) = 0;
 
@@ -398,7 +398,7 @@ public:
      *
      * @requirements REQ-LAUNCH-OSAL-001
      */
-    virtual OsalResult<void> Kill(ProcessId pid) = 0;
+    virtual OsalResult<void> kill(ProcessId pid) = 0;
 
     /**
      * @brief Send signal to process
@@ -410,7 +410,7 @@ public:
      *
      * @requirements REQ-LAUNCH-OSAL-001
      */
-    virtual OsalResult<void> SendSignal(ProcessId pid, int32_t signal) = 0;
+    virtual OsalResult<void> send_signal(ProcessId pid, int32_t signal) = 0;
 
     /**
      * @brief Get process state
@@ -421,7 +421,7 @@ public:
      *
      * @requirements REQ-LAUNCH-OSAL-001
      */
-    virtual OsalResult<ProcessState> GetState(ProcessId pid) = 0;
+    virtual OsalResult<ProcessState> get_state(ProcessId pid) = 0;
 };
 
 /**
@@ -439,25 +439,25 @@ public:
     PosixProcessExecutor();
     ~PosixProcessExecutor() override;
 
-    OsalResult<ProcessId> Execute(
+    OsalResult<ProcessId> execute(
         const CommandLine& command,
         const ProcessOptions& options) override;
 
-    OsalResult<ProcessResult> Wait(
+    OsalResult<ProcessResult> wait(
         ProcessId pid,
         std::chrono::milliseconds timeout) override;
 
-    OsalResult<bool> IsRunning(ProcessId pid) override;
+    OsalResult<bool> is_running(ProcessId pid) override;
 
-    OsalResult<void> Terminate(
+    OsalResult<void> terminate(
         ProcessId pid,
         std::chrono::milliseconds timeout) override;
 
-    OsalResult<void> Kill(ProcessId pid) override;
+    OsalResult<void> kill(ProcessId pid) override;
 
-    OsalResult<void> SendSignal(ProcessId pid, int32_t signal) override;
+    OsalResult<void> send_signal(ProcessId pid, int32_t signal) override;
 
-    OsalResult<ProcessState> GetState(ProcessId pid) override;
+    OsalResult<ProcessState> get_state(ProcessId pid) override;
 
 private:
     class Impl;
@@ -491,34 +491,34 @@ public:
     using SendSignalCallback = std::function<OsalResult<void>(ProcessId, int32_t)>;
     using GetStateCallback = std::function<OsalResult<ProcessState>(ProcessId)>;
 
-    void SetExecuteCallback(ExecuteCallback callback);
-    void SetWaitCallback(WaitCallback callback);
-    void SetIsRunningCallback(IsRunningCallback callback);
-    void SetTerminateCallback(TerminateCallback callback);
-    void SetKillCallback(KillCallback callback);
-    void SetSendSignalCallback(SendSignalCallback callback);
-    void SetGetStateCallback(GetStateCallback callback);
+    void set_execute_callback(ExecuteCallback callback);
+    void set_wait_callback(WaitCallback callback);
+    void set_is_running_callback(IsRunningCallback callback);
+    void set_terminate_callback(TerminateCallback callback);
+    void set_kill_callback(KillCallback callback);
+    void set_send_signal_callback(SendSignalCallback callback);
+    void set_get_state_callback(GetStateCallback callback);
 
     // Default implementations that can be overridden
-    OsalResult<ProcessId> Execute(
+    OsalResult<ProcessId> execute(
         const CommandLine& command,
         const ProcessOptions& options) override;
 
-    OsalResult<ProcessResult> Wait(
+    OsalResult<ProcessResult> wait(
         ProcessId pid,
         std::chrono::milliseconds timeout) override;
 
-    OsalResult<bool> IsRunning(ProcessId pid) override;
+    OsalResult<bool> is_running(ProcessId pid) override;
 
-    OsalResult<void> Terminate(
+    OsalResult<void> terminate(
         ProcessId pid,
         std::chrono::milliseconds timeout) override;
 
-    OsalResult<void> Kill(ProcessId pid) override;
+    OsalResult<void> kill(ProcessId pid) override;
 
-    OsalResult<void> SendSignal(ProcessId pid, int32_t signal) override;
+    OsalResult<void> send_signal(ProcessId pid, int32_t signal) override;
 
-    OsalResult<ProcessState> GetState(ProcessId pid) override;
+    OsalResult<ProcessState> get_state(ProcessId pid) override;
 
 private:
     ExecuteCallback execute_cb_;
@@ -586,21 +586,21 @@ public:
      * @brief Get current system resource usage
      * @return System resource information
      */
-    virtual OsalResult<SystemResources> GetSystemResources() = 0;
+    virtual OsalResult<SystemResources> get_system_resources() = 0;
 
     /**
      * @brief Get resource usage of a specific process
      * @param pid Process ID
      * @return Process resource usage
      */
-    virtual OsalResult<ResourceUsage> GetProcessResources(ProcessId pid) = 0;
+    virtual OsalResult<ResourceUsage> get_process_resources(ProcessId pid) = 0;
 
     /**
      * @brief Check if resources are available for new process
      * @param estimated_memory Estimated memory needed
      * @return true if resources available
      */
-    virtual OsalResult<bool> AreResourcesAvailable(
+    virtual OsalResult<bool> are_resources_available(
         uint64_t estimated_memory) = 0;
 
     /**
@@ -610,7 +610,7 @@ public:
      * @param max_cpu_percent Maximum CPU percentage
      * @return Success or error
      */
-    virtual OsalResult<void> SetResourceLimits(
+    virtual OsalResult<void> set_resource_limits(
         ProcessId pid,
         uint64_t max_memory,
         double max_cpu_percent) = 0;
@@ -620,7 +620,7 @@ public:
      * @param threshold Threshold percentage (0-100)
      * @param callback Callback function
      */
-    virtual void RegisterThresholdCallback(
+    virtual void register_threshold_callback(
         double threshold,
         std::function<void(const SystemResources&)> callback) = 0;
 };
@@ -637,14 +637,14 @@ public:
     PosixResourceMonitor();
     ~PosixResourceMonitor() override;
 
-    OsalResult<SystemResources> GetSystemResources() override;
-    OsalResult<ResourceUsage> GetProcessResources(ProcessId pid) override;
-    OsalResult<bool> AreResourcesAvailable(uint64_t estimated_memory) override;
-    OsalResult<void> SetResourceLimits(
+    OsalResult<SystemResources> get_system_resources() override;
+    OsalResult<ResourceUsage> get_process_resources(ProcessId pid) override;
+    OsalResult<bool> are_resources_available(uint64_t estimated_memory) override;
+    OsalResult<void> set_resource_limits(
         ProcessId pid,
         uint64_t max_memory,
         double max_cpu_percent) override;
-    void RegisterThresholdCallback(
+    void register_threshold_callback(
         double threshold,
         std::function<void(const SystemResources&)> callback) override;
 
@@ -710,7 +710,7 @@ public:
      * @param callback Callback for heartbeat received
      * @return Success or error
      */
-    virtual OsalResult<void> RegisterNode(
+    virtual OsalResult<void> register_node(
         uint32_t node_id,
         uint32_t timeout_ms,
         HeartbeatCallback callback) = 0;
@@ -720,14 +720,14 @@ public:
      * @param node_id Node identifier
      * @return Success or error
      */
-    virtual OsalResult<void> UnregisterNode(uint32_t node_id) = 0;
+    virtual OsalResult<void> unregister_node(uint32_t node_id) = 0;
 
     /**
      * @brief Submit heartbeat for a node
      * @param message Heartbeat message
      * @return Success or error
      */
-    virtual OsalResult<void> SubmitHeartbeat(
+    virtual OsalResult<void> submit_heartbeat(
         const HeartbeatMessage& message) = 0;
 
     /**
@@ -735,26 +735,26 @@ public:
      * @param node_id Node identifier
      * @return true if responsive
      */
-    virtual OsalResult<bool> IsResponsive(uint32_t node_id) = 0;
+    virtual OsalResult<bool> is_responsive(uint32_t node_id) = 0;
 
     /**
      * @brief Set callback for node timeout
      * @param callback Callback function
      */
-    virtual void SetTimeoutCallback(
+    virtual void set_timeout_callback(
         std::function<void(uint32_t)> callback) = 0;
 
     /**
      * @brief Start the watchdog
      * @return Success or error
      */
-    virtual OsalResult<void> Start() = 0;
+    virtual OsalResult<void> start() = 0;
 
     /**
      * @brief Stop the watchdog
      * @return Success or error
      */
-    virtual OsalResult<void> Stop() = 0;
+    virtual OsalResult<void> stop() = 0;
 };
 
 /**
@@ -769,23 +769,23 @@ public:
     PosixWatchdog();
     ~PosixWatchdog() override;
 
-    OsalResult<void> RegisterNode(
+    OsalResult<void> register_node(
         uint32_t node_id,
         uint32_t timeout_ms,
         HeartbeatCallback callback) override;
 
-    OsalResult<void> UnregisterNode(uint32_t node_id) override;
+    OsalResult<void> unregister_node(uint32_t node_id) override;
 
-    OsalResult<void> SubmitHeartbeat(
+    OsalResult<void> submit_heartbeat(
         const HeartbeatMessage& message) override;
 
-    OsalResult<bool> IsResponsive(uint32_t node_id) override;
+    OsalResult<bool> is_responsive(uint32_t node_id) override;
 
-    void SetTimeoutCallback(
+    void set_timeout_callback(
         std::function<void(uint32_t)> callback) override;
 
-    OsalResult<void> Start() override;
-    OsalResult<void> Stop() override;
+    OsalResult<void> start() override;
+    OsalResult<void> stop() override;
 
 private:
     class Impl;
@@ -846,38 +846,38 @@ public:
      * @brief Report an error
      * @param error Error information
      */
-    virtual void ReportError(const ErrorInfo& error) = 0;
+    virtual void report_error(const ErrorInfo& error) = 0;
 
     /**
      * @brief Set callback for critical errors
      * @param callback Callback function
      */
-    virtual void SetCriticalErrorCallback(
+    virtual void set_critical_error_callback(
         std::function<void(const ErrorInfo&)> callback) = 0;
 
     /**
      * @brief Get last error
      * @return Last error information
      */
-    virtual OsalResult<ErrorInfo> GetLastError() = 0;
+    virtual OsalResult<ErrorInfo> get_last_error() = 0;
 
     /**
      * @brief Clear error history
      */
-    virtual void ClearErrors() = 0;
+    virtual void clear_errors() = 0;
 
     /**
      * @brief Initialize error handler
      * @param log_path Path to error log
      * @return Success or error
      */
-    virtual OsalResult<void> Initialize(
+    virtual OsalResult<void> initialize(
         const std::string& log_path) = 0;
 
     /**
      * @brief Shutdown error handler
      */
-    virtual void Shutdown() = 0;
+    virtual void shutdown() = 0;
 };
 
 /**
@@ -892,13 +892,13 @@ public:
     PosixErrorHandler();
     ~PosixErrorHandler() override;
 
-    void ReportError(const ErrorInfo& error) override;
-    void SetCriticalErrorCallback(
+    void report_error(const ErrorInfo& error) override;
+    void set_critical_error_callback(
         std::function<void(const ErrorInfo&)> callback) override;
-    OsalResult<ErrorInfo> GetLastError() override;
-    void ClearErrors() override;
-    OsalResult<void> Initialize(const std::string& log_path) override;
-    void Shutdown() override;
+    OsalResult<ErrorInfo> get_last_error() override;
+    void clear_errors() override;
+    OsalResult<void> initialize(const std::string& log_path) override;
+    void shutdown() override;
 
 private:
     class Impl;
@@ -927,7 +927,7 @@ private:
         error.file = __FILE__; \
         error.line = __LINE__; \
         error.function = __func__; \
-        handler->ReportError(error); \
+        handler->report_error(error); \
     } while(0)
 
 #define OSAL_REPORT_INFO(handler, code, message) \

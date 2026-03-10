@@ -30,19 +30,19 @@ TEST(ThreadPoolTest, Creation)
   // Test with 1 thread
   {
     ThreadPool pool(1);
-    EXPECT_EQ(pool.GetThreadCount(), 1U);
+    EXPECT_EQ(pool.get_thread_count(), 1U);
   }
   
   // Test with 4 threads
   {
     ThreadPool pool(4);
-    EXPECT_EQ(pool.GetThreadCount(), 4U);
+    EXPECT_EQ(pool.get_thread_count(), 4U);
   }
   
   // Test with 8 threads
   {
     ThreadPool pool(8);
-    EXPECT_EQ(pool.GetThreadCount(), 8U);
+    EXPECT_EQ(pool.get_thread_count(), 8U);
   }
 }
 
@@ -52,10 +52,10 @@ TEST(ThreadPoolTest, SingleTask)
   ThreadPool pool(2);
   std::atomic<int> counter(0);
   
-  Error err = pool.Submit([&counter]() { counter++; });
-  EXPECT_TRUE(err.IsSuccess());
+  Error err = pool.submit([&counter]() { counter++; });
+  EXPECT_TRUE(err.is_success());
   
-  pool.Shutdown();
+  pool.shutdown();
   EXPECT_EQ(counter.load(), 1);
 }
 
@@ -67,13 +67,13 @@ TEST(ThreadPoolTest, MultipleTasks)
   const int num_tasks = 100;
   
   for (int i = 0; i < num_tasks; ++i) {
-    Error err = pool.Submit([&counter]() {
+    Error err = pool.submit([&counter]() {
       counter++;
     });
-    EXPECT_TRUE(err.IsSuccess());
+    EXPECT_TRUE(err.is_success());
   }
   
-  pool.Shutdown();
+  pool.shutdown();
   EXPECT_EQ(counter.load(), num_tasks);
 }
 
@@ -86,7 +86,7 @@ TEST(ThreadPoolTest, ConcurrentExecution)
   const int num_tasks = 20;
   
   for (int i = 0; i < num_tasks; ++i) {
-    pool.Submit([&concurrent_count, &max_concurrent]() {
+    pool.submit([&concurrent_count, &max_concurrent]() {
       int current = ++concurrent_count;
       int prev_max = max_concurrent.load();
       while (current > prev_max && !max_concurrent.compare_exchange_weak(prev_max, current)) {}
@@ -98,7 +98,7 @@ TEST(ThreadPoolTest, ConcurrentExecution)
     });
   }
   
-  pool.Shutdown();
+  pool.shutdown();
   
   // Should have had some concurrent execution
   EXPECT_GT(max_concurrent.load(), 1);
@@ -121,12 +121,12 @@ TEST(ThreadPoolTest, TaskWithResult)
     promises.push_back(promise);
     futures.push_back(promise->get_future());
     
-    pool.Submit([promise, i]() {
+    pool.submit([promise, i]() {
       promise->set_value(i * i);
     });
   }
   
-  pool.Shutdown();
+  pool.shutdown();
   
   // Verify results
   for (int i = 0; i < num_tasks; ++i) {
@@ -140,12 +140,12 @@ TEST(ThreadPoolTest, Shutdown)
   ThreadPool pool(2);
   std::atomic<bool> task_completed(false);
   
-  pool.Submit([&task_completed]() {
+  pool.submit([&task_completed]() {
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     task_completed = true;
   });
   
-  pool.Shutdown();
+  pool.shutdown();
   
   EXPECT_TRUE(task_completed.load());
 }
@@ -154,10 +154,10 @@ TEST(ThreadPoolTest, Shutdown)
 TEST(ThreadPoolTest, SubmitAfterShutdown)
 {
   ThreadPool pool(2);
-  pool.Shutdown();
+  pool.shutdown();
   
-  Error err = pool.Submit([]() {});
-  EXPECT_TRUE(err.IsError());
+  Error err = pool.submit([]() {});
+  EXPECT_TRUE(err.is_error());
 }
 
 // Test: Multiple shutdown calls (should be safe)
@@ -166,9 +166,9 @@ TEST(ThreadPoolTest, MultipleShutdowns)
   ThreadPool pool(2);
   
   // Should not crash or throw
-  pool.Shutdown();
-  pool.Shutdown();
-  pool.Shutdown();
+  pool.shutdown();
+  pool.shutdown();
+  pool.shutdown();
 }
 
 // Test: Multiple tasks with some error conditions
@@ -180,7 +180,7 @@ TEST(ThreadPoolTest, TaskErrorHandling)
   
   // Submit tasks - some succeed, some "fail" (but don't throw)
   for (int i = 0; i < 10; ++i) {
-    pool.Submit([&counter, &error_count, i]() {
+    pool.submit([&counter, &error_count, i]() {
       if (i % 3 == 0) {
         // Simulate error condition
         error_count++;
@@ -190,7 +190,7 @@ TEST(ThreadPoolTest, TaskErrorHandling)
     });
   }
   
-  pool.Shutdown();
+  pool.shutdown();
   
   // All tasks should complete
   EXPECT_EQ(error_count.load(), 4);  // 4 "error" tasks (0, 3, 6, 9)
@@ -205,12 +205,12 @@ TEST(ThreadPoolTest, HighLoadStress)
   const int num_tasks = 1000;
   
   for (int i = 0; i < num_tasks; ++i) {
-    pool.Submit([&counter]() {
+    pool.submit([&counter]() {
       counter++;
     });
   }
   
-  pool.Shutdown();
+  pool.shutdown();
   EXPECT_EQ(counter.load(), num_tasks);
 }
 
@@ -222,14 +222,14 @@ TEST(ThreadPoolTest, NoOrderGuarantee)
   std::mutex order_mutex;
   
   for (int i = 0; i < 10; ++i) {
-    pool.Submit([i, &order, &order_mutex]() {
+    pool.submit([i, &order, &order_mutex]() {
       std::this_thread::sleep_for(std::chrono::microseconds(100));
       std::lock_guard<std::mutex> lock(order_mutex);
       order.push_back(i);
     });
   }
   
-  pool.Shutdown();
+  pool.shutdown();
   
   EXPECT_EQ(order.size(), 10U);
   // Order is not guaranteed to be 0,1,2,...
@@ -252,12 +252,12 @@ TEST(ThreadPoolTest, SingleThreadPool)
   const int num_tasks = 10;
   
   for (int i = 0; i < num_tasks; ++i) {
-    pool.Submit([&counter]() {
+    pool.submit([&counter]() {
       counter++;
     });
   }
   
-  pool.Shutdown();
+  pool.shutdown();
   EXPECT_EQ(counter.load(), num_tasks);
 }
 
@@ -269,12 +269,12 @@ TEST(ThreadPoolTest, LargeThreadPool)
   const int num_tasks = 32;
   
   for (int i = 0; i < num_tasks; ++i) {
-    pool.Submit([&counter]() {
+    pool.submit([&counter]() {
       counter++;
     });
   }
   
-  pool.Shutdown();
+  pool.shutdown();
   EXPECT_EQ(counter.load(), num_tasks);
 }
 
@@ -291,7 +291,7 @@ TEST(ThreadPoolTest, MultiThreadedSubmit)
   for (int t = 0; t < num_threads; ++t) {
     threads.emplace_back([&pool, &counter]() {
       for (int i = 0; i < tasks_per_thread; ++i) {
-        pool.Submit([&counter]() {
+        pool.submit([&counter]() {
           counter++;
         });
       }
@@ -302,7 +302,7 @@ TEST(ThreadPoolTest, MultiThreadedSubmit)
     t.join();
   }
   
-  pool.Shutdown();
+  pool.shutdown();
   EXPECT_EQ(counter.load(), num_threads * tasks_per_thread);
 }
 
@@ -316,23 +316,23 @@ TEST(ThreadPoolTest, RecursiveSubmit)
   std::function<void(int)> recursive_task = [&](int remaining) {
     counter++;
     if (remaining > 0) {
-      pool.Submit([&recursive_task, remaining]() {
+      pool.submit([&recursive_task, remaining]() {
         recursive_task(remaining - 1);
       });
-      pool.Submit([&recursive_task, remaining]() {
+      pool.submit([&recursive_task, remaining]() {
         recursive_task(remaining - 1);
       });
     }
   };
   
-  pool.Submit([&recursive_task]() {
+  pool.submit([&recursive_task]() {
     recursive_task(depth);
   });
   
   // Wait a bit for recursive tasks to complete
   std::this_thread::sleep_for(std::chrono::milliseconds(200));
   
-  pool.Shutdown();
+  pool.shutdown();
   
   // With depth 3: 1 + 2 + 4 + 8 = 15
   EXPECT_EQ(counter.load(), 15);

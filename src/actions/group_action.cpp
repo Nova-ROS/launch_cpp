@@ -25,11 +25,11 @@ GroupAction::GroupAction(const Options& options)
 {
 }
 
-Result<void> GroupAction::Execute(LaunchContext& context)
+Result<void> GroupAction::execute(LaunchContext& context)
 {
   if (options_.condition)
   {
-    bool should_execute = options_.condition->Evaluate(context);
+    bool should_execute = options_.condition->evaluate(context);
     if (!should_execute)
     {
       return Result<void>();
@@ -40,8 +40,8 @@ Result<void> GroupAction::Execute(LaunchContext& context)
   {
     if (action)
     {
-      Result<void> result = action->Execute(context);
-      if (result.HasError())
+      Result<void> result = action->execute(context);
+      if (result.has_error())
       {
         return result;
       }

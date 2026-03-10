@@ -31,7 +31,7 @@ TEST(LaunchServiceTest, BasicCreation)
   LaunchService::Options options;
   LaunchService service(options);
   
-  EXPECT_FALSE(service.IsRunning());
+  EXPECT_FALSE(service.is_running());
 }
 
 // Test: LaunchService with options
@@ -43,7 +43,7 @@ TEST(LaunchServiceTest, CreationWithOptions)
   
   LaunchService service(options);
   // Just verify it doesn't crash
-  EXPECT_FALSE(service.IsRunning());
+  EXPECT_FALSE(service.is_running());
 }
 
 // Test: IncludeLaunchDescription basic
@@ -54,8 +54,8 @@ TEST(LaunchServiceTest, IncludeLaunchDescription)
   
   auto desc = std::make_shared<LaunchDescription>();
   
-  Error err = service.IncludeLaunchDescription(desc);
-  EXPECT_TRUE(err.IsSuccess());
+  Error err = service.include_launch_description(desc);
+  EXPECT_TRUE(err.is_success());
 }
 
 // Test: IncludeLaunchDescription with actions
@@ -70,10 +70,10 @@ TEST(LaunchServiceTest, IncludeLaunchDescriptionWithActions)
   SetLaunchConfiguration::Options action_opts;
   action_opts.name = "test_config";
   action_opts.value = std::make_shared<TextSubstitution>("test_value");
-  desc->Add(std::make_shared<SetLaunchConfiguration>(action_opts));
+  desc->add(std::make_shared<SetLaunchConfiguration>(action_opts));
   
-  Error err = service.IncludeLaunchDescription(desc);
-  EXPECT_TRUE(err.IsSuccess());
+  Error err = service.include_launch_description(desc);
+  EXPECT_TRUE(err.is_success());
 }
 
 // Test: LaunchService run basic
@@ -83,7 +83,7 @@ TEST(LaunchServiceTest, RunBasic)
   LaunchService service(options);
   
   // Run with shutdown_when_idle = true (default)
-  int result = service.Run(true);
+  int result = service.run(true);
   
   EXPECT_EQ(result, 0);
 }
@@ -95,12 +95,12 @@ TEST(LaunchServiceTest, RunWithoutShutdown)
   LaunchService service(options);
   
   // Run without auto-shutdown
-  int result = service.Run(false);
+  int result = service.run(false);
   
   EXPECT_EQ(result, 0);
   
   // Manually shutdown
-  service.Shutdown();
+  service.shutdown();
 }
 
 // Test: LaunchService run multiple times
@@ -110,11 +110,11 @@ TEST(LaunchServiceTest, RunMultipleTimes)
   LaunchService service(options);
   
   // First run
-  int result1 = service.Run(true);
+  int result1 = service.run(true);
   EXPECT_EQ(result1, 0);
   
   // Second run should fail (not in idle state)
-  int result2 = service.Run(true);
+  int result2 = service.run(true);
   EXPECT_NE(result2, 0);
 }
 
@@ -124,13 +124,13 @@ TEST(LaunchServiceTest, StatusQueries)
   LaunchService::Options options;
   LaunchService service(options);
   
-  EXPECT_FALSE(service.IsRunning());
+  EXPECT_FALSE(service.is_running());
   
   // After run
-  service.Run(true);
+  service.run(true);
   
   // Status should not be running anymore
-  EXPECT_FALSE(service.IsRunning());
+  EXPECT_FALSE(service.is_running());
 }
 
 // Test: LaunchService with launch arguments
@@ -146,12 +146,12 @@ TEST(LaunchServiceTest, WithLaunchArguments)
   arg_opts.name = "test_arg";
   arg_opts.defaultValue = std::make_shared<TextSubstitution>("default_value");
   arg_opts.description = "Test argument";
-  desc->Add(std::make_shared<DeclareLaunchArgument>(arg_opts));
+  desc->add(std::make_shared<DeclareLaunchArgument>(arg_opts));
   
-  Error err = service.IncludeLaunchDescription(desc);
-  EXPECT_TRUE(err.IsSuccess());
+  Error err = service.include_launch_description(desc);
+  EXPECT_TRUE(err.is_success());
   
-  int result = service.Run(true);
+  int result = service.run(true);
   EXPECT_EQ(result, 0);
 }
 
@@ -162,15 +162,15 @@ TEST(LaunchServiceTest, Shutdown)
   LaunchService service(options);
   
   // Shutdown before run (should be safe)
-  service.Shutdown();
+  service.shutdown();
   
   // Run then shutdown
-  service.Run(false);
-  service.Shutdown();
+  service.run(false);
+  service.shutdown();
   
   // Multiple shutdowns should be safe
-  service.Shutdown();
-  service.Shutdown();
+  service.shutdown();
+  service.shutdown();
 }
 
 // Test: LaunchService with multiple launch descriptions
@@ -184,20 +184,20 @@ TEST(LaunchServiceTest, MultipleLaunchDescriptions)
   SetLaunchConfiguration::Options opts1;
   opts1.name = "config1";
   opts1.value = std::make_shared<TextSubstitution>("value1");
-  desc1->Add(std::make_shared<SetLaunchConfiguration>(opts1));
+  desc1->add(std::make_shared<SetLaunchConfiguration>(opts1));
   
   // Second description
   auto desc2 = std::make_shared<LaunchDescription>();
   SetLaunchConfiguration::Options opts2;
   opts2.name = "config2";
   opts2.value = std::make_shared<TextSubstitution>("value2");
-  desc2->Add(std::make_shared<SetLaunchConfiguration>(opts2));
+  desc2->add(std::make_shared<SetLaunchConfiguration>(opts2));
   
   // Include both
-  EXPECT_TRUE(service.IncludeLaunchDescription(desc1).IsSuccess());
-  EXPECT_TRUE(service.IncludeLaunchDescription(desc2).IsSuccess());
+  EXPECT_TRUE(service.include_launch_description(desc1).is_success());
+  EXPECT_TRUE(service.include_launch_description(desc2).is_success());
   
-  int result = service.Run(true);
+  int result = service.run(true);
   EXPECT_EQ(result, 0);
 }
 
@@ -208,8 +208,8 @@ TEST(LaunchServiceTest, ErrorHandling)
   LaunchService service(options);
   
   // Include null description (should fail)
-  Error err = service.IncludeLaunchDescription(nullptr);
-  EXPECT_TRUE(err.IsError());
+  Error err = service.include_launch_description(nullptr);
+  EXPECT_TRUE(err.is_error());
 }
 
 // Test: LaunchService with empty description
@@ -221,10 +221,10 @@ TEST(LaunchServiceTest, EmptyDescription)
   auto desc = std::make_shared<LaunchDescription>();
   // No actions added
   
-  Error err = service.IncludeLaunchDescription(desc);
-  EXPECT_TRUE(err.IsSuccess());
+  Error err = service.include_launch_description(desc);
+  EXPECT_TRUE(err.is_success());
   
-  int result = service.Run(true);
+  int result = service.run(true);
   EXPECT_EQ(result, 0);
 }
 
@@ -244,9 +244,9 @@ TEST(LaunchServiceTest, ConcurrentAccess)
       SetLaunchConfiguration::Options opts;
       opts.name = "thread_" + std::to_string(i);
       opts.value = std::make_shared<TextSubstitution>("value");
-      desc->Add(std::make_shared<SetLaunchConfiguration>(opts));
+      desc->add(std::make_shared<SetLaunchConfiguration>(opts));
       
-      if (service.IncludeLaunchDescription(desc).IsSuccess()) {
+      if (service.include_launch_description(desc).is_success()) {
         include_count++;
       }
     });
@@ -258,7 +258,7 @@ TEST(LaunchServiceTest, ConcurrentAccess)
   
   EXPECT_EQ(include_count.load(), 4);
   
-  int result = service.Run(true);
+  int result = service.run(true);
   EXPECT_EQ(result, 0);
 }
 
@@ -275,12 +275,12 @@ TEST(LaunchServiceTest, ComplexLaunchDescription)
     SetLaunchConfiguration::Options opts;
     opts.name = "config_" + std::to_string(i);
     opts.value = std::make_shared<TextSubstitution>("value_" + std::to_string(i));
-    desc->Add(std::make_shared<SetLaunchConfiguration>(opts));
+    desc->add(std::make_shared<SetLaunchConfiguration>(opts));
   }
   
-  EXPECT_TRUE(service.IncludeLaunchDescription(desc).IsSuccess());
+  EXPECT_TRUE(service.include_launch_description(desc).is_success());
   
-  int result = service.Run(true);
+  int result = service.run(true);
   EXPECT_EQ(result, 0);
 }
 

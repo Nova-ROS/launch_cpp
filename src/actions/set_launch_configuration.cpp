@@ -25,11 +25,11 @@ SetLaunchConfiguration::SetLaunchConfiguration(const Options& options)
 {
 }
 
-Result<void> SetLaunchConfiguration::Execute(LaunchContext& context)
+Result<void> SetLaunchConfiguration::execute(LaunchContext& context)
 {
   if (options_.value)
   {
-    std::string value = options_.value->Perform(context);
+    std::string value = options_.value->perform(context);
     context.SetLaunchConfiguration(options_.name, value);
   }
   else

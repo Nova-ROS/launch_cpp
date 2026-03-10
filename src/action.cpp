@@ -61,39 +61,39 @@ namespace launch_cpp
  *
  * @requirements REQ-LAUNCH-ACTION-001, REQ-LAUNCH-ACTION-002
  */
-Result<LaunchDescriptionEntityVector> Action::Visit(LaunchContext& context)
+Result<LaunchDescriptionEntityVector> Action::visit(LaunchContext& context)
 {
   // Check if this action has a condition attached
   // Safety: Condition evaluation should not throw
-  if (HasCondition())
+  if (has_condition())
   {
     // Evaluate the condition in the given context
     // Requirements: REQ-LAUNCH-ACTION-002
-    bool conditionResult = GetCondition()->Evaluate(context);
-    
+    bool condition_result = get_condition()->evaluate(context);
+
     // If condition evaluates to false, skip execution
     // Return empty vector indicating no action taken
-    if (!conditionResult)
+    if (!condition_result)
     {
       return Result<LaunchDescriptionEntityVector>(LaunchDescriptionEntityVector{});
     }
   }
-  
+
   // Condition passed (or no condition), execute the action
-  // Delegate to pure virtual Execute() implemented by derived class
+  // Delegate to pure virtual execute() implemented by derived class
   // Requirements: REQ-LAUNCH-ACTION-001
-  Result<void> executeResult = Execute(context);
-  
+  Result<void> execute_result = execute(context);
+
   // Check for execution errors
   // Safety: Must propagate errors without exceptions
-  if (executeResult.HasError())
+  if (execute_result.has_error())
   {
-    // Propagate error from Execute()
+    // Propagate error from execute()
     // Create result with same error code and message
-    Result<LaunchDescriptionEntityVector> errorResult(executeResult.GetError());
-    return errorResult;
+    Result<LaunchDescriptionEntityVector> error_result(execute_result.get_error());
+    return error_result;
   }
-  
+
   // Execution succeeded, return empty vector
   // Actions don't directly return child entities
   return Result<LaunchDescriptionEntityVector>(LaunchDescriptionEntityVector{});

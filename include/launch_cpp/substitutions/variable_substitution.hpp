@@ -71,12 +71,12 @@ class VariableSubstitution final : public Substitution
    * 
    * @requirement REQ-LAUNCH-SUBST-002
    */
-  std::string Perform(const LaunchContext& context) const override
+  std::string perform(const LaunchContext& context) const override
   {
     auto result = context.GetLaunchConfiguration(variable_name_);
-    if (result.HasValue())
+    if (result.has_value())
     {
-      return result.GetValue();
+      return result.get_value();
     }
     return default_value_;
   }

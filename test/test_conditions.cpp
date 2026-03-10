@@ -63,7 +63,7 @@ TEST(IfConditionTest, TrueCondition)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("true"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 // Test: IfCondition with "1"
@@ -71,7 +71,7 @@ TEST(IfConditionTest, TrueAsOne)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("1"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 // Test: IfCondition with "yes"
@@ -79,7 +79,7 @@ TEST(IfConditionTest, TrueAsYes)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("yes"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 // Test: IfCondition with "false"
@@ -87,7 +87,7 @@ TEST(IfConditionTest, FalseCondition)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("false"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 // Test: IfCondition with "0"
@@ -95,7 +95,7 @@ TEST(IfConditionTest, FalseAsZero)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("0"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 // Test: IfCondition with "no"
@@ -103,7 +103,7 @@ TEST(IfConditionTest, FalseAsNo)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("no"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 // Test: IfCondition with empty string
@@ -111,7 +111,7 @@ TEST(IfConditionTest, EmptyString)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>(""));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 // Test: UnlessCondition with "true"
@@ -119,7 +119,7 @@ TEST(UnlessConditionTest, TrueCondition)
 {
   MockLaunchContext ctx;
   UnlessCondition cond(std::make_shared<TextSubstitution>("true"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 // Test: UnlessCondition with "false"
@@ -127,7 +127,7 @@ TEST(UnlessConditionTest, FalseCondition)
 {
   MockLaunchContext ctx;
   UnlessCondition cond(std::make_shared<TextSubstitution>("false"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 // Test: UnlessCondition with empty string
@@ -135,7 +135,7 @@ TEST(UnlessConditionTest, EmptyString)
 {
   MockLaunchContext ctx;
   UnlessCondition cond(std::make_shared<TextSubstitution>(""));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 // Test: LaunchConfigurationEquals with matching values
@@ -145,7 +145,7 @@ TEST(LaunchConfigurationEqualsTest, MatchingValues)
   ctx.SetLaunchConfiguration("test_key", "test_value");
   
   LaunchConfigurationEquals cond("test_key", std::make_shared<TextSubstitution>("test_value"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 // Test: LaunchConfigurationEquals with non-matching values
@@ -155,7 +155,7 @@ TEST(LaunchConfigurationEqualsTest, NonMatchingValues)
   ctx.SetLaunchConfiguration("test_key", "test_value");
   
   LaunchConfigurationEquals cond("test_key", std::make_shared<TextSubstitution>("different_value"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 // Test: LaunchConfigurationEquals with non-existing key
@@ -165,7 +165,7 @@ TEST(LaunchConfigurationEqualsTest, NonExistingKey)
   // Don't set the configuration
   
   LaunchConfigurationEquals cond("non_existing_key", std::make_shared<TextSubstitution>("any_value"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 // Test: LaunchConfigurationEquals with empty expected value
@@ -175,7 +175,7 @@ TEST(LaunchConfigurationEqualsTest, EmptyExpectedValue)
   ctx.SetLaunchConfiguration("test_key", "");
   
   LaunchConfigurationEquals cond("test_key", std::make_shared<TextSubstitution>(""));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 // Test: All conditions implement base interface
@@ -192,7 +192,7 @@ TEST(ConditionBaseTest, InterfaceImplementation)
   conditions.push_back(std::make_shared<LaunchConfigurationEquals>("key", std::make_shared<TextSubstitution>("value")));
   
   for (auto& cond : conditions) {
-    bool result = cond->Evaluate(ctx);
+    bool result = cond->evaluate(ctx);
     EXPECT_TRUE(result) << "Condition should evaluate to true";
   }
 }
@@ -213,9 +213,9 @@ TEST(ConditionComplexTest, CombinedUsage)
   // Unless with falsy value (empty string) should return true
   UnlessCondition unless_cond(std::make_shared<TextSubstitution>(""));
   
-  EXPECT_TRUE(if_cond.Evaluate(ctx));
-  EXPECT_TRUE(equals_cond.Evaluate(ctx));
-  EXPECT_TRUE(unless_cond.Evaluate(ctx));  // empty is falsy, so Unless returns true
+  EXPECT_TRUE(if_cond.evaluate(ctx));
+  EXPECT_TRUE(equals_cond.evaluate(ctx));
+  EXPECT_TRUE(unless_cond.evaluate(ctx));  // empty is falsy, so Unless returns true
 }
 
 int main(int argc, char** argv)

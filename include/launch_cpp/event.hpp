@@ -112,8 +112,8 @@ class Event
    *
    * @requirements REQ-LAUNCH-EVENT-001
    */
-  virtual const char* GetType() const = 0;
-  
+  virtual const char* get_type() const = 0;
+
   /**
    * @brief Get the event creation timestamp
    *
@@ -127,7 +127,7 @@ class Event
    *
    * @requirements REQ-LAUNCH-EVENT-003
    */
-  std::chrono::steady_clock::time_point GetTimestamp() const noexcept
+  std::chrono::steady_clock::time_point get_timestamp() const noexcept
   {
     return timestamp_;
   }
@@ -161,19 +161,19 @@ class ProcessStartedEvent final : public Event
    * @brief Get event type
    * @return "process_started"
    */
-  const char* GetType() const override { return "process_started"; }
-  
+  const char* get_type() const override { return "process_started"; }
+
   /**
    * @brief Get the process ID
    * @return Process ID
    */
-  std::int32_t GetPid() const noexcept { return pid_; }
-  
+  std::int32_t get_pid() const noexcept { return pid_; }
+
   /**
    * @brief Get the process name
    * @return Process name
    */
-  const std::string& GetName() const noexcept { return name_; }
+  const std::string& get_name() const noexcept { return name_; }
   
  private:
   std::int32_t pid_;      ///< Process identifier
@@ -206,25 +206,25 @@ class ProcessExitedEvent final : public Event
    * @brief Get event type
    * @return "process_exited"
    */
-  const char* GetType() const override { return "process_exited"; }
-  
+  const char* get_type() const override { return "process_exited"; }
+
   /**
    * @brief Get the process ID
    * @return Process ID
    */
-  std::int32_t GetPid() const noexcept { return pid_; }
-  
+  std::int32_t get_pid() const noexcept { return pid_; }
+
   /**
    * @brief Get the exit code
    * @return Exit code (0 = success, non-zero = error)
    */
-  std::int32_t GetReturnCode() const noexcept { return returnCode_; }
-  
+  std::int32_t get_return_code() const noexcept { return returnCode_; }
+
   /**
    * @brief Get the process name
    * @return Process name
    */
-  const std::string& GetName() const noexcept { return name_; }
+  const std::string& get_name() const noexcept { return name_; }
   
  private:
   std::int32_t pid_;          ///< Process identifier
@@ -256,13 +256,13 @@ class ShutdownEvent final : public Event
    * @brief Get event type
    * @return "shutdown"
    */
-  const char* GetType() const override { return "shutdown"; }
-  
+  const char* get_type() const override { return "shutdown"; }
+
   /**
    * @brief Get the shutdown reason
    * @return Shutdown reason description
    */
-  const std::string& GetReason() const noexcept { return reason_; }
+  const std::string& get_reason() const noexcept { return reason_; }
   
  private:
   std::string reason_;  ///< Shutdown reason

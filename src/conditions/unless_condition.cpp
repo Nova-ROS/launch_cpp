@@ -20,14 +20,14 @@
 namespace launch_cpp
 {
 
-bool UnlessCondition::Evaluate(const LaunchContext& context) const
+bool UnlessCondition::evaluate(const LaunchContext& context) const
 {
   if (!expression_)
   {
     return true;  // If no expression, condition is true (execute unless nothing)
   }
   
-  std::string result = expression_->Perform(context);
+  std::string result = expression_->perform(context);
   
   // Truthy check: empty or "false" or "0" means false, so Unless returns true
   if (result.empty())

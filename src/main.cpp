@@ -79,25 +79,25 @@ std::int32_t main(std::int32_t argc, char* argv[])
   LaunchService service(options);
   
   // Load launch file
-  Result<LaunchDescriptionPtr> loadResult = LaunchDescription::FromYamlFile(launchFile);
+  Result<LaunchDescriptionPtr> loadResult = LaunchDescription::from_yaml_file(launchFile);
   
-  if (loadResult.HasError())
+  if (loadResult.has_error())
   {
-    std::cerr << "Error loading launch file: " << loadResult.GetError().GetMessage() << std::endl;
+    std::cerr << "Error loading launch file: " << loadResult.get_error().get_message() << std::endl;
     return 1;
   }
   
   // Include launch description
-  Error includeError = service.IncludeLaunchDescription(loadResult.GetValue());
+  Error includeError = service.include_launch_description(loadResult.get_value());
   
-  if (includeError.IsError())
+  if (includeError.is_error())
   {
-    std::cerr << "Error including launch description: " << includeError.GetMessage() << std::endl;
+    std::cerr << "Error including launch description: " << includeError.get_message() << std::endl;
     return 1;
   }
   
   // Run
-  std::int32_t exitCode = service.Run();
+  std::int32_t exitCode = service.run();
   
   return exitCode;
 }

@@ -67,10 +67,10 @@ TEST(EventTest, BaseClass)
 {
   ProcessStartedEvent event(1234, "test_process");
   
-  EXPECT_EQ(event.GetPid(), 1234);
-  EXPECT_EQ(event.GetName(), "test_process");
-  EXPECT_STREQ(event.GetType(), "process_started");
-  EXPECT_NE(event.GetTimestamp().time_since_epoch().count(), 0);
+  EXPECT_EQ(event.get_pid(), 1234);
+  EXPECT_EQ(event.get_name(), "test_process");
+  EXPECT_STREQ(event.get_type(), "process_started");
+  EXPECT_NE(event.get_timestamp().time_since_epoch().count(), 0);
 }
 
 // Test: ProcessStartedEvent
@@ -78,9 +78,9 @@ TEST(EventTest, ProcessStarted)
 {
   ProcessStartedEvent event(1000, "/bin/echo hello");
   
-  EXPECT_STREQ(event.GetType(), "process_started");
-  EXPECT_EQ(event.GetPid(), 1000);
-  EXPECT_EQ(event.GetName(), "/bin/echo hello");
+  EXPECT_STREQ(event.get_type(), "process_started");
+  EXPECT_EQ(event.get_pid(), 1000);
+  EXPECT_EQ(event.get_name(), "/bin/echo hello");
 }
 
 // Test: ProcessExitedEvent
@@ -88,10 +88,10 @@ TEST(EventTest, ProcessExited)
 {
   ProcessExitedEvent event(1000, 0, "/bin/echo hello");
   
-  EXPECT_STREQ(event.GetType(), "process_exited");
-  EXPECT_EQ(event.GetPid(), 1000);
-  EXPECT_EQ(event.GetName(), "/bin/echo hello");
-  EXPECT_EQ(event.GetReturnCode(), 0);
+  EXPECT_STREQ(event.get_type(), "process_exited");
+  EXPECT_EQ(event.get_pid(), 1000);
+  EXPECT_EQ(event.get_name(), "/bin/echo hello");
+  EXPECT_EQ(event.get_return_code(), 0);
 }
 
 // Test: ProcessExitedEvent with error
@@ -99,7 +99,7 @@ TEST(EventTest, ProcessExitedWithError)
 {
   ProcessExitedEvent event(1000, 1, "/bin/false");
   
-  EXPECT_EQ(event.GetReturnCode(), 1);
+  EXPECT_EQ(event.get_return_code(), 1);
 }
 
 // Test: ShutdownEvent
@@ -107,8 +107,8 @@ TEST(EventTest, ShutdownEvent)
 {
   ShutdownEvent event("user_requested");
   
-  EXPECT_STREQ(event.GetType(), "shutdown");
-  EXPECT_EQ(event.GetReason(), "user_requested");
+  EXPECT_STREQ(event.get_type(), "shutdown");
+  EXPECT_EQ(event.get_reason(), "user_requested");
 }
 
 // Test: ShutdownEvent with error
@@ -116,7 +116,7 @@ TEST(EventTest, ShutdownEventWithError)
 {
   ShutdownEvent event("error");
   
-  EXPECT_EQ(event.GetReason(), "error");
+  EXPECT_EQ(event.get_reason(), "error");
 }
 
 // Test: EventQueue basic operations
@@ -124,21 +124,21 @@ TEST(EventQueueTest, BasicOperations)
 {
   EventQueue queue;
   
-  EXPECT_TRUE(queue.IsEmpty());
-  EXPECT_EQ(queue.Size(), 0U);
+  EXPECT_TRUE(queue.is_empty());
+  EXPECT_EQ(queue.size(), 0U);
   
   // Push an event
   EventPtr event = std::make_shared<ProcessStartedEvent>(1234, "test");
-  queue.Push(event);
+  queue.push(event);
   
-  EXPECT_FALSE(queue.IsEmpty());
-  EXPECT_EQ(queue.Size(), 1U);
+  EXPECT_FALSE(queue.is_empty());
+  EXPECT_EQ(queue.size(), 1U);
   
   // Pop the event
   EventPtr popped;
-  EXPECT_TRUE(queue.TryPop(popped));
+  EXPECT_TRUE(queue.try_pop(popped));
   EXPECT_NE(popped, nullptr);
-  EXPECT_TRUE(queue.IsEmpty());
+  EXPECT_TRUE(queue.is_empty());
 }
 
 // Test: EventQueue multiple events
@@ -149,20 +149,20 @@ TEST(EventQueueTest, MultipleEvents)
   // Push multiple events
   for (int i = 0; i < 10; ++i) {
     EventPtr event = std::make_shared<ProcessStartedEvent>(i, "test");
-    queue.Push(event);
+    queue.push(event);
   }
   
-  EXPECT_EQ(queue.Size(), 10U);
+  EXPECT_EQ(queue.size(), 10U);
   
   // Pop all events
   int count = 0;
   EventPtr event;
-  while (queue.TryPop(event)) {
+  while (queue.try_pop(event)) {
     count++;
   }
   
   EXPECT_EQ(count, 10);
-  EXPECT_TRUE(queue.IsEmpty());
+  EXPECT_TRUE(queue.is_empty());
 }
 
 // Test: EventQueue wait and pop
@@ -174,12 +174,12 @@ TEST(EventQueueTest, WaitAndPop)
   std::thread producer([&queue]() {
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     EventPtr event = std::make_shared<ProcessStartedEvent>(1234, "test");
-    queue.Push(event);
+    queue.push(event);
   });
   
   // Wait for event
   EventPtr event;
-  bool result = queue.WaitAndPop(event, std::chrono::milliseconds(200));
+  bool result = queue.wait_and_pop(event, std::chrono::milliseconds(200));
   
   EXPECT_TRUE(result);
   EXPECT_NE(event, nullptr);
@@ -194,7 +194,7 @@ TEST(EventQueueTest, WaitTimeout)
   
   // Wait without pushing anything
   EventPtr event;
-  bool result = queue.WaitAndPop(event, std::chrono::milliseconds(50));
+  bool result = queue.wait_and_pop(event, std::chrono::milliseconds(50));
   
   EXPECT_FALSE(result);
   EXPECT_EQ(event, nullptr);
@@ -208,16 +208,16 @@ TEST(EventQueueTest, Clear)
   // Add events
   for (int i = 0; i < 5; ++i) {
     EventPtr event = std::make_shared<ProcessStartedEvent>(i, "test");
-    queue.Push(event);
+    queue.push(event);
   }
   
-  EXPECT_EQ(queue.Size(), 5U);
+  EXPECT_EQ(queue.size(), 5U);
   
   // Clear
-  queue.Clear();
+  queue.clear();
   
-  EXPECT_TRUE(queue.IsEmpty());
-  EXPECT_EQ(queue.Size(), 0U);
+  EXPECT_TRUE(queue.is_empty());
+  EXPECT_EQ(queue.size(), 0U);
 }
 
 // Test: EventQueue thread safety
@@ -233,7 +233,7 @@ TEST(EventQueueTest, ThreadSafety)
     producers.emplace_back([&queue, &push_count]() {
       for (int i = 0; i < 25; ++i) {
         EventPtr event = std::make_shared<ProcessStartedEvent>(i, "test");
-        queue.Push(event);
+        queue.push(event);
         push_count++;
       }
     });
@@ -245,7 +245,7 @@ TEST(EventQueueTest, ThreadSafety)
     consumers.emplace_back([&queue, &pop_count]() {
       EventPtr event;
       while (pop_count < 100) {
-        if (queue.TryPop(event)) {
+        if (queue.try_pop(event)) {
           pop_count++;
         } else {
           std::this_thread::sleep_for(std::chrono::microseconds(100));
@@ -266,7 +266,7 @@ TEST(EventDispatcherTest, BasicRegistration)
 {
   EventDispatcher dispatcher;
   
-  EXPECT_EQ(dispatcher.GetHandlerCount(), 0U);
+  EXPECT_EQ(dispatcher.get_handler_count(), 0U);
   
   // Create a handler
   auto handler = std::make_shared<FunctionEventHandler>(
@@ -276,8 +276,8 @@ TEST(EventDispatcherTest, BasicRegistration)
     }
   );
   
-  dispatcher.RegisterHandler(handler);
-  EXPECT_EQ(dispatcher.GetHandlerCount(), 1U);
+  dispatcher.register_handler(handler);
+  EXPECT_EQ(dispatcher.get_handler_count(), 1U);
 }
 
 // Test: EventDispatcher unregister
@@ -292,11 +292,11 @@ TEST(EventDispatcherTest, Unregister)
     }
   );
   
-  dispatcher.RegisterHandler(handler);
-  EXPECT_EQ(dispatcher.GetHandlerCount(), 1U);
+  dispatcher.register_handler(handler);
+  EXPECT_EQ(dispatcher.get_handler_count(), 1U);
   
-  dispatcher.UnregisterHandler(handler.get());
-  EXPECT_EQ(dispatcher.GetHandlerCount(), 0U);
+  dispatcher.unregister_handler(handler.get());
+  EXPECT_EQ(dispatcher.get_handler_count(), 0U);
 }
 
 // Test: EventDispatcher clear
@@ -312,13 +312,13 @@ TEST(EventDispatcherTest, Clear)
         return Result<LaunchDescriptionEntityVector>(LaunchDescriptionEntityVector{});
       }
     );
-    dispatcher.RegisterHandler(handler);
+    dispatcher.register_handler(handler);
   }
   
-  EXPECT_EQ(dispatcher.GetHandlerCount(), 5U);
+  EXPECT_EQ(dispatcher.get_handler_count(), 5U);
   
-  dispatcher.ClearHandlers();
-  EXPECT_EQ(dispatcher.GetHandlerCount(), 0U);
+  dispatcher.clear_handlers();
+  EXPECT_EQ(dispatcher.get_handler_count(), 0U);
 }
 
 // Test: EventDispatcher dispatch matching
@@ -330,7 +330,7 @@ TEST(EventDispatcherTest, DispatchMatching)
   // Create a handler that matches ProcessStartedEvent
   auto handler = std::make_shared<FunctionEventHandler>(
     [](const Event& e) {
-      return std::string(e.GetType()) == "process_started";
+      return std::string(e.get_type()) == "process_started";
     },
     [&handler_called](const Event&, LaunchContext&) {
       handler_called++;
@@ -338,16 +338,16 @@ TEST(EventDispatcherTest, DispatchMatching)
     }
   );
   
-  dispatcher.RegisterHandler(handler);
+  dispatcher.register_handler(handler);
   
   // Create a mock context
   MockLaunchContext ctx;
   
   // Dispatch a matching event
   ProcessStartedEvent event(1234, "test");
-  auto result = dispatcher.Dispatch(event, ctx);
+  auto result = dispatcher.dispatch(event, ctx);
   
-  EXPECT_TRUE(result.HasValue());
+  EXPECT_TRUE(result.has_value());
   EXPECT_EQ(handler_called.load(), 1);
 }
 
@@ -360,7 +360,7 @@ TEST(EventDispatcherTest, DispatchNonMatching)
   // Create a handler that matches ProcessStartedEvent
   auto handler = std::make_shared<FunctionEventHandler>(
     [](const Event& e) {
-      return std::string(e.GetType()) == "process_started";
+      return std::string(e.get_type()) == "process_started";
     },
     [&handler_called](const Event&, LaunchContext&) {
       handler_called++;
@@ -368,15 +368,15 @@ TEST(EventDispatcherTest, DispatchNonMatching)
     }
   );
   
-  dispatcher.RegisterHandler(handler);
+  dispatcher.register_handler(handler);
   
   MockLaunchContext ctx;
   
   // Dispatch a non-matching event
   ShutdownEvent event("user_requested");
-  auto result = dispatcher.Dispatch(event, ctx);
+  auto result = dispatcher.dispatch(event, ctx);
   
-  EXPECT_TRUE(result.HasValue());
+  EXPECT_TRUE(result.has_value());
   EXPECT_EQ(handler_called.load(), 0);
 }
 
@@ -395,16 +395,16 @@ TEST(EventDispatcherTest, MultipleHandlers)
         return Result<LaunchDescriptionEntityVector>(LaunchDescriptionEntityVector{});
       }
     );
-    dispatcher.RegisterHandler(handler);
+    dispatcher.register_handler(handler);
   }
   
   MockLaunchContext ctx;
   
   // Dispatch event
   ProcessStartedEvent event(1234, "test");
-  auto result = dispatcher.Dispatch(event, ctx);
+  auto result = dispatcher.dispatch(event, ctx);
   
-  EXPECT_TRUE(result.HasValue());
+  EXPECT_TRUE(result.has_value());
   EXPECT_EQ(handlers_called.load(), 3);
 }
 
@@ -419,7 +419,7 @@ TEST(EventHandlerTest, BaseClass)
   );
   
   ProcessStartedEvent event(1234, "test");
-  EXPECT_TRUE(handler.Matches(event));
+  EXPECT_TRUE(handler.matches(event));
 }
 
 int main(int argc, char** argv)

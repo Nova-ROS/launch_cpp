@@ -27,7 +27,7 @@ class ThisLaunchFileDir final : public Substitution
   ThisLaunchFileDir() = default;
   ~ThisLaunchFileDir() override = default;
 
-  std::string Perform(const LaunchContext& context) const override;
+  std::string perform(const LaunchContext& context) const override;
 };
 
 }  // namespace launch_cpp

@@ -78,13 +78,13 @@ public:
     explicit RetryableResult(ErrorCode code, const std::string& message = "")
         : success_(false), error_code_(code), error_message_(message) {}
 
-    bool IsSuccess() const { return success_; }
-    bool HasError() const { return !success_; }
+    bool is_success() const { return success_; }
+    bool has_error() const { return !success_; }
     ErrorCode GetErrorCode() const { return error_code_; }
-    const std::string& GetErrorMessage() const { return error_message_; }
+    const std::string& get_error_message() const { return error_message_; }
 
-    T& GetValue() { return value_; }
-    const T& GetValue() const { return value_; }
+    T& get_value() { return value_; }
+    const T& get_value() const { return value_; }
 
 private:
     bool success_;
@@ -140,7 +140,7 @@ public:
      * @endcode
      */
     template<typename T>
-    RetryableResult<T> Execute(std::function<RetryableResult<T>()> operation) const {
+    RetryableResult<T> execute(std::function<RetryableResult<T>()> operation) const {
         uint32_t attempt = 0;
         RetryableResult<T> last_result;
 
@@ -149,7 +149,7 @@ public:
             last_result = operation();
 
             // Check if successful
-            if (last_result.IsSuccess()) {
+            if (last_result.is_success()) {
                 return last_result;
             }
 
@@ -258,7 +258,7 @@ private:
 class NoRetryPolicy {
 public:
     template<typename T>
-    RetryableResult<T> Execute(std::function<RetryableResult<T>()> operation) const {
+    RetryableResult<T> execute(std::function<RetryableResult<T>()> operation) const {
         return operation();
     }
 
@@ -283,12 +283,12 @@ public:
         : max_attempts_(max_attempts), delay_(delay) {}
 
     template<typename T>
-    RetryableResult<T> Execute(std::function<RetryableResult<T>()> operation) const {
+    RetryableResult<T> execute(std::function<RetryableResult<T>()> operation) const {
         RetryableResult<T> last_result;
 
         for (uint32_t i = 0; i < max_attempts_; ++i) {
             last_result = operation();
-            if (last_result.IsSuccess()) {
+            if (last_result.is_success()) {
                 return last_result;
             }
             if (i < max_attempts_ - 1) {

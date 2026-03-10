@@ -117,8 +117,8 @@ class Error final
    * @return ErrorCode value
    * @note AUTOSAR C++14: M0-1-9 - Declare noexcept if non-throwing
    */
-  ErrorCode GetCode() const noexcept { return code_; }
-  
+  ErrorCode get_code() const noexcept { return code_; }
+
   /**
    * @brief Get the error message
    *
@@ -126,23 +126,23 @@ class Error final
    * @note Returns reference to internal storage
    * @note AUTOSAR C++14: M0-1-9 - Declare noexcept if non-throwing
    */
-  const std::string& GetMessage() const noexcept { return message_; }
-  
+  const std::string& get_message() const noexcept { return message_; }
+
   /**
    * @brief Check if this represents success
    *
    * @return true if code is kSuccess
    * @note Convenience method for success checking
    */
-  bool IsSuccess() const noexcept { return code_ == ErrorCode::kSuccess; }
-  
+  bool is_success() const noexcept { return code_ == ErrorCode::kSuccess; }
+
   /**
    * @brief Check if this represents an error
    *
    * @return true if code is not kSuccess
    * @note Convenience method for error checking
    */
-  bool IsError() const noexcept { return code_ != ErrorCode::kSuccess; }
+  bool is_error() const noexcept { return code_ != ErrorCode::kSuccess; }
   
   /**
    * @brief Boolean conversion operator
@@ -150,7 +150,7 @@ class Error final
    * @return true if success
    * @note Allows use in if statements: if (error) { ... }
    */
-  explicit operator bool() const noexcept { return IsSuccess(); }
+  explicit operator bool() const noexcept { return is_success(); }
   
  private:
   /**
@@ -218,7 +218,7 @@ inline const char* Error::GetDefaultMessage(ErrorCode code)
  *          Similar to std::expected (C++23) or Result types in Rust.
  *
  * @note AUTOSAR C++14: Exception-free error propagation
- * @note Check HasValue() before calling GetValue()
+ * @note Check has_value() before calling get_value()
  * @note Default constructs to success state
  *
  * @requirements REQ-LAUNCH-ERROR-003
@@ -275,50 +275,50 @@ class Result final
    *
    * @return true if success
    */
-  bool HasValue() const noexcept { return error_.IsSuccess(); }
-  
+  bool has_value() const noexcept { return error_.is_success(); }
+
   /**
    * @brief Check if result contains an error
    *
    * @return true if error
    */
-  bool HasError() const noexcept { return error_.IsError(); }
-  
+  bool has_error() const noexcept { return error_.is_error(); }
+
   /**
    * @brief Get the value (const)
    *
    * @return Const reference to value
-   * @pre HasValue() must be true
+   * @pre has_value() must be true
    * @note AUTOSAR C++14: A8-4-13 - Do not return non-const references carelessly
    */
-  const T& GetValue() const { return value_; }
-  
+  const T& get_value() const { return value_; }
+
   /**
    * @brief Get the value (non-const)
    *
    * @return Reference to value
-   * @pre HasValue() must be true
+   * @pre has_value() must be true
    */
-  T& GetValue()
+  T& get_value()
   {
     // AUTOSAR C++14: M5-0-3 - Use explicit type conversions
-    return const_cast<T&>(static_cast<const Result*>(this)->GetValue());
+    return const_cast<T&>(static_cast<const Result*>(this)->get_value());
   }
-  
+
   /**
    * @brief Get the error
    *
    * @return Const reference to error
    */
-  const Error& GetError() const noexcept { return error_; }
+  const Error& get_error() const noexcept { return error_; }
   
   /**
    * @brief Boolean conversion operator
    *
    * @return true if has value
    */
-  explicit operator bool() const noexcept { return HasValue(); }
-  
+  explicit operator bool() const noexcept { return has_value(); }
+
  private:
   T value_;      ///< Stored value (valid if success)
   Error error_;  ///< Error information
@@ -360,29 +360,29 @@ class Result<void> final
    *
    * @return true if success
    */
-  bool HasValue() const noexcept { return error_.IsSuccess(); }
-  
+  bool has_value() const noexcept { return error_.is_success(); }
+
   /**
    * @brief Check if result contains an error
    *
    * @return true if error
    */
-  bool HasError() const noexcept { return error_.IsError(); }
-  
+  bool has_error() const noexcept { return error_.is_error(); }
+
   /**
    * @brief Get the error
    *
    * @return Const reference to error
    */
-  const Error& GetError() const noexcept { return error_; }
+  const Error& get_error() const noexcept { return error_; }
   
   /**
    * @brief Boolean conversion operator
    *
    * @return true if success
    */
-  explicit operator bool() const noexcept { return HasValue(); }
-  
+  explicit operator bool() const noexcept { return has_value(); }
+
  private:
   Error error_;  ///< Error information
 };

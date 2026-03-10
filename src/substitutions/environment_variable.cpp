@@ -20,7 +20,7 @@
 namespace launch_cpp
 {
 
-std::string EnvironmentVariable::Perform(const LaunchContext& context) const
+std::string EnvironmentVariable::perform(const LaunchContext& context) const
 {
   std::string value = context.GetEnvironmentVariable(name_);
   

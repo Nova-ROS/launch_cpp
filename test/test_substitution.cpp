@@ -45,7 +45,7 @@ TEST(SubstitutionTest, TextSubstitution)
   MockLaunchContext context;
   TextSubstitution sub("Hello World");
   
-  std::string result = sub.Perform(context);
+  std::string result = sub.perform(context);
   EXPECT_EQ(result, "Hello World");
 }
 

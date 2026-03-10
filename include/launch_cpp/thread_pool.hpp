@@ -59,23 +59,23 @@ class ThreadPool final
   ThreadPool& operator=(ThreadPool&&) = delete;
   
   // AUTOSAR C++14: M0-1-9 - Declare functions as noexcept
-  Error Submit(std::function<void()> task);
+  Error submit(std::function<void()> task);
+
+  void shutdown();
+
+  std::size_t get_thread_count() const noexcept { return threads_.size(); }
   
-  void Shutdown();
-  
-  std::size_t GetThreadCount() const noexcept { return threads_.size(); }
-  
-  ThreadPoolStatus GetStatus() const noexcept
+  ThreadPoolStatus get_status() const noexcept
   {
     return status_.load(std::memory_order_acquire);
   }
-  
+
  private:
-  void WorkerThread();
-  
+  void worker_thread();
+
   std::vector<std::thread> threads_;
-  std::queue<std::function<void()>> taskQueue_;
-  std::mutex queueMutex_;
+  std::queue<std::function<void()>> task_queue_;
+  std::mutex queue_mutex_;
   std::condition_variable condition_;
   std::atomic<ThreadPoolStatus> status_;
 };

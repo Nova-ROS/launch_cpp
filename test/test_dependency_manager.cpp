@@ -142,9 +142,9 @@ TEST(DependencyManagerTest, AddProcess)
   options.cmd = {text("echo"), text("test")};
   auto action = std::make_shared<ExecuteProcess>(options);
   
-  auto error = manager.AddProcess("test_process", action, {});
-  EXPECT_FALSE(error.IsError());
-  EXPECT_EQ(manager.GetProcessCount(), 1);
+  auto error = manager.add_process("test_process", action, {});
+  EXPECT_FALSE(error.is_error());
+  EXPECT_EQ(manager.get_process_count(), 1);
 }
 
 TEST(DependencyManagerTest, AddDuplicateProcess)
@@ -155,10 +155,10 @@ TEST(DependencyManagerTest, AddDuplicateProcess)
   options.cmd = {text("echo"), text("test")};
   auto action = std::make_shared<ExecuteProcess>(options);
   
-  manager.AddProcess("test", action, {});
-  auto error = manager.AddProcess("test", action, {});
+  manager.add_process("test", action, {});
+  auto error = manager.add_process("test", action, {});
   
-  EXPECT_TRUE(error.IsError());
+  EXPECT_TRUE(error.is_error());
 }
 
 TEST(DependencyManagerTest, GetProcess)
@@ -169,12 +169,12 @@ TEST(DependencyManagerTest, GetProcess)
   options.cmd = {text("echo"), text("test")};
   auto action = std::make_shared<ExecuteProcess>(options);
   
-  manager.AddProcess("my_process", action, {});
+  manager.add_process("my_process", action, {});
   
-  auto retrieved = manager.GetProcess("my_process");
+  auto retrieved = manager.get_process("my_process");
   EXPECT_NE(retrieved, nullptr);
   
-  auto not_found = manager.GetProcess("nonexistent");
+  auto not_found = manager.get_process("nonexistent");
   EXPECT_EQ(not_found, nullptr);
 }
 
@@ -188,22 +188,22 @@ TEST(DependencyManagerTest, IsReady)
   auto action_a = std::make_shared<ExecuteProcess>(options);
   auto action_b = std::make_shared<ExecuteProcess>(options);
   
-  manager.AddProcess("A", action_a, {});
-  manager.AddProcess("B", action_b, {"A"});
+  manager.add_process("A", action_a, {});
+  manager.add_process("B", action_b, {"A"});
   
   std::set<std::string> completed;
   
   // A has no dependencies, should be ready
-  EXPECT_TRUE(manager.IsReady("A", completed));
+  EXPECT_TRUE(manager.is_ready("A", completed));
   
   // B depends on A, should not be ready yet
-  EXPECT_FALSE(manager.IsReady("B", completed));
+  EXPECT_FALSE(manager.is_ready("B", completed));
   
   // Mark A as completed
   completed.insert("A");
   
   // Now B should be ready
-  EXPECT_TRUE(manager.IsReady("B", completed));
+  EXPECT_TRUE(manager.is_ready("B", completed));
 }
 
 TEST(DependencyManagerTest, ResolveDependencies)
@@ -217,11 +217,11 @@ TEST(DependencyManagerTest, ResolveDependencies)
   auto action_b = std::make_shared<ExecuteProcess>(options);
   auto action_c = std::make_shared<ExecuteProcess>(options);
   
-  manager.AddProcess("A", action_a, {});
-  manager.AddProcess("B", action_b, {"A"});
-  manager.AddProcess("C", action_c, {"B"});
+  manager.add_process("A", action_a, {});
+  manager.add_process("B", action_b, {"A"});
+  manager.add_process("C", action_c, {"B"});
   
-  auto result = manager.ResolveDependencies();
+  auto result = manager.resolve_dependencies();
   
   EXPECT_TRUE(result.success);
   EXPECT_EQ(result.order.size(), 3);
@@ -241,11 +241,11 @@ TEST(DependencyManagerTest, ResolveWithCircularDependency)
   auto action_b = std::make_shared<ExecuteProcess>(options);
   auto action_c = std::make_shared<ExecuteProcess>(options);
   
-  manager.AddProcess("A", action_a, {"C"});
-  manager.AddProcess("B", action_b, {"A"});
-  manager.AddProcess("C", action_c, {"B"});
+  manager.add_process("A", action_a, {"C"});
+  manager.add_process("B", action_b, {"A"});
+  manager.add_process("C", action_c, {"B"});
   
-  auto result = manager.ResolveDependencies();
+  auto result = manager.resolve_dependencies();
   
   EXPECT_FALSE(result.success);
 }
@@ -258,12 +258,12 @@ TEST(DependencyManagerTest, Clear)
   options.cmd = {text("echo"), text("test")};
   auto action = std::make_shared<ExecuteProcess>(options);
   
-  manager.AddProcess("test", action, {});
-  EXPECT_EQ(manager.GetProcessCount(), 1);
+  manager.add_process("test", action, {});
+  EXPECT_EQ(manager.get_process_count(), 1);
   
-  manager.Clear();
-  EXPECT_EQ(manager.GetProcessCount(), 0);
-  EXPECT_EQ(manager.GetProcess("test"), nullptr);
+  manager.clear();
+  EXPECT_EQ(manager.get_process_count(), 0);
+  EXPECT_EQ(manager.get_process("test"), nullptr);
 }
 
 // ============================================================================

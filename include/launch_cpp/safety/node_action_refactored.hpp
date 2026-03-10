@@ -120,7 +120,7 @@ public:
      * @requirement TSR-004: Retry mechanism
      * @requirement TSR-005: Timeout handling
      */
-    Result<void> Execute(LaunchContext& context) override;
+    Result<void> execute(LaunchContext& context) override;
 
     /**
      * @brief Stop the node
@@ -132,12 +132,12 @@ public:
      * 3. Wait for graceful exit
      * 4. Send SIGKILL if needed
      */
-    Result<void> Stop();
+    Result<void> stop();
 
     /**
      * @brief Get current node state
      */
-    NodeState GetState() const { return state_.load(); }
+    NodeState get_state() const { return state_.load(); }
 
     /**
      * @brief Get node name
@@ -168,7 +168,7 @@ public:
     /**
      * @brief Check if node is running
      */
-    bool IsRunning() const {
+    bool is_running() const {
         return state_.load() == NodeState::kRunning;
     }
 
@@ -230,7 +230,7 @@ private:
     /**
      * @brief Single attempt to start node
      */
-    Result<void> AttemptStart(LaunchContext& context);
+    Result<void> Attemptstart(LaunchContext& context);
 
     /**
      * @brief Register node with watchdog
@@ -250,7 +250,7 @@ private:
     /**
      * @brief Report error through error handler
      */
-    void ReportError(ErrorCode code, const std::string& message);
+    void report_error(ErrorCode code, const std::string& message);
 
     /**
      * @brief Calculate startup timeout
@@ -299,7 +299,7 @@ inline void NodeActionRefactored::UpdateState(NodeState new_state) {
     }
 }
 
-inline void NodeActionRefactored::ReportError(ErrorCode code,
+inline void NodeActionRefactored::report_error(ErrorCode code,
                                                const std::string& message) {
     if (error_handler_) {
         launch_cpp::ErrorInfo error;
@@ -310,7 +310,7 @@ inline void NodeActionRefactored::ReportError(ErrorCode code,
         error.context = "NodeAction: " + options_.name;
         // file, line, function would be set by macro
 
-        error_handler_->ReportError(error);
+        error_handler_->report_error(error);
     }
 }
 

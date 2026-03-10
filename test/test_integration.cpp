@@ -38,12 +38,12 @@ TEST(LaunchContextTest, ConfigurationManagement)
   
   // Test getting configuration
   Result<std::string> result = context.GetLaunchConfiguration("test_key");
-  EXPECT_TRUE(result.HasValue());
-  EXPECT_EQ(result.GetValue(), "test_value");
+  EXPECT_TRUE(result.has_value());
+  EXPECT_EQ(result.get_value(), "test_value");
   
   // Test non-existent key
   Result<std::string> missing = context.GetLaunchConfiguration("missing_key");
-  EXPECT_TRUE(missing.HasError());
+  EXPECT_TRUE(missing.has_error());
   
   // Test HasLaunchConfiguration
   EXPECT_TRUE(context.HasLaunchConfiguration("test_key"));
@@ -71,7 +71,7 @@ TEST(LaunchServiceTest, BasicLifecycle)
   LaunchService service;
   
   EXPECT_TRUE(service.IsIdle());
-  EXPECT_FALSE(service.IsRunning());
+  EXPECT_FALSE(service.is_running());
 }
 
 TEST(LaunchServiceTest, IncludeLaunchDescription)
@@ -81,7 +81,7 @@ TEST(LaunchServiceTest, IncludeLaunchDescription)
   auto desc = std::make_shared<LaunchDescription>();
   Error error = service.IncludeLaunchDescription(desc);
   
-  EXPECT_TRUE(error.IsSuccess());
+  EXPECT_TRUE(error.is_success());
 }
 
 TEST(LaunchServiceTest, IncludeNullDescription)
@@ -91,7 +91,7 @@ TEST(LaunchServiceTest, IncludeNullDescription)
   LaunchDescriptionPtr nullDesc;
   Error error = service.IncludeLaunchDescription(nullDesc);
   
-  EXPECT_TRUE(error.IsError());
+  EXPECT_TRUE(error.is_error());
 }
 
 TEST(LaunchDescriptionTest, AddAndVisit)
@@ -117,5 +117,5 @@ TEST(ExecuteProcessTest, BasicConstruction)
   
   ExecuteProcess process(options);
   
-  EXPECT_FALSE(process.IsRunning());
+  EXPECT_FALSE(process.is_running());
 }

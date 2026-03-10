@@ -42,7 +42,7 @@ class EventQueue
   EventQueue& operator=(EventQueue&&) = delete;
 
   // Push event to queue
-  void Push(const EventPtr& event)
+  void push(const EventPtr& event)
   {
     std::lock_guard<std::mutex> lock(mutex_);
     queue_.push(event);
@@ -50,7 +50,7 @@ class EventQueue
   }
 
   // Try to pop event (non-blocking)
-  bool TryPop(EventPtr& event)
+  bool try_pop(EventPtr& event)
   {
     std::lock_guard<std::mutex> lock(mutex_);
     if (queue_.empty())
@@ -63,7 +63,7 @@ class EventQueue
   }
 
   // Wait and pop event (blocking with timeout)
-  bool WaitAndPop(EventPtr& event, std::chrono::milliseconds timeout)
+  bool wait_and_pop(EventPtr& event, std::chrono::milliseconds timeout)
   {
     std::unique_lock<std::mutex> lock(mutex_);
     bool has_event = condition_.wait_for(lock, timeout, [this]()
@@ -81,21 +81,21 @@ class EventQueue
   }
 
   // Check if queue is empty
-  bool IsEmpty() const
+  bool is_empty() const
   {
     std::lock_guard<std::mutex> lock(mutex_);
     return queue_.empty();
   }
 
   // Get queue size
-  std::size_t Size() const
+  std::size_t size() const
   {
     std::lock_guard<std::mutex> lock(mutex_);
     return queue_.size();
   }
 
   // Clear all events
-  void Clear()
+  void clear()
   {
     std::lock_guard<std::mutex> lock(mutex_);
     while (!queue_.empty())

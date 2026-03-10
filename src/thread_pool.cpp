@@ -19,55 +19,55 @@
 namespace launch_cpp
 {
 
-ThreadPool::ThreadPool(std::size_t numThreads)
+ThreadPool::ThreadPool(std::size_t num_threads)
   : status_(ThreadPoolStatus::kRunning)
 {
-  threads_.reserve(numThreads);
-  
-  for (std::size_t i = 0U; i < numThreads; ++i)
+  threads_.reserve(num_threads);
+
+  for (std::size_t i = 0U; i < num_threads; ++i)
   {
-    threads_.emplace_back(&ThreadPool::WorkerThread, this);
+    threads_.emplace_back(&ThreadPool::worker_thread, this);
   }
 }
 
 ThreadPool::~ThreadPool() noexcept
 {
-  Shutdown();
+  shutdown();
 }
 
-Error ThreadPool::Submit(std::function<void()> task)
+Error ThreadPool::submit(std::function<void()> task)
 {
-  ThreadPoolStatus currentStatus = status_.load(std::memory_order_acquire);
-  
-  if (currentStatus != ThreadPoolStatus::kRunning)
+  ThreadPoolStatus current_status = status_.load(std::memory_order_acquire);
+
+  if (current_status != ThreadPoolStatus::kRunning)
   {
     return Error(ErrorCode::kInternalError, "Thread pool is not running");
   }
-  
+
   {
-    std::lock_guard<std::mutex> lock(queueMutex_);
-    taskQueue_.push(std::move(task));
+    std::lock_guard<std::mutex> lock(queue_mutex_);
+    task_queue_.push(std::move(task));
   }
-  
+
   condition_.notify_one();
   return Error();
 }
 
-void ThreadPool::Shutdown()
+void ThreadPool::shutdown()
 {
   ThreadPoolStatus expected = ThreadPoolStatus::kRunning;
-  
+
   if (!status_.compare_exchange_strong(
-        expected, 
+        expected,
         ThreadPoolStatus::kShuttingDown,
         std::memory_order_release,
         std::memory_order_relaxed))
   {
     return;
   }
-  
+
   condition_.notify_all();
-  
+
   for (std::thread& thread : threads_)
   {
     if (thread.joinable())
@@ -75,37 +75,37 @@ void ThreadPool::Shutdown()
       thread.join();
     }
   }
-  
+
   status_.store(ThreadPoolStatus::kStopped, std::memory_order_release);
 }
 
-void ThreadPool::WorkerThread()
+void ThreadPool::worker_thread()
 {
   while (true)
   {
     std::function<void()> task;
-    
+
     {
-      std::unique_lock<std::mutex> lock(queueMutex_);
-      
+      std::unique_lock<std::mutex> lock(queue_mutex_);
+
       condition_.wait(lock, [this]() {
-        return !taskQueue_.empty() || 
+        return !task_queue_.empty() ||
                status_.load(std::memory_order_acquire) != ThreadPoolStatus::kRunning;
       });
-      
+
       if (status_.load(std::memory_order_acquire) != ThreadPoolStatus::kRunning &&
-          taskQueue_.empty())
+          task_queue_.empty())
       {
         return;
       }
-      
-      if (!taskQueue_.empty())
+
+      if (!task_queue_.empty())
       {
-        task = std::move(taskQueue_.front());
-        taskQueue_.pop();
+        task = std::move(task_queue_.front());
+        task_queue_.pop();
       }
     }
-    
+
     if (task)
     {
       task();

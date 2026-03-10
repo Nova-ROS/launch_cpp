@@ -40,14 +40,14 @@ TEST(ExecuteProcessSafetyEnabledTest, BasicExecutionWithSafety)
   // Configure options WITH SAFETY ENABLED
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("hello")};
-  options.enableSafety = true;  // <-- ENABLE SAFETY!
+  options.enable_safety = true;  // <-- ENABLE SAFETY!
   options.output = "log";  // Don't wait for output in test
   
   auto action = std::make_shared<ExecuteProcess>(options);
   ASSERT_NE(action, nullptr);
   
   // Verify action was created successfully with safety enabled
-  EXPECT_FALSE(action->IsRunning());
+  EXPECT_FALSE(action->is_running());
 }
 
 /**
@@ -57,9 +57,9 @@ TEST(ExecuteProcessSafetyEnabledTest, ExecutionWithResourceLimits)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("sleep"), text("0.1")};
-  options.enableSafety = true;  // <-- ENABLE SAFETY!
-  options.maxMemoryBytes = 100 * 1024 * 1024;  // 100MB limit
-  options.maxCpuPercent = 50.0;  // 50% CPU limit
+  options.enable_safety = true;  // <-- ENABLE SAFETY!
+  options.max_memory_bytes = 100 * 1024 * 1024;  // 100MB limit
+  options.max_cpu_percent = 50.0;  // 50% CPU limit
   options.output = "log";
   
   auto action = std::make_shared<ExecuteProcess>(options);
@@ -76,8 +76,8 @@ TEST(ExecuteProcessSafetyEnabledTest, ExecutionWithWatchdog)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("sleep"), text("0.1")};
-  options.enableSafety = true;  // <-- ENABLE SAFETY!
-  options.watchdogTimeoutMs = 5000;  // 5 second watchdog timeout
+  options.enable_safety = true;  // <-- ENABLE SAFETY!
+  options.watchdog_timeout_ms = 5000;  // 5 second watchdog timeout
   options.output = "log";
   
   auto action = std::make_shared<ExecuteProcess>(options);
@@ -91,11 +91,11 @@ TEST(ExecuteProcessSafetyEnabledTest, FullSafetyConfiguration)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("test")};
-  options.enableSafety = true;  // <-- ENABLE SAFETY!
-  options.maxMemoryBytes = 512 * 1024 * 1024;     // 512MB
-  options.maxCpuPercent = 75.0;                  // 75% CPU
-  options.watchdogTimeoutMs = 10000;             // 10 seconds
-  options.sigtermTimeout = 3;                    // 3 seconds SIGTERM timeout
+  options.enable_safety = true;  // <-- ENABLE SAFETY!
+  options.max_memory_bytes = 512 * 1024 * 1024;     // 512MB
+  options.max_cpu_percent = 75.0;                  // 75% CPU
+  options.watchdog_timeout_ms = 10000;             // 10 seconds
+  options.sigterm_timeout = 3;                    // 3 seconds SIGTERM timeout
   options.output = "log";
   
   auto action = std::make_shared<ExecuteProcess>(options);
@@ -112,7 +112,7 @@ TEST(ExecuteProcessSafetyEnabledTest, CustomExecutorInjection)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   options.output = "log";
   
   auto action = std::make_shared<ExecuteProcess>(options);
@@ -120,15 +120,15 @@ TEST(ExecuteProcessSafetyEnabledTest, CustomExecutorInjection)
   
   // Inject mock executor
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   // Inject mock monitor
   auto mockMonitor = std::make_shared<PosixResourceMonitor>();
-  action->SetResourceMonitor(mockMonitor);
+  action->set_resource_monitor(mockMonitor);
   
   // Inject watchdog
   auto watchdog = std::make_shared<PosixWatchdog>();
-  action->SetWatchdog(watchdog);
+  action->set_watchdog(watchdog);
 }
 
 /**
@@ -138,14 +138,14 @@ TEST(ExecuteProcessSafetyEnabledTest, ResourceAvailabilityCheck)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   ASSERT_NE(action, nullptr);
   
   // Test resource check
   // Note: Without a real monitor, this will return true by default
-  bool available = action->CheckResourcesAvailable(100 * 1024 * 1024);
+  bool available = action->check_resources_available(100 * 1024 * 1024);
   // Result depends on whether monitor was initialized
   (void)available;
 }
@@ -159,7 +159,7 @@ TEST(ExecuteProcessSafetyEnabledTest, MultipleConfigurations)
   {
     ExecuteProcess::Options options;
     options.cmd = {text("echo"), text("test")};
-    options.enableSafety = false;
+    options.enable_safety = false;
     
     auto action = std::make_shared<ExecuteProcess>(options);
     EXPECT_NE(action, nullptr);
@@ -169,7 +169,7 @@ TEST(ExecuteProcessSafetyEnabledTest, MultipleConfigurations)
   {
     ExecuteProcess::Options options;
     options.cmd = {text("echo"), text("test")};
-    options.enableSafety = true;
+    options.enable_safety = true;
     
     auto action = std::make_shared<ExecuteProcess>(options);
     EXPECT_NE(action, nullptr);
@@ -179,10 +179,10 @@ TEST(ExecuteProcessSafetyEnabledTest, MultipleConfigurations)
   {
     ExecuteProcess::Options options;
     options.cmd = {text("echo"), text("test")};
-    options.enableSafety = true;
-    options.maxMemoryBytes = 1024 * 1024 * 1024;  // 1GB
-    options.maxCpuPercent = 100.0;
-    options.watchdogTimeoutMs = 30000;  // 30 seconds
+    options.enable_safety = true;
+    options.max_memory_bytes = 1024 * 1024 * 1024;  // 1GB
+    options.max_cpu_percent = 100.0;
+    options.watchdog_timeout_ms = 30000;  // 30 seconds
     
     auto action = std::make_shared<ExecuteProcess>(options);
     EXPECT_NE(action, nullptr);
@@ -202,22 +202,22 @@ TEST(ExecuteProcessSafetyComparisonTest, SafetyVsNonSafety)
   {
     ExecuteProcess::Options options;
     options.cmd = {text("echo"), text("test")};
-    options.enableSafety = false;
+    options.enable_safety = false;
     
     auto action = std::make_shared<ExecuteProcess>(options);
     EXPECT_NE(action, nullptr);
-    EXPECT_FALSE(action->IsRunning());
+    EXPECT_FALSE(action->is_running());
   }
   
   // Safety version
   {
     ExecuteProcess::Options options;
     options.cmd = {text("echo"), text("test")};
-    options.enableSafety = true;
+    options.enable_safety = true;
     
     auto action = std::make_shared<ExecuteProcess>(options);
     EXPECT_NE(action, nullptr);
-    EXPECT_FALSE(action->IsRunning());
+    EXPECT_FALSE(action->is_running());
   }
 }
 
@@ -232,10 +232,10 @@ TEST(ExecuteProcessSafetyEdgeCasesTest, ZeroLimits)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("test")};
-  options.enableSafety = true;
-  options.maxMemoryBytes = 0;  // 0 = unlimited
-  options.maxCpuPercent = 0.0;  // 0 = unlimited
-  options.watchdogTimeoutMs = 0;  // 0 = disabled
+  options.enable_safety = true;
+  options.max_memory_bytes = 0;  // 0 = unlimited
+  options.max_cpu_percent = 0.0;  // 0 = unlimited
+  options.watchdog_timeout_ms = 0;  // 0 = disabled
   
   auto action = std::make_shared<ExecuteProcess>(options);
   EXPECT_NE(action, nullptr);
@@ -248,10 +248,10 @@ TEST(ExecuteProcessSafetyEdgeCasesTest, VeryLargeLimits)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("test")};
-  options.enableSafety = true;
-  options.maxMemoryBytes = 1024ULL * 1024 * 1024 * 1024;  // 1TB
-  options.maxCpuPercent = 1000.0;  // 1000%
-  options.watchdogTimeoutMs = 3600000;  // 1 hour
+  options.enable_safety = true;
+  options.max_memory_bytes = 1024ULL * 1024 * 1024 * 1024;  // 1TB
+  options.max_cpu_percent = 1000.0;  // 1000%
+  options.watchdog_timeout_ms = 3600000;  // 1 hour
   
   auto action = std::make_shared<ExecuteProcess>(options);
   EXPECT_NE(action, nullptr);

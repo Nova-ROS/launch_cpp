@@ -70,7 +70,7 @@ TEST(VariableSubstitutionTest, BasicSubstitution)
   ctx.SetLaunchConfiguration("my_var", "my_value");
   
   VariableSubstitution var("my_var");
-  EXPECT_EQ(var.Perform(ctx), "my_value");
+  EXPECT_EQ(var.perform(ctx), "my_value");
 }
 
 TEST(VariableSubstitutionTest, DefaultValue)
@@ -79,7 +79,7 @@ TEST(VariableSubstitutionTest, DefaultValue)
   // Don't set the variable
   
   VariableSubstitution var("missing_var", "default_value");
-  EXPECT_EQ(var.Perform(ctx), "default_value");
+  EXPECT_EQ(var.perform(ctx), "default_value");
 }
 
 TEST(VariableSubstitutionTest, EmptyDefault)
@@ -88,7 +88,7 @@ TEST(VariableSubstitutionTest, EmptyDefault)
   // Don't set the variable
   
   VariableSubstitution var("missing_var");
-  EXPECT_EQ(var.Perform(ctx), "");
+  EXPECT_EQ(var.perform(ctx), "");
 }
 
 TEST(VariableSubstitutionTest, GetVariableName)
@@ -114,9 +114,9 @@ TEST(VariableSubstitutionTest, MultipleVariables)
   VariableSubstitution sub2("var2");
   VariableSubstitution sub3("var3");
   
-  EXPECT_EQ(sub1.Perform(ctx), "value1");
-  EXPECT_EQ(sub2.Perform(ctx), "value2");
-  EXPECT_EQ(sub3.Perform(ctx), "value3");
+  EXPECT_EQ(sub1.perform(ctx), "value1");
+  EXPECT_EQ(sub2.perform(ctx), "value2");
+  EXPECT_EQ(sub3.perform(ctx), "value3");
 }
 
 TEST(VariableSubstitutionTest, OverrideValue)
@@ -125,11 +125,11 @@ TEST(VariableSubstitutionTest, OverrideValue)
   ctx.SetLaunchConfiguration("my_var", "original");
   
   VariableSubstitution var("my_var", "default");
-  EXPECT_EQ(var.Perform(ctx), "original");
+  EXPECT_EQ(var.perform(ctx), "original");
   
   // Override
   ctx.SetLaunchConfiguration("my_var", "new_value");
-  EXPECT_EQ(var.Perform(ctx), "new_value");
+  EXPECT_EQ(var.perform(ctx), "new_value");
 }
 
 // ============================================================================

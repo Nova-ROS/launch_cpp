@@ -20,14 +20,14 @@
 namespace launch_cpp
 {
 
-bool IfCondition::Evaluate(const LaunchContext& context) const
+bool IfCondition::evaluate(const LaunchContext& context) const
 {
   if (!expression_)
   {
     return false;
   }
   
-  std::string result = expression_->Perform(context);
+  std::string result = expression_->perform(context);
   
   // Truthy check: not empty and not "false" or "0"
   if (result.empty())

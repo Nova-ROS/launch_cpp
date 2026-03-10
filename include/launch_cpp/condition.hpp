@@ -44,12 +44,12 @@ class Condition
   Condition& operator=(Condition&&) = default;
   
   // AUTOSAR C++14: M0-1-9 - Pure virtual function
-  virtual bool Evaluate(const LaunchContext& context) const = 0;
+  virtual bool evaluate(const LaunchContext& context) const = 0;
   
   // Convenience operator
   bool operator()(const LaunchContext& context) const
   {
-    return Evaluate(context);
+    return evaluate(context);
   }
 };
 
@@ -64,7 +64,7 @@ class FunctionCondition final : public Condition
   explicit FunctionCondition(EvalFunc func)
     : func_(std::move(func)) {}
   
-  bool Evaluate(const LaunchContext& context) const override
+  bool evaluate(const LaunchContext& context) const override
   {
     return func_(context);
   }

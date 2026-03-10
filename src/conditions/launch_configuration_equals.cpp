@@ -20,11 +20,11 @@
 namespace launch_cpp
 {
 
-bool LaunchConfigurationEquals::Evaluate(const LaunchContext& context) const
+bool LaunchConfigurationEquals::evaluate(const LaunchContext& context) const
 {
   Result<std::string> actual = context.GetLaunchConfiguration(name_);
   
-  if (actual.HasError())
+  if (actual.has_error())
   {
     return false;
   }
@@ -34,9 +34,9 @@ bool LaunchConfigurationEquals::Evaluate(const LaunchContext& context) const
     return false;
   }
   
-  std::string expectedValue = expected_->Perform(context);
+  std::string expectedValue = expected_->perform(context);
   
-  return actual.GetValue() == expectedValue;
+  return actual.get_value() == expectedValue;
 }
 
 }  // namespace launch_cpp

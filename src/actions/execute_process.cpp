@@ -30,53 +30,53 @@ namespace launch_cpp
 class Process
 {
  public:
-  explicit Process(pid_t pid) : pid_(pid), returnCode_(-1) {}
-  
-  pid_t GetPid() const { return pid_; }
-  
-  int Wait()
+  explicit Process(pid_t pid) : pid_(pid), return_code_(-1) {}
+
+  pid_t get_pid() const { return pid_; }
+
+  int wait()
   {
     int status;
     waitpid(pid_, &status, 0);
-    
+
     if (WIFEXITED(status))
     {
-      returnCode_ = WEXITSTATUS(status);
-      return returnCode_;
+      return_code_ = WEXITSTATUS(status);
+      return return_code_;
     }
-    
+
     return -1;
   }
-  
-  bool IsRunning() const
+
+  bool is_running() const
   {
     int status;
     pid_t result = waitpid(pid_, &status, WNOHANG);
     return result == 0;
   }
-  
-  int GetReturnCode() const { return returnCode_; }
-  
+
+  int get_return_code() const { return return_code_; }
+
  private:
   pid_t pid_;
-  int returnCode_;
+  int return_code_;
 };
 
 ExecuteProcess::ExecuteProcess(const Options& options)
-  : Action(), options_(options), process_(nullptr), processId_(0)
+  : Action(), options_(options), process_(nullptr), process_id_(0)
 {
   // Initialize safety components if enabled
-  if (options_.enableSafety)
+  if (options_.enable_safety)
   {
     // By default, use Posix implementations
-    processExecutor_ = std::make_shared<launch_cpp::PosixProcessExecutor>();
-    resourceMonitor_ = std::make_shared<launch_cpp::PosixResourceMonitor>();
+    process_executor_ = std::make_shared<launch_cpp::PosixProcessExecutor>();
+    resource_monitor_ = std::make_shared<launch_cpp::PosixResourceMonitor>();
     watchdog_ = std::make_shared<launch_cpp::PosixWatchdog>();
-    
+
     // Start watchdog if timeout is configured
-    if (options_.watchdogTimeoutMs > 0 && watchdog_)
+    if (options_.watchdog_timeout_ms > 0 && watchdog_)
     {
-      watchdog_->Start();
+      watchdog_->start();
     }
   }
 }
@@ -84,32 +84,32 @@ ExecuteProcess::ExecuteProcess(const Options& options)
 ExecuteProcess::~ExecuteProcess()
 {
   // Unregister from watchdog if enabled
-  if (watchdog_ && processId_ != 0)
+  if (watchdog_ && process_id_ != 0)
   {
-    watchdog_->UnregisterNode(static_cast<uint32_t>(processId_));
+    watchdog_->unregister_node(static_cast<uint32_t>(process_id_));
   }
-  
+
   // Stop watchdog
   if (watchdog_)
   {
-    watchdog_->Stop();
+    watchdog_->stop();
   }
 }
 
-std::vector<std::string> ExecuteProcess::ResolveCommand(LaunchContext& context) const
+std::vector<std::string> ExecuteProcess::resolve_command(LaunchContext& context) const
 {
   std::vector<std::string> cmd;
   for (const auto& sub : options_.cmd)
   {
     if (sub)
     {
-      cmd.push_back(sub->Perform(context));
+      cmd.push_back(sub->perform(context));
     }
   }
   return cmd;
 }
 
-Result<std::vector<std::string>> ExecuteProcess::ValidateAndEscapeCommand(
+Result<std::vector<std::string>> ExecuteProcess::validate_and_escape_command(
     const std::vector<std::string>& cmd) const
 {
   if (cmd.empty())
@@ -132,25 +132,25 @@ Result<std::vector<std::string>> ExecuteProcess::ValidateAndEscapeCommand(
     }
 
     // Escape argument if needed
-    std::string escapedArg = builder.EscapeArgument(arg);
+    std::string escapedArg = builder.escape_argument(arg);
     validatedCmd.push_back(escapedArg);
   }
 
   return Result<std::vector<std::string>>(validatedCmd);
 }
 
-Result<void> ExecuteProcess::ExecuteSingleAttempt(LaunchContext& context, 
+Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context, 
                                                     const std::vector<std::string>& cmd)
 {
   // Safety: Check resources if safety is enabled
-  if (options_.enableSafety && resourceMonitor_)
+  if (options_.enable_safety && resource_monitor_)
   {
     // Estimate memory requirement (simplified: use configured max or 100MB default)
-    std::uint64_t estimatedMemory = options_.maxMemoryBytes > 0 ? 
-                                    options_.maxMemoryBytes : 100 * 1024 * 1024;
+    std::uint64_t estimatedMemory = options_.max_memory_bytes > 0 ? 
+                                    options_.max_memory_bytes : 100 * 1024 * 1024;
     
-    auto result = resourceMonitor_->AreResourcesAvailable(estimatedMemory);
-    if (!result.IsSuccess() || !result.GetValue())
+    auto result = resource_monitor_->are_resources_available(estimatedMemory);
+    if (!result.is_success() || !result.get_value())
     {
       return Result<void>(Error(ErrorCode::kProcessSpawnFailed, 
                                 "Insufficient resources to start process"));
@@ -158,7 +158,7 @@ Result<void> ExecuteProcess::ExecuteSingleAttempt(LaunchContext& context,
   }
   
   // Use safety-enabled execution if available
-  if (options_.enableSafety && processExecutor_)
+  if (options_.enable_safety && process_executor_)
   {
     // Build OSAL command line
     launch_cpp::CommandLine command;
@@ -174,60 +174,60 @@ Result<void> ExecuteProcess::ExecuteSingleAttempt(LaunchContext& context,
     // Build options
     launch_cpp::ProcessOptions processOptions;
     processOptions.startup_timeout = std::chrono::milliseconds(5000);
-    processOptions.shutdown_timeout = std::chrono::seconds(options_.sigtermTimeout);
+    processOptions.shutdown_timeout = std::chrono::seconds(options_.sigterm_timeout);
     processOptions.capture_stdout = (options_.output != "log");
     processOptions.capture_stderr = (options_.output != "log");
     
     // Execute using safety executor
-    auto result = processExecutor_->Execute(command, processOptions);
-    if (!result.IsSuccess())
+    auto result = process_executor_->execute(command, processOptions);
+    if (!result.is_success())
     {
       return Result<void>(Error(ErrorCode::kProcessSpawnFailed, 
-                                result.GetErrorMessage()));
+                                result.get_error_message()));
     }
     
-    processId_ = result.GetValue();
+    process_id_ = result.get_value();
     
     // Register with watchdog if enabled
-    if (watchdog_ && options_.watchdogTimeoutMs > 0)
+    if (watchdog_ && options_.watchdog_timeout_ms > 0)
     {
-      auto regResult = watchdog_->RegisterNode(
-        static_cast<uint32_t>(processId_), 
-        static_cast<uint32_t>(options_.watchdogTimeoutMs),
+      auto regResult = watchdog_->register_node(
+        static_cast<uint32_t>(process_id_), 
+        static_cast<uint32_t>(options_.watchdog_timeout_ms),
         nullptr);
       
-      if (!regResult.IsSuccess())
+      if (!regResult.is_success())
       {
         std::cerr << "Warning: Failed to register process with watchdog: "
-                  << regResult.GetErrorMessage() << std::endl;
+                  << regResult.get_error_message() << std::endl;
       }
     }
     
     // Set resource limits if configured
-    if (resourceMonitor_ && (options_.maxMemoryBytes > 0 || options_.maxCpuPercent > 0))
+    if (resource_monitor_ && (options_.max_memory_bytes > 0 || options_.max_cpu_percent > 0))
     {
-      resourceMonitor_->SetResourceLimits(
-        processId_,
-        options_.maxMemoryBytes,
-        options_.maxCpuPercent);
+      resource_monitor_->set_resource_limits(
+        process_id_,
+        options_.max_memory_bytes,
+        options_.max_cpu_percent);
     }
     
     // For screen output, wait for process to complete
     if (options_.output == "screen")
     {
-      auto waitResult = processExecutor_->Wait(
-        processId_, 
+      auto waitResult = process_executor_->wait(
+        process_id_, 
         std::chrono::milliseconds(-1)); // Wait indefinitely
       
-      if (waitResult.IsSuccess())
+      if (waitResult.is_success())
       {
-        const auto& processResult = waitResult.GetValue();
+        const auto& processResult = waitResult.get_value();
         (void)processResult; // Process completed
       }
     }
     
     // Also create legacy Process object for backward compatibility
-    process_ = std::make_unique<Process>(static_cast<pid_t>(processId_));
+    process_ = std::make_unique<Process>(static_cast<pid_t>(process_id_));
     
     return Result<void>();
   }
@@ -264,7 +264,7 @@ Result<void> ExecuteProcess::ExecuteSingleAttempt(LaunchContext& context,
     // Wait for process if output is set to screen
     if (options_.output == "screen")
     {
-      int returnCode = process_->Wait();
+      int returnCode = process_->wait();
       (void)returnCode;
     }
     
@@ -272,68 +272,68 @@ Result<void> ExecuteProcess::ExecuteSingleAttempt(LaunchContext& context,
   }
 }
 
-Result<void> ExecuteProcess::Execute(LaunchContext& context)
+Result<void> ExecuteProcess::execute(LaunchContext& context)
 {
   // Resolve command from substitutions
-  std::vector<std::string> rawCmd = ResolveCommand(context);
+  std::vector<std::string> rawCmd = resolve_command(context);
 
   // Validate and escape command using CommandBuilder
-  auto validationResult = ValidateAndEscapeCommand(rawCmd);
-  if (!validationResult.HasValue())
+  auto validationResult = validate_and_escape_command(rawCmd);
+  if (!validationResult.has_value())
   {
-    return Result<void>(validationResult.GetError());
+    return Result<void>(validationResult.get_error());
   }
 
-  std::vector<std::string> cmd = validationResult.GetValue();
+  std::vector<std::string> cmd = validationResult.get_value();
 
   // Execute with retry logic if configured
-  if (options_.maxRetries > 0)
+  if (options_.max_retries > 0)
   {
-    return ExecuteWithRetry(context, cmd);
+    return execute_with_retry(context, cmd);
   }
 
   // Single attempt (no retry)
-  return ExecuteSingleAttempt(context, cmd);
+  return execute_single_attempt(context, cmd);
 }
 
-Result<void> ExecuteProcess::ExecuteWithRetry(LaunchContext& context,
+Result<void> ExecuteProcess::execute_with_retry(LaunchContext& context,
                                                const std::vector<std::string>& cmd)
 {
   uint32_t attempt = 0;
   Result<void> lastResult;
   
-  while (attempt <= options_.maxRetries)
+  while (attempt <= options_.max_retries)
   {
     // Execute single attempt
-    lastResult = ExecuteSingleAttempt(context, cmd);
+    lastResult = execute_single_attempt(context, cmd);
     
     // Check if successful
-    if (lastResult.HasValue())
+    if (lastResult.has_value())
     {
       return lastResult;
     }
     
     // Check if we should retry
     attempt++;
-    if (attempt > options_.maxRetries)
+    if (attempt > options_.max_retries)
     {
       break;
     }
     
     // Check if error is retryable
-    if (!IsRetryableError(lastResult.GetError().GetCode()))
+    if (!is_retryable_error(lastResult.get_error().get_code()))
     {
       return lastResult;
     }
     
     // Clean up before retry
-    CleanupBeforeRetry();
+    cleanup_before_retry();
     
     // Calculate delay for this attempt
-    auto delay = CalculateRetryDelay(attempt);
+    auto delay = calculate_retry_delay(attempt);
     
     std::cerr << "Process execution failed (attempt " << attempt 
-              << "/" << options_.maxRetries + 1 << "), retrying in " 
+              << "/" << options_.max_retries + 1 << "), retrying in " 
               << delay.count() << "ms..." << std::endl;
     
     // Sleep before retry
@@ -345,7 +345,7 @@ Result<void> ExecuteProcess::ExecuteWithRetry(LaunchContext& context,
                             "Max retry attempts exceeded"));
 }
 
-bool ExecuteProcess::IsRetryableError(ErrorCode code) const
+bool ExecuteProcess::is_retryable_error(ErrorCode code) const
 {
   // Retryable errors:
   // - Resource exhaustion (might be temporary)
@@ -362,32 +362,32 @@ bool ExecuteProcess::IsRetryableError(ErrorCode code) const
   }
 }
 
-std::chrono::milliseconds ExecuteProcess::CalculateRetryDelay(uint32_t attemptNumber) const
+std::chrono::milliseconds ExecuteProcess::calculate_retry_delay(uint32_t attemptNumber) const
 {
-  if (attemptNumber == 0 || options_.retryBackoffMultiplier <= 0.0)
+  if (attemptNumber == 0 || options_.retry_backoff_multiplier <= 0.0)
   {
-    return options_.retryDelay;
+    return options_.retry_delay;
   }
   
   // Calculate exponential backoff: delay * multiplier^(attempt-1)
   double multiplier = 1.0;
   for (uint32_t i = 1; i < attemptNumber; ++i)
   {
-    multiplier *= options_.retryBackoffMultiplier;
+    multiplier *= options_.retry_backoff_multiplier;
   }
   
-  auto delayMs = static_cast<uint32_t>(options_.retryDelay.count() * multiplier);
+  auto delayMs = static_cast<uint32_t>(options_.retry_delay.count() * multiplier);
   return std::chrono::milliseconds(delayMs);
 }
 
-void ExecuteProcess::CleanupBeforeRetry()
+void ExecuteProcess::cleanup_before_retry()
 {
   // Clean up any resources from failed attempt
   if (process_)
   {
-    if (process_->IsRunning())
+    if (process_->is_running())
     {
-      kill(process_->GetPid(), SIGTERM);
+      ::kill(process_->get_pid(), SIGTERM);
       // Give it a moment to terminate
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
@@ -395,93 +395,93 @@ void ExecuteProcess::CleanupBeforeRetry()
   }
   
   // Unregister from watchdog if registered
-  if (watchdog_ && processId_ != 0)
+  if (watchdog_ && process_id_ != 0)
   {
-    watchdog_->UnregisterNode(static_cast<uint32_t>(processId_));
+    watchdog_->unregister_node(static_cast<uint32_t>(process_id_));
   }
   
   // Reset process ID
-  processId_ = 0;
+  process_id_ = 0;
 }
 
-Error ExecuteProcess::Shutdown()
+Error ExecuteProcess::shutdown()
 {
-  if (options_.enableSafety && processExecutor_ && processId_ != 0)
+  if (options_.enable_safety && process_executor_ && process_id_ != 0)
   {
-    auto result = processExecutor_->Terminate(
-      processId_, 
-      std::chrono::seconds(options_.sigtermTimeout));
-    return result.IsSuccess() ? Error() : 
-           Error(ErrorCode::kInternalError, result.GetErrorMessage());
+    auto result = process_executor_->terminate(
+      process_id_, 
+      std::chrono::seconds(options_.sigterm_timeout));
+    return result.is_success() ? Error() : 
+           Error(ErrorCode::kInternalError, result.get_error_message());
   }
   
   // Legacy path
-  if (process_ && process_->IsRunning())
+  if (process_ && process_->is_running())
   {
-    kill(process_->GetPid(), SIGTERM);
+    ::kill(process_->get_pid(), SIGTERM);
   }
   return Error();
 }
 
-Error ExecuteProcess::Terminate()
+Error ExecuteProcess::terminate()
 {
-  if (options_.enableSafety && processExecutor_ && processId_ != 0)
+  if (options_.enable_safety && process_executor_ && process_id_ != 0)
   {
-    auto result = processExecutor_->Terminate(
-      processId_,
-      std::chrono::seconds(options_.sigtermTimeout));
-    return result.IsSuccess() ? Error() : 
-           Error(ErrorCode::kInternalError, result.GetErrorMessage());
+    auto result = process_executor_->terminate(
+      process_id_,
+      std::chrono::seconds(options_.sigterm_timeout));
+    return result.is_success() ? Error() : 
+           Error(ErrorCode::kInternalError, result.get_error_message());
   }
   
   // Legacy path
-  if (process_ && process_->IsRunning())
+  if (process_ && process_->is_running())
   {
-    kill(process_->GetPid(), SIGTERM);
+    ::kill(process_->get_pid(), SIGTERM);
   }
   return Error();
 }
 
-Error ExecuteProcess::Kill()
+Error ExecuteProcess::kill()
 {
-  if (options_.enableSafety && processExecutor_ && processId_ != 0)
+  if (options_.enable_safety && process_executor_ && process_id_ != 0)
   {
-    auto result = processExecutor_->Kill(processId_);
-    return result.IsSuccess() ? Error() : 
-           Error(ErrorCode::kInternalError, result.GetErrorMessage());
+    auto result = process_executor_->kill(process_id_);
+    return result.is_success() ? Error() : 
+           Error(ErrorCode::kInternalError, result.get_error_message());
   }
   
   // Legacy path
-  if (process_ && process_->IsRunning())
+  if (process_ && process_->is_running())
   {
-    kill(process_->GetPid(), SIGKILL);
+    ::kill(process_->get_pid(), SIGKILL);
   }
   return Error();
 }
 
-void ExecuteProcess::SendSignal(std::int32_t signal)
+void ExecuteProcess::send_signal(std::int32_t signal)
 {
-  if (options_.enableSafety && processExecutor_ && processId_ != 0)
+  if (options_.enable_safety && process_executor_ && process_id_ != 0)
   {
-    processExecutor_->SendSignal(processId_, signal);
+    process_executor_->send_signal(process_id_, signal);
     return;
   }
   
   // Legacy path
   if (process_)
   {
-    kill(process_->GetPid(), signal);
+    ::kill(process_->get_pid(), signal);
   }
 }
 
-bool ExecuteProcess::IsRunning() const noexcept
+bool ExecuteProcess::is_running() const noexcept
 {
-  if (options_.enableSafety && processExecutor_ && processId_ != 0)
+  if (options_.enable_safety && process_executor_ && process_id_ != 0)
   {
-    auto result = processExecutor_->IsRunning(processId_);
-    if (result.IsSuccess())
+    auto result = process_executor_->is_running(process_id_);
+    if (result.is_success())
     {
-      return result.GetValue();
+      return result.get_value();
     }
     return false;
   }
@@ -491,18 +491,18 @@ bool ExecuteProcess::IsRunning() const noexcept
   {
     return false;
   }
-  return process_->IsRunning();
+  return process_->is_running();
 }
 
-Result<std::int32_t> ExecuteProcess::GetReturnCode() const
+Result<std::int32_t> ExecuteProcess::get_return_code() const
 {
-  if (options_.enableSafety && processId_ != 0)
+  if (options_.enable_safety && process_id_ != 0)
   {
     // For safety-enabled processes, we'd need to track return codes separately
     // For now, return the legacy path result if available
     if (process_)
     {
-      return Result<std::int32_t>(process_->GetReturnCode());
+      return Result<std::int32_t>(process_->get_return_code());
     }
     return Result<std::int32_t>(-1);
   }
@@ -512,14 +512,14 @@ Result<std::int32_t> ExecuteProcess::GetReturnCode() const
   {
     return Result<std::int32_t>(Error(ErrorCode::kInternalError, "Process not started"));
   }
-  return Result<std::int32_t>(process_->GetReturnCode());
+  return Result<std::int32_t>(process_->get_return_code());
 }
 
-Result<std::int32_t> ExecuteProcess::GetPid() const
+Result<std::int32_t> ExecuteProcess::get_pid() const
 {
-  if (options_.enableSafety && processId_ != 0)
+  if (options_.enable_safety && process_id_ != 0)
   {
-    return Result<std::int32_t>(static_cast<std::int32_t>(processId_));
+    return Result<std::int32_t>(static_cast<std::int32_t>(process_id_));
   }
   
   // Legacy path
@@ -527,38 +527,38 @@ Result<std::int32_t> ExecuteProcess::GetPid() const
   {
     return Result<std::int32_t>(Error(ErrorCode::kInternalError, "Process not started"));
   }
-  return Result<std::int32_t>(process_->GetPid());
+  return Result<std::int32_t>(process_->get_pid());
 }
 
-std::string ExecuteProcess::GetName() const
+std::string ExecuteProcess::get_name() const
 {
-  return resolvedName_;
+  return resolved_name_;
 }
 
-void ExecuteProcess::SetProcessExecutor(std::shared_ptr<launch_cpp::ProcessExecutor> executor)
+void ExecuteProcess::set_process_executor(std::shared_ptr<launch_cpp::ProcessExecutor> executor)
 {
-  processExecutor_ = executor;
+  process_executor_ = executor;
 }
 
-void ExecuteProcess::SetResourceMonitor(std::shared_ptr<launch_cpp::ResourceMonitor> monitor)
+void ExecuteProcess::set_resource_monitor(std::shared_ptr<launch_cpp::ResourceMonitor> monitor)
 {
-  resourceMonitor_ = monitor;
+  resource_monitor_ = monitor;
 }
 
-void ExecuteProcess::SetWatchdog(std::shared_ptr<launch_cpp::Watchdog> wd)
+void ExecuteProcess::set_watchdog(std::shared_ptr<launch_cpp::Watchdog> wd)
 {
   watchdog_ = wd;
 }
 
-bool ExecuteProcess::CheckResourcesAvailable(std::uint64_t estimatedMemory) const
+bool ExecuteProcess::check_resources_available(std::uint64_t estimatedMemory) const
 {
-  if (!resourceMonitor_)
+  if (!resource_monitor_)
   {
     return true;  // No monitor, assume resources available
   }
   
-  auto result = resourceMonitor_->AreResourcesAvailable(estimatedMemory);
-  return result.IsSuccess() && result.GetValue();
+  auto result = resource_monitor_->are_resources_available(estimatedMemory);
+  return result.is_success() && result.get_value();
 }
 
 }  // namespace launch_cpp

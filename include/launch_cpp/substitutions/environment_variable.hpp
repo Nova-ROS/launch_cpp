@@ -30,7 +30,7 @@ class EnvironmentVariable final : public Substitution
   
   ~EnvironmentVariable() override = default;
   
-  std::string Perform(const LaunchContext& context) const override;
+  std::string perform(const LaunchContext& context) const override;
   
   const std::string& GetName() const noexcept { return name_; }
   const std::string& GetDefaultValue() const noexcept { return defaultValue_; }

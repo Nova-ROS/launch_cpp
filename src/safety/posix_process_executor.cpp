@@ -80,37 +80,37 @@ PosixProcessExecutor::PosixProcessExecutor()
 
 PosixProcessExecutor::~PosixProcessExecutor() = default;
 
-OsalResult<ProcessId> PosixProcessExecutor::Execute(
+OsalResult<ProcessId> PosixProcessExecutor::execute(
     const CommandLine& command,
     const ProcessOptions& options) {
     return impl_->ExecuteInternal(command, options);
 }
 
-OsalResult<ProcessResult> PosixProcessExecutor::Wait(
+OsalResult<ProcessResult> PosixProcessExecutor::wait(
     ProcessId pid,
     std::chrono::milliseconds timeout) {
     return impl_->WaitInternal(pid, timeout);
 }
 
-OsalResult<bool> PosixProcessExecutor::IsRunning(ProcessId pid) {
+OsalResult<bool> PosixProcessExecutor::is_running(ProcessId pid) {
     return impl_->IsRunningInternal(pid);
 }
 
-OsalResult<void> PosixProcessExecutor::Terminate(
+OsalResult<void> PosixProcessExecutor::terminate(
     ProcessId pid,
     std::chrono::milliseconds timeout) {
     return impl_->TerminateInternal(pid, timeout);
 }
 
-OsalResult<void> PosixProcessExecutor::Kill(ProcessId pid) {
+OsalResult<void> PosixProcessExecutor::kill(ProcessId pid) {
     return impl_->KillInternal(pid);
 }
 
-OsalResult<void> PosixProcessExecutor::SendSignal(ProcessId pid, int32_t signal) {
+OsalResult<void> PosixProcessExecutor::send_signal(ProcessId pid, int32_t signal) {
     return impl_->SendSignalInternal(pid, signal);
 }
 
-OsalResult<ProcessState> PosixProcessExecutor::GetState(ProcessId pid) {
+OsalResult<ProcessState> PosixProcessExecutor::get_state(ProcessId pid) {
     return impl_->GetStateInternal(pid);
 }
 
@@ -257,7 +257,7 @@ OsalResult<ProcessResult> PosixProcessExecutor::Impl::WaitInternal(
 
 OsalResult<bool> PosixProcessExecutor::Impl::IsRunningInternal(ProcessId pid) {
     // Use kill with signal 0 to check if process exists
-    int result = kill(static_cast<pid_t>(pid), 0);
+    int result = ::kill(static_cast<pid_t>(pid), 0);
     
     if (result == 0) {
         return OsalResult<bool>(true);
@@ -281,7 +281,7 @@ OsalResult<void> PosixProcessExecutor::Impl::TerminateInternal(
     std::chrono::milliseconds timeout) {
 
     // Send SIGTERM
-    int result = kill(static_cast<pid_t>(pid), SIGTERM);
+    int result = ::kill(static_cast<pid_t>(pid), SIGTERM);
     if (result < 0) {
         if (errno == ESRCH) {
             // Process already gone
@@ -307,7 +307,7 @@ OsalResult<void> PosixProcessExecutor::Impl::TerminateInternal(
             auto elapsed = std::chrono::steady_clock::now() - start;
             if (elapsed >= timeout) {
                 // Timeout - force kill
-                kill(static_cast<pid_t>(pid), SIGKILL);
+                ::kill(static_cast<pid_t>(pid), SIGKILL);
                 // Wait for it to die
                 waitpid(static_cast<pid_t>(pid), &status, 0);
                 return OsalResult<void>();
@@ -323,7 +323,7 @@ OsalResult<void> PosixProcessExecutor::Impl::TerminateInternal(
 }
 
 OsalResult<void> PosixProcessExecutor::Impl::KillInternal(ProcessId pid) {
-    int result = kill(static_cast<pid_t>(pid), SIGKILL);
+    int result = ::kill(static_cast<pid_t>(pid), SIGKILL);
     
     if (result < 0) {
         if (errno == ESRCH) {
@@ -346,7 +346,7 @@ OsalResult<void> PosixProcessExecutor::Impl::SendSignalInternal(
     ProcessId pid, 
     int32_t signal) {
 
-    int result = kill(static_cast<pid_t>(pid), static_cast<int>(signal));
+    int result = ::kill(static_cast<pid_t>(pid), static_cast<int>(signal));
     
     if (result < 0) {
         return OsalResult<void>(
@@ -359,13 +359,13 @@ OsalResult<void> PosixProcessExecutor::Impl::SendSignalInternal(
 
 OsalResult<ProcessState> PosixProcessExecutor::Impl::GetStateInternal(ProcessId pid) {
     auto running_result = IsRunningInternal(pid);
-    if (running_result.HasError()) {
+    if (running_result.has_error()) {
         return OsalResult<ProcessState>(
-            running_result.GetStatus(),
-            running_result.GetErrorMessage());
+            running_result.get_status(),
+            running_result.get_error_message());
     }
 
-    if (running_result.GetValue()) {
+    if (running_result.get_value()) {
         return OsalResult<ProcessState>(ProcessState::kRunning);
     } else {
         return OsalResult<ProcessState>(ProcessState::kStopped);

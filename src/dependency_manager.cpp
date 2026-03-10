@@ -18,7 +18,7 @@
 namespace launch_cpp
 {
 
-Error DependencyManager::AddProcess(
+Error DependencyManager::add_process(
     const std::string& name,
     const std::shared_ptr<ExecuteProcess>& action,
     const std::vector<std::string>& dependencies)
@@ -27,26 +27,26 @@ Error DependencyManager::AddProcess(
   {
     return Error(ErrorCode::kInvalidArgument, "Process name cannot be empty");
   }
-  
+
   if (!action)
   {
     return Error(ErrorCode::kInvalidArgument, "Process action cannot be null");
   }
-  
+
   // Check for duplicate
   if (processes_.find(name) != processes_.end())
   {
-    return Error(ErrorCode::kInvalidConfiguration, 
+    return Error(ErrorCode::kInvalidConfiguration,
                  "Process '" + name + "' already exists");
   }
-  
+
   processes_[name] = action;
   dependencies_[name] = dependencies;
-  
+
   return Error();  // Success
 }
 
-ResolutionResult DependencyManager::ResolveDependencies() const
+ResolutionResult DependencyManager::resolve_dependencies() const
 {
   // Build NodeConfig list
   std::vector<NodeConfig> nodes;
@@ -57,53 +57,53 @@ ResolutionResult DependencyManager::ResolveDependencies() const
     config.dependencies = deps;
     nodes.push_back(config);
   }
-  
+
   DependencyResolver resolver;
   return resolver.Resolve(nodes);
 }
 
-Error DependencyManager::ExecuteAll(LaunchContext& context)
+Error DependencyManager::execute_all(LaunchContext& context)
 {
   // Resolve dependencies
-  auto result = ResolveDependencies();
+  auto result = resolve_dependencies();
   if (!result.success)
   {
     return Error(ErrorCode::kCyclicDependency, result.error_message);
   }
-  
+
   // Execute in order
   std::set<std::string> completed;
-  
+
   for (const auto& process_name : result.order)
   {
     auto it = processes_.find(process_name);
     if (it == processes_.end())
     {
-      return Error(ErrorCode::kProcessNotFound, 
+      return Error(ErrorCode::kProcessNotFound,
                    "Process '" + process_name + "' not found");
     }
-    
+
     // Check if ready
-    if (!IsReady(process_name, completed))
+    if (!is_ready(process_name, completed))
     {
       return Error(ErrorCode::kCyclicDependency,
                    "Dependencies not satisfied for '" + process_name + "'");
     }
-    
+
     // Execute the process
-    auto exec_result = it->second->Execute(context);
-    if (exec_result.HasError())
+    auto exec_result = it->second->execute(context);
+    if (exec_result.has_error())
     {
-      return exec_result.GetError();
+      return exec_result.get_error();
     }
-    
+
     completed.insert(process_name);
   }
-  
+
   return Error();  // Success
 }
 
-std::shared_ptr<ExecuteProcess> DependencyManager::GetProcess(
+std::shared_ptr<ExecuteProcess> DependencyManager::get_process(
     const std::string& name) const
 {
   auto it = processes_.find(name);
@@ -114,8 +114,8 @@ std::shared_ptr<ExecuteProcess> DependencyManager::GetProcess(
   return nullptr;
 }
 
-bool DependencyManager::IsReady(
-    const std::string& name, 
+bool DependencyManager::is_ready(
+    const std::string& name,
     const std::set<std::string>& completed) const
 {
   auto it = dependencies_.find(name);
@@ -123,7 +123,7 @@ bool DependencyManager::IsReady(
   {
     return false;  // Process not found
   }
-  
+
   // Check all dependencies are completed
   for (const auto& dep : it->second)
   {
@@ -132,11 +132,11 @@ bool DependencyManager::IsReady(
       return false;
     }
   }
-  
+
   return true;
 }
 
-void DependencyManager::Clear()
+void DependencyManager::clear()
 {
   processes_.clear();
   dependencies_.clear();

@@ -182,7 +182,7 @@ class LaunchService final
    *
    * @requirements REQ-LAUNCH-SERVICE-001, REQ-LAUNCH-SERVICE-002
    */
-  std::int32_t Run(bool shutdownWhenIdle = true);
+  std::int32_t run(bool shutdown_when_idle = true);
   
   /**
    * @brief Add a launch description to be processed
@@ -200,8 +200,8 @@ class LaunchService final
    *
    * @requirements REQ-LAUNCH-SERVICE-001
    */
-  Error IncludeLaunchDescription(const LaunchDescriptionPtr& description);
-  
+  Error include_launch_description(const LaunchDescriptionPtr& description);
+
   /**
    * @brief Emit an event to registered handlers
    *
@@ -212,8 +212,8 @@ class LaunchService final
    *
    * @todo Implement event dispatch
    */
-  void EmitEvent(EventPtr event);
-  
+  void emit_event(EventPtr event);
+
   /**
    * @brief Shut down the launch service
    *
@@ -231,8 +231,8 @@ class LaunchService final
    *
    * @requirements REQ-LAUNCH-SERVICE-003
    */
-  Error Shutdown();
-  
+  Error shutdown();
+
   /**
    * @brief Check if service is running
    *
@@ -242,8 +242,8 @@ class LaunchService final
    *
    * @thread_safety Thread-safe
    */
-  bool IsRunning() const noexcept;
-  
+  bool is_running() const noexcept;
+
   /**
    * @brief Check if service is idle
    *
@@ -253,7 +253,7 @@ class LaunchService final
    *
    * @thread_safety Thread-safe
    */
-  bool IsIdle() const;
+  bool is_idle() const;
   
   /**
    * @brief Get current service status
@@ -281,7 +281,7 @@ class LaunchService final
    *
    * @thread_safety Not thread-safe with context modification
    */
-  LaunchContext& GetContext();
+  LaunchContext& get_context();
   
   /**
    * @brief Get the launch context (const)
@@ -295,7 +295,7 @@ class LaunchService final
    *
    * @thread_safety Thread-safe for read-only access
    */
-  const LaunchContext& GetContext() const;
+  const LaunchContext& get_context() const;
   
  private:
   /**
@@ -304,24 +304,24 @@ class LaunchService final
    * @details Processes events until shutdown requested.
    *          Called internally by Run().
    */
-  void RunLoop();
-  
+  void run_loop();
+
   /**
    * @brief Process a single event
    *
    * @details Handles one event from the event queue.
    *          Called internally by RunLoop().
    */
-  void ProcessOneEvent();
-  
+  void process_one_event();
+
   /**
    * @brief Setup signal handlers
    *
    * @details Configures signal handling for graceful shutdown.
    *          Called internally during initialization.
    */
-  void SetupSignalHandlers();
-  
+  void setup_signal_handlers();
+
   /**
    * @brief Handle shutdown request
    *
@@ -329,7 +329,7 @@ class LaunchService final
    *
    * @details Performs cleanup and state transitions for shutdown.
    */
-  void HandleShutdown(const std::string& reason);
+  void handle_shutdown(const std::string& reason);
   
   /**
    * @brief Private implementation (Pimpl idiom)
@@ -353,13 +353,13 @@ class LaunchService final
    * @details Atomic flag for shutdown coordination.
    *          Set by Shutdown(), checked by RunLoop().
    */
-  std::atomic<bool> shutdownRequested_;
+  std::atomic<bool> shutdown_requested_;
   
   /**
    * @brief Registered launch descriptions
    *
    * @details Vector of launch descriptions to process.
-   *          Protected by descriptionsMutex_.
+   *          Protected by descriptions_mutex_.
    */
   std::vector<LaunchDescriptionPtr> descriptions_;
   
@@ -367,9 +367,9 @@ class LaunchService final
    * @brief Mutex for descriptions_ access
    *
    * @details Protects concurrent access to descriptions_ vector.
-   *          Lock order: descriptionsMutex_ must be acquired before other locks.
+   *          Lock order: descriptions_mutex_ must be acquired before other locks.
    */
-  std::mutex descriptionsMutex_;
+  std::mutex descriptions_mutex_;
   
   /**
    * @brief Worker thread for event processing
@@ -377,7 +377,7 @@ class LaunchService final
    * @details Background thread for handling asynchronous events.
    *          Started during Run(), joined during Shutdown().
    */
-  std::thread workerThread_;
+  std::thread worker_thread_;
 };
 
 }  // namespace launch_cpp

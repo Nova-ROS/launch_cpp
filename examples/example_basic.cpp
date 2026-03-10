@@ -38,17 +38,17 @@ int main()
   options.cmd.push_back(std::make_shared<TextSubstitution>("Hello, C++ Launch!"));
   options.output = "screen";
   
-  desc->Add(std::make_shared<ExecuteProcess>(options));
+  desc->add(std::make_shared<ExecuteProcess>(options));
   
   // Include and run
-  Error includeError = service.IncludeLaunchDescription(desc);
-  if (includeError.IsError())
+  Error includeError = service.include_launch_description(desc);
+  if (includeError.is_error())
   {
-    std::cerr << "Error: " << includeError.GetMessage() << std::endl;
+    std::cerr << "Error: " << includeError.get_message() << std::endl;
     return 1;
   }
   
-  std::int32_t exitCode = service.Run();
+  std::int32_t exitCode = service.run();
   
   std::cout << "Exit code: " << exitCode << std::endl;
   return exitCode;

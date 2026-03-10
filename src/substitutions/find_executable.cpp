@@ -23,7 +23,7 @@
 namespace launch_cpp
 {
 
-std::string FindExecutable::Perform(const LaunchContext& context) const
+std::string FindExecutable::perform(const LaunchContext& context) const
 {
   (void)context;  // Context not used, but required by interface
   

@@ -61,23 +61,23 @@ class MockResourceMonitor : public launch_cpp::ResourceMonitor {
   MockResourceMonitor() = default;
   ~MockResourceMonitor() override = default;
 
-  OsalResult<SystemResources> GetSystemResources() override {
+  OsalResult<SystemResources> get_system_resources() override {
     return OsalResult<SystemResources>(SystemResources{});
   }
 
-  OsalResult<ResourceUsage> GetProcessResources(ProcessId) override {
+  OsalResult<ResourceUsage> get_process_resources(ProcessId) override {
     return OsalResult<ResourceUsage>(ResourceUsage{});
   }
 
-  OsalResult<bool> AreResourcesAvailable(uint64_t) override {
+  OsalResult<bool> are_resources_available(uint64_t) override {
     return OsalResult<bool>(true);
   }
 
-  OsalResult<void> SetResourceLimits(ProcessId, uint64_t, double) override {
+  OsalResult<void> set_resource_limits(ProcessId, uint64_t, double) override {
     return OsalResult<void>();
   }
 
-  void RegisterThresholdCallback(double, std::function<void(const SystemResources&)>) override {}
+  void register_threshold_callback(double, std::function<void(const SystemResources&)>) override {}
 };
 
 // Helper to create text substitution
@@ -96,25 +96,25 @@ TEST(SafetyIntegrationTest, DefaultSafetyDisabled)
   options.cmd = {text("echo"), text("hello")};
   
   // Default safety should be disabled
-  EXPECT_FALSE(options.enableSafety);
-  EXPECT_EQ(options.maxMemoryBytes, 0u);
-  EXPECT_DOUBLE_EQ(options.maxCpuPercent, 0.0);
-  EXPECT_EQ(options.watchdogTimeoutMs, 0);
+  EXPECT_FALSE(options.enable_safety);
+  EXPECT_EQ(options.max_memory_bytes, 0u);
+  EXPECT_DOUBLE_EQ(options.max_cpu_percent, 0.0);
+  EXPECT_EQ(options.watchdog_timeout_ms, 0);
 }
 
 TEST(SafetyIntegrationTest, SafetyOptionsCanBeSet)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("hello")};
-  options.enableSafety = true;
-  options.maxMemoryBytes = 512 * 1024 * 1024;  // 512MB
-  options.maxCpuPercent = 50.0;
-  options.watchdogTimeoutMs = 5000;
+  options.enable_safety = true;
+  options.max_memory_bytes = 512 * 1024 * 1024;  // 512MB
+  options.max_cpu_percent = 50.0;
+  options.watchdog_timeout_ms = 5000;
   
-  EXPECT_TRUE(options.enableSafety);
-  EXPECT_EQ(options.maxMemoryBytes, 512u * 1024 * 1024);
-  EXPECT_DOUBLE_EQ(options.maxCpuPercent, 50.0);
-  EXPECT_EQ(options.watchdogTimeoutMs, 5000);
+  EXPECT_TRUE(options.enable_safety);
+  EXPECT_EQ(options.max_memory_bytes, 512u * 1024 * 1024);
+  EXPECT_DOUBLE_EQ(options.max_cpu_percent, 50.0);
+  EXPECT_EQ(options.watchdog_timeout_ms, 5000);
 }
 
 // ============================================================================
@@ -125,7 +125,7 @@ TEST(SafetyIntegrationTest, CreateExecuteProcessWithSafety)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("hello")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   EXPECT_NE(action, nullptr);
@@ -135,7 +135,7 @@ TEST(SafetyIntegrationTest, CreateExecuteProcessWithoutSafety)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("hello")};
-  options.enableSafety = false;
+  options.enable_safety = false;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   EXPECT_NE(action, nullptr);
@@ -149,13 +149,13 @@ TEST(SafetyIntegrationTest, SetMockProcessExecutor)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   // Create and set mock executor
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   // Verify it doesn't crash
   EXPECT_NE(action, nullptr);
@@ -165,54 +165,54 @@ TEST(SafetyIntegrationTest, ExecuteWithMockExecutor)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   options.output = "log";  // Don't wait for output
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   // Configure mock to return success
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(1234);
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
+  auto result = action->execute(context);
   
-  EXPECT_TRUE(result.HasValue());
+  EXPECT_TRUE(result.has_value());
   
   // Verify PID is from mock
-  auto pidResult = action->GetPid();
-  EXPECT_TRUE(pidResult.HasValue());
-  EXPECT_EQ(pidResult.GetValue(), 1234);
+  auto pidResult = action->get_pid();
+  EXPECT_TRUE(pidResult.has_value());
+  EXPECT_EQ(pidResult.get_value(), 1234);
 }
 
 TEST(SafetyIntegrationTest, ExecuteWithMockExecutorFailure)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   // Configure mock to return failure
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(
         OsalStatus::kError,
         "Mock execution failed");
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
+  auto result = action->execute(context);
   
-  EXPECT_TRUE(result.HasError());
+  EXPECT_TRUE(result.has_error());
 }
 
 // ============================================================================
@@ -223,13 +223,13 @@ TEST(SafetyIntegrationTest, SetResourceMonitor)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   // Create and set resource monitor
   auto monitor = std::make_shared<PosixResourceMonitor>();
-  action->SetResourceMonitor(monitor);
+  action->set_resource_monitor(monitor);
   
   EXPECT_NE(action, nullptr);
 }
@@ -238,19 +238,19 @@ TEST(SafetyIntegrationTest, CheckResourcesAvailableWithoutMonitor)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   // Without monitor, should return true (assume available)
-  EXPECT_TRUE(action->CheckResourcesAvailable(100 * 1024 * 1024));
+  EXPECT_TRUE(action->check_resources_available(100 * 1024 * 1024));
 }
 
 TEST(SafetyIntegrationTest, CheckResourcesAvailableWithMockMonitor)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
@@ -258,36 +258,36 @@ TEST(SafetyIntegrationTest, CheckResourcesAvailableWithMockMonitor)
   class MockResourceMonitor : public ResourceMonitor
   {
    public:
-    OsalResult<SystemResources> GetSystemResources() override
+    OsalResult<SystemResources> get_system_resources() override
     {
       SystemResources res;
       return OsalResult<SystemResources>(res);
     }
     
-    OsalResult<ResourceUsage> GetProcessResources(ProcessId) override
+    OsalResult<ResourceUsage> get_process_resources(ProcessId) override
     {
       ResourceUsage usage;
       return OsalResult<ResourceUsage>(usage);
     }
     
-    OsalResult<bool> AreResourcesAvailable(uint64_t) override
+    OsalResult<bool> are_resources_available(uint64_t) override
     {
       return OsalResult<bool>(false);  // Simulate unavailable
     }
     
-    OsalResult<void> SetResourceLimits(ProcessId, uint64_t, double) override
+    OsalResult<void> set_resource_limits(ProcessId, uint64_t, double) override
     {
       return OsalResult<void>();
     }
     
-    void RegisterThresholdCallback(double, std::function<void(const SystemResources&)>) override {}
+    void register_threshold_callback(double, std::function<void(const SystemResources&)>) override {}
   };
   
   auto mockMonitor = std::make_shared<MockResourceMonitor>();
-  action->SetResourceMonitor(mockMonitor);
+  action->set_resource_monitor(mockMonitor);
   
   // Should return false now
-  EXPECT_FALSE(action->CheckResourcesAvailable(100 * 1024 * 1024));
+  EXPECT_FALSE(action->check_resources_available(100 * 1024 * 1024));
 }
 
 // ============================================================================
@@ -298,13 +298,13 @@ TEST(SafetyIntegrationTest, SetWatchdog)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   // Create and set watchdog
   auto watchdog = std::make_shared<PosixWatchdog>();
-  action->SetWatchdog(watchdog);
+  action->set_watchdog(watchdog);
   
   EXPECT_NE(action, nullptr);
 }
@@ -317,7 +317,7 @@ TEST(SafetyIntegrationTest, ExecuteWithResourceCheck)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("/bin/echo"), text("hello")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   options.output = "log";
   
   // Create action with safety enabled
@@ -326,7 +326,7 @@ TEST(SafetyIntegrationTest, ExecuteWithResourceCheck)
   // Set up mock executor
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
   bool executeCalled = false;
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [&executeCalled](const CommandLine& cmd, const ProcessOptions&) -> OsalResult<ProcessId> {
       executeCalled = true;
       EXPECT_EQ(cmd.program, "/bin/echo");
@@ -335,12 +335,12 @@ TEST(SafetyIntegrationTest, ExecuteWithResourceCheck)
       return OsalResult<ProcessId>(1234);
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
+  auto result = action->execute(context);
   
-  EXPECT_TRUE(result.HasValue());
+  EXPECT_TRUE(result.has_value());
   EXPECT_TRUE(executeCalled);
 }
 
@@ -348,8 +348,8 @@ TEST(SafetyIntegrationTest, ProcessControlWithSafety)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
-  options.sigtermTimeout = 2;
+  options.enable_safety = true;
+  options.sigterm_timeout = 2;
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
@@ -360,44 +360,44 @@ TEST(SafetyIntegrationTest, ProcessControlWithSafety)
   bool terminateCalled = false;
   bool killCalled = false;
   
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(1234);
     });
   
-  mockExecutor->SetTerminateCallback(
+  mockExecutor->set_terminate_callback(
     [&terminateCalled](ProcessId, std::chrono::milliseconds) -> OsalResult<void> {
       terminateCalled = true;
       return OsalResult<void>();
     });
   
-  mockExecutor->SetKillCallback(
+  mockExecutor->set_kill_callback(
     [&killCalled](ProcessId) -> OsalResult<void> {
       killCalled = true;
       return OsalResult<void>();
     });
   
-  mockExecutor->SetIsRunningCallback(
+  mockExecutor->set_is_running_callback(
     [](ProcessId) -> OsalResult<bool> {
       return OsalResult<bool>(true);
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   // First execute to set up the process
   MockLaunchContext context;
   options.output = "log";
-  auto execResult = action->Execute(context);
-  EXPECT_TRUE(execResult.HasValue());
+  auto execResult = action->execute(context);
+  EXPECT_TRUE(execResult.has_value());
   
   // Test terminate
-  auto termResult = action->Terminate();
-  EXPECT_TRUE(termResult.IsSuccess());
+  auto termResult = action->terminate();
+  EXPECT_TRUE(termResult.is_success());
   EXPECT_TRUE(terminateCalled);
   
   // Test kill
-  auto killResult = action->Kill();
-  EXPECT_TRUE(killResult.IsSuccess());
+  auto killResult = action->kill();
+  EXPECT_TRUE(killResult.is_success());
   EXPECT_TRUE(killCalled);
 }
 
@@ -405,36 +405,36 @@ TEST(SafetyIntegrationTest, GetStatusWithSafety)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   options.output = "log";
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
   // Set up mock executor
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(1234);
     });
   
-  mockExecutor->SetIsRunningCallback(
+  mockExecutor->set_is_running_callback(
     [](ProcessId) -> OsalResult<bool> {
       return OsalResult<bool>(true);
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
-  EXPECT_TRUE(result.HasValue());
+  auto result = action->execute(context);
+  EXPECT_TRUE(result.has_value());
   
   // Check status
-  EXPECT_TRUE(action->IsRunning());
+  EXPECT_TRUE(action->is_running());
   
   // Check PID
-  auto pidResult = action->GetPid();
-  EXPECT_TRUE(pidResult.HasValue());
-  EXPECT_EQ(pidResult.GetValue(), 1234);
+  auto pidResult = action->get_pid();
+  EXPECT_TRUE(pidResult.has_value());
+  EXPECT_EQ(pidResult.get_value(), 1234);
 }
 
 // ============================================================================
@@ -446,23 +446,23 @@ TEST(SafetyIntegrationTest, BackwardCompatibilityDisabled)
   // Test that safety disabled works exactly like before
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("hello")};
-  options.enableSafety = false;  // Explicitly disabled
+  options.enable_safety = false;  // Explicitly disabled
   
   auto action = std::make_shared<ExecuteProcess>(options);
   EXPECT_NE(action, nullptr);
   
   // All operations should still work
-  EXPECT_FALSE(action->IsRunning());
+  EXPECT_FALSE(action->is_running());
   
-  auto pidResult = action->GetPid();
-  EXPECT_FALSE(pidResult.HasValue());  // Process not started
+  auto pidResult = action->get_pid();
+  EXPECT_FALSE(pidResult.has_value());  // Process not started
 }
 
 TEST(SafetyIntegrationTest, SendSignalWithSafety)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enableSafety = true;
+  options.enable_safety = true;
   options.output = "log";
   
   auto action = std::make_shared<ExecuteProcess>(options);
@@ -471,30 +471,30 @@ TEST(SafetyIntegrationTest, SendSignalWithSafety)
   bool signalCalled = false;
   int32_t receivedSignal = 0;
   
-  mockExecutor->SetExecuteCallback(
+  mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(1234);
     });
   
-  mockExecutor->SetSendSignalCallback(
+  mockExecutor->set_send_signal_callback(
     [&signalCalled, &receivedSignal](ProcessId, int32_t sig) -> OsalResult<void> {
       signalCalled = true;
       receivedSignal = sig;
       return OsalResult<void>();
     });
   
-  action->SetProcessExecutor(mockExecutor);
+  action->set_process_executor(mockExecutor);
   
   // Set mock resource monitor to avoid resource check failures
   auto mockMonitor = std::make_shared<MockResourceMonitor>();
-  action->SetResourceMonitor(mockMonitor);
+  action->set_resource_monitor(mockMonitor);
   
   MockLaunchContext context;
-  auto result = action->Execute(context);
-  EXPECT_TRUE(result.HasValue());
+  auto result = action->execute(context);
+  EXPECT_TRUE(result.has_value());
   
   // Send SIGUSR1
-  action->SendSignal(SIGUSR1);
+  action->send_signal(SIGUSR1);
   EXPECT_TRUE(signalCalled);
   EXPECT_EQ(receivedSignal, SIGUSR1);
 }

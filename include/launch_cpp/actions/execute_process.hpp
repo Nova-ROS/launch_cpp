@@ -41,75 +41,75 @@ class ExecuteProcess final : public Action
     SubstitutionPtr cwd;
     std::unordered_map<std::string, SubstitutionPtr> env;
     std::string output;  // "screen", "log", "both"
-    bool emulateTty = false;
-    std::int32_t sigtermTimeout = 5;
+    bool emulate_tty = false;
+    std::int32_t sigterm_timeout = 5;
     SubstitutionPtr name;
-    
+
     // Safety-related options
-    bool enableSafety = false;
-    std::uint64_t maxMemoryBytes = 0;  // 0 = unlimited
-    double maxCpuPercent = 0.0;        // 0.0 = unlimited
-    std::int32_t watchdogTimeoutMs = 0; // 0 = disabled
-    
+    bool enable_safety = false;
+    std::uint64_t max_memory_bytes = 0;  // 0 = unlimited
+    double max_cpu_percent = 0.0;        // 0.0 = unlimited
+    std::int32_t watchdog_timeout_ms = 0; // 0 = disabled
+
     // Retry policy options
-    std::uint32_t maxRetries = 0;                    // 0 = no retry
-    std::chrono::milliseconds retryDelay{5000};     // Delay between retries
-    double retryBackoffMultiplier = 1.0;              // 1.0 = linear, >1.0 = exponential
-    
+    std::uint32_t max_retries = 0;                    // 0 = no retry
+    std::chrono::milliseconds retry_delay{5000};     // Delay between retries
+    double retry_backoff_multiplier = 1.0;              // 1.0 = linear, >1.0 = exponential
+
     // Dependency options
-    std::vector<std::string> dependsOn;              // List of process names this process depends on
+    std::vector<std::string> depends_on;              // List of process names this process depends on
   };
   
   explicit ExecuteProcess(const Options& options);
-  
+
   ~ExecuteProcess() override;
-  
-  Result<void> Execute(LaunchContext& context) override;
-  
+
+  Result<void> execute(LaunchContext& context) override;
+
   // Process control
-  Error Shutdown();
-  Error Terminate();
-  Error Kill();
-  void SendSignal(std::int32_t signal);
+  Error shutdown();
+  Error terminate();
+  Error kill();
+  void send_signal(std::int32_t signal);
 
   // Status queries
-  bool IsRunning() const noexcept;
-  Result<std::int32_t> GetReturnCode() const;
-  Result<std::int32_t> GetPid() const;
-  std::string GetName() const;
+  bool is_running() const noexcept;
+  Result<std::int32_t> get_return_code() const;
+  Result<std::int32_t> get_pid() const;
+  std::string get_name() const;
 
   // Safety-related methods
-  void SetProcessExecutor(std::shared_ptr<launch_cpp::ProcessExecutor> executor);
-  void SetResourceMonitor(std::shared_ptr<launch_cpp::ResourceMonitor> monitor);
-  void SetWatchdog(std::shared_ptr<launch_cpp::Watchdog> watchdog);
-  bool CheckResourcesAvailable(std::uint64_t estimatedMemory) const;
+  void set_process_executor(std::shared_ptr<launch_cpp::ProcessExecutor> executor);
+  void set_resource_monitor(std::shared_ptr<launch_cpp::ResourceMonitor> monitor);
+  void set_watchdog(std::shared_ptr<launch_cpp::Watchdog> watchdog);
+  bool check_resources_available(std::uint64_t estimated_memory) const;
 
  private:
   Options options_;
   std::unique_ptr<Process> process_;
-  std::string resolvedName_;
+  std::string resolved_name_;
 
   // Safety-related members
-  std::shared_ptr<launch_cpp::ProcessExecutor> processExecutor_;
-  std::shared_ptr<launch_cpp::ResourceMonitor> resourceMonitor_;
+  std::shared_ptr<launch_cpp::ProcessExecutor> process_executor_;
+  std::shared_ptr<launch_cpp::ResourceMonitor> resource_monitor_;
   std::shared_ptr<launch_cpp::Watchdog> watchdog_;
-  launch_cpp::ProcessId processId_;
+  launch_cpp::ProcessId process_id_;
 
   // Convert Substitutions to command line
-  std::vector<std::string> ResolveCommand(LaunchContext& context) const;
+  std::vector<std::string> resolve_command(LaunchContext& context) const;
 
   // Validate and escape command line arguments
-  Result<std::vector<std::string>> ValidateAndEscapeCommand(
+  Result<std::vector<std::string>> validate_and_escape_command(
       const std::vector<std::string>& cmd) const;
 
   // Retry logic implementation
-  Result<void> ExecuteSingleAttempt(LaunchContext& context,
+  Result<void> execute_single_attempt(LaunchContext& context,
                                      const std::vector<std::string>& cmd);
-  Result<void> ExecuteWithRetry(LaunchContext& context,
+  Result<void> execute_with_retry(LaunchContext& context,
                                  const std::vector<std::string>& cmd);
-  bool IsRetryableError(ErrorCode code) const;
-  std::chrono::milliseconds CalculateRetryDelay(uint32_t attemptNumber) const;
-  void CleanupBeforeRetry();
+  bool is_retryable_error(ErrorCode code) const;
+  std::chrono::milliseconds calculate_retry_delay(uint32_t attempt_number) const;
+  void cleanup_before_retry();
 };
 
 }  // namespace launch_cpp

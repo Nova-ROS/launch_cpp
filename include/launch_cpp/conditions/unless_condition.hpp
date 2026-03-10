@@ -30,7 +30,7 @@ class UnlessCondition final : public Condition
   
   ~UnlessCondition() override = default;
   
-  bool Evaluate(const LaunchContext& context) const override;
+  bool evaluate(const LaunchContext& context) const override;
   
  private:
   SubstitutionPtr expression_;

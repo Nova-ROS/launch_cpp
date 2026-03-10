@@ -25,7 +25,7 @@ DeclareLaunchArgument::DeclareLaunchArgument(const Options& options)
 {
 }
 
-Result<void> DeclareLaunchArgument::Execute(LaunchContext& context)
+Result<void> DeclareLaunchArgument::execute(LaunchContext& context)
 {
   // Check if already set
   if (context.HasLaunchConfiguration(options_.name))
@@ -36,7 +36,7 @@ Result<void> DeclareLaunchArgument::Execute(LaunchContext& context)
   // Use default value if provided
   if (options_.defaultValue)
   {
-    std::string value = options_.defaultValue->Perform(context);
+    std::string value = options_.defaultValue->perform(context);
     context.SetLaunchConfiguration(options_.name, value);
   }
   

@@ -78,35 +78,35 @@ TEST(IfConditionExtendedTest, TrueCondition)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("true"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(IfConditionExtendedTest, FalseCondition)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("false"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 TEST(IfConditionExtendedTest, OneCondition)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("1"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(IfConditionExtendedTest, ZeroCondition)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("0"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 TEST(IfConditionExtendedTest, YesCondition)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("yes"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(IfConditionExtendedTest, NoCondition)
@@ -114,35 +114,35 @@ TEST(IfConditionExtendedTest, NoCondition)
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("no"));
   // "no" is not "false" or "0", so it's considered truthy
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(IfConditionExtendedTest, EmptyString)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>(""));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 TEST(IfConditionExtendedTest, NullSubstitution)
 {
   MockLaunchContext ctx;
   IfCondition cond(nullptr);
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 TEST(IfConditionExtendedTest, RandomString)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("random_string"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(IfConditionExtendedTest, OnCondition)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("on"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(IfConditionExtendedTest, OffCondition)
@@ -150,7 +150,7 @@ TEST(IfConditionExtendedTest, OffCondition)
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("off"));
   // "off" is not "false" or "0", so it's considered truthy
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 // ============================================
@@ -161,49 +161,49 @@ TEST(UnlessConditionExtendedTest, TrueCondition)
 {
   MockLaunchContext ctx;
   UnlessCondition cond(std::make_shared<TextSubstitution>("true"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 TEST(UnlessConditionExtendedTest, FalseCondition)
 {
   MockLaunchContext ctx;
   UnlessCondition cond(std::make_shared<TextSubstitution>("false"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(UnlessConditionExtendedTest, EmptyString)
 {
   MockLaunchContext ctx;
   UnlessCondition cond(std::make_shared<TextSubstitution>(""));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(UnlessConditionExtendedTest, NullSubstitution)
 {
   MockLaunchContext ctx;
   UnlessCondition cond(nullptr);
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(UnlessConditionExtendedTest, OneCondition)
 {
   MockLaunchContext ctx;
   UnlessCondition cond(std::make_shared<TextSubstitution>("1"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 TEST(UnlessConditionExtendedTest, ZeroCondition)
 {
   MockLaunchContext ctx;
   UnlessCondition cond(std::make_shared<TextSubstitution>("0"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(UnlessConditionExtendedTest, YesCondition)
 {
   MockLaunchContext ctx;
   UnlessCondition cond(std::make_shared<TextSubstitution>("yes"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 TEST(UnlessConditionExtendedTest, NoCondition)
@@ -211,14 +211,14 @@ TEST(UnlessConditionExtendedTest, NoCondition)
   MockLaunchContext ctx;
   UnlessCondition cond(std::make_shared<TextSubstitution>("no"));
   // "no" is not "false" or "0", so Unless returns false
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 TEST(UnlessConditionExtendedTest, RandomString)
 {
   MockLaunchContext ctx;
   UnlessCondition cond(std::make_shared<TextSubstitution>("random"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 // ============================================
@@ -231,7 +231,7 @@ TEST(LaunchConfigurationEqualsExtendedTest, MatchingValues)
   ctx.SetLaunchConfiguration("test_key", "test_value");
   
   LaunchConfigurationEquals cond("test_key", std::make_shared<TextSubstitution>("test_value"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(LaunchConfigurationEqualsExtendedTest, NonMatchingValues)
@@ -240,14 +240,14 @@ TEST(LaunchConfigurationEqualsExtendedTest, NonMatchingValues)
   ctx.SetLaunchConfiguration("test_key", "test_value");
   
   LaunchConfigurationEquals cond("test_key", std::make_shared<TextSubstitution>("different_value"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 TEST(LaunchConfigurationEqualsExtendedTest, NonExistingKey)
 {
   MockLaunchContext ctx;
   LaunchConfigurationEquals cond("non_existing_key", std::make_shared<TextSubstitution>("any_value"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 TEST(LaunchConfigurationEqualsExtendedTest, EmptyExpectedValue)
@@ -256,7 +256,7 @@ TEST(LaunchConfigurationEqualsExtendedTest, EmptyExpectedValue)
   ctx.SetLaunchConfiguration("test_key", "");
   
   LaunchConfigurationEquals cond("test_key", std::make_shared<TextSubstitution>(""));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(LaunchConfigurationEqualsExtendedTest, NullSubstitution)
@@ -266,7 +266,7 @@ TEST(LaunchConfigurationEqualsExtendedTest, NullSubstitution)
   
   LaunchConfigurationEquals cond("test_key", nullptr);
   // Should handle null substitution gracefully
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 TEST(LaunchConfigurationEqualsExtendedTest, EmptyKey)
@@ -275,7 +275,7 @@ TEST(LaunchConfigurationEqualsExtendedTest, EmptyKey)
   ctx.SetLaunchConfiguration("", "value");
   
   LaunchConfigurationEquals cond("", std::make_shared<TextSubstitution>("value"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(LaunchConfigurationEqualsExtendedTest, CaseSensitive)
@@ -284,7 +284,7 @@ TEST(LaunchConfigurationEqualsExtendedTest, CaseSensitive)
   ctx.SetLaunchConfiguration("key", "Value");
   
   LaunchConfigurationEquals cond("key", std::make_shared<TextSubstitution>("value"));
-  EXPECT_FALSE(cond.Evaluate(ctx));
+  EXPECT_FALSE(cond.evaluate(ctx));
 }
 
 TEST(LaunchConfigurationEqualsExtendedTest, MultipleConfigs)
@@ -296,8 +296,8 @@ TEST(LaunchConfigurationEqualsExtendedTest, MultipleConfigs)
   LaunchConfigurationEquals cond1("key1", std::make_shared<TextSubstitution>("value1"));
   LaunchConfigurationEquals cond2("key2", std::make_shared<TextSubstitution>("value2"));
   
-  EXPECT_TRUE(cond1.Evaluate(ctx));
-  EXPECT_TRUE(cond2.Evaluate(ctx));
+  EXPECT_TRUE(cond1.evaluate(ctx));
+  EXPECT_TRUE(cond2.evaluate(ctx));
 }
 
 // ============================================
@@ -314,8 +314,8 @@ TEST(ConditionComplexTest, CombinedUsage)
   LaunchConfigurationEquals mode_cond("mode", std::make_shared<TextSubstitution>("production"));
   LaunchConfigurationEquals debug_cond("debug", std::make_shared<TextSubstitution>("false"));
   
-  EXPECT_TRUE(mode_cond.Evaluate(ctx));
-  EXPECT_TRUE(debug_cond.Evaluate(ctx));
+  EXPECT_TRUE(mode_cond.evaluate(ctx));
+  EXPECT_TRUE(debug_cond.evaluate(ctx));
 }
 
 TEST(ConditionComplexTest, IfWithConfig)
@@ -326,8 +326,8 @@ TEST(ConditionComplexTest, IfWithConfig)
   IfCondition if_cond(std::make_shared<TextSubstitution>("true"));
   LaunchConfigurationEquals equals_cond("enabled", std::make_shared<TextSubstitution>("true"));
   
-  EXPECT_TRUE(if_cond.Evaluate(ctx));
-  EXPECT_TRUE(equals_cond.Evaluate(ctx));
+  EXPECT_TRUE(if_cond.evaluate(ctx));
+  EXPECT_TRUE(equals_cond.evaluate(ctx));
 }
 
 TEST(ConditionComplexTest, UnlessWithConfig)
@@ -338,8 +338,8 @@ TEST(ConditionComplexTest, UnlessWithConfig)
   UnlessCondition unless_cond(std::make_shared<TextSubstitution>("false"));
   LaunchConfigurationEquals equals_cond("disabled", std::make_shared<TextSubstitution>("false"));
   
-  EXPECT_TRUE(unless_cond.Evaluate(ctx));
-  EXPECT_TRUE(equals_cond.Evaluate(ctx));
+  EXPECT_TRUE(unless_cond.evaluate(ctx));
+  EXPECT_TRUE(equals_cond.evaluate(ctx));
 }
 
 TEST(ConditionComplexTest, AllConditionsTogether)
@@ -351,9 +351,9 @@ TEST(ConditionComplexTest, AllConditionsTogether)
   UnlessCondition unless_false(std::make_shared<TextSubstitution>("false"));
   LaunchConfigurationEquals equals("key1", std::make_shared<TextSubstitution>("value1"));
   
-  EXPECT_TRUE(if_true.Evaluate(ctx));
-  EXPECT_TRUE(unless_false.Evaluate(ctx));
-  EXPECT_TRUE(equals.Evaluate(ctx));
+  EXPECT_TRUE(if_true.evaluate(ctx));
+  EXPECT_TRUE(unless_false.evaluate(ctx));
+  EXPECT_TRUE(equals.evaluate(ctx));
 }
 
 // ============================================
@@ -365,21 +365,21 @@ TEST(ConditionEdgeCaseTest, WhitespaceInString)
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("  true  "));
   // Whitespace makes it not exactly "true", so it's truthy
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(ConditionEdgeCaseTest, SpecialCharacters)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("!@#$%"));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(ConditionEdgeCaseTest, LongString)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>(std::string(1000, 'a')));
-  EXPECT_TRUE(cond.Evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 TEST(ConditionEdgeCaseTest, NumericValues)
@@ -390,9 +390,9 @@ TEST(ConditionEdgeCaseTest, NumericValues)
   IfCondition cond2(std::make_shared<TextSubstitution>("-1"));
   IfCondition cond3(std::make_shared<TextSubstitution>("0"));
   
-  EXPECT_TRUE(cond1.Evaluate(ctx));
-  EXPECT_TRUE(cond2.Evaluate(ctx));
-  EXPECT_FALSE(cond3.Evaluate(ctx));
+  EXPECT_TRUE(cond1.evaluate(ctx));
+  EXPECT_TRUE(cond2.evaluate(ctx));
+  EXPECT_FALSE(cond3.evaluate(ctx));
 }
 
 int main(int argc, char** argv)

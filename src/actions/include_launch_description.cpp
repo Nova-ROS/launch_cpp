@@ -27,7 +27,7 @@ IncludeLaunchDescription::IncludeLaunchDescription(const Options& options)
 {
 }
 
-Result<void> IncludeLaunchDescription::Execute(LaunchContext& context)
+Result<void> IncludeLaunchDescription::execute(LaunchContext& context)
 {
   if (!options_.launchDescriptionSource)
   {
@@ -35,7 +35,7 @@ Result<void> IncludeLaunchDescription::Execute(LaunchContext& context)
   }
   
   // Resolve the file path
-  std::string filePath = options_.launchDescriptionSource->Perform(context);
+  std::string filePath = options_.launchDescriptionSource->perform(context);
   
   // Check if file exists
   std::ifstream file(filePath);
@@ -46,10 +46,10 @@ Result<void> IncludeLaunchDescription::Execute(LaunchContext& context)
   file.close();
   
   // Parse the launch file
-  auto descResult = LaunchDescription::FromYamlFile(filePath);
-  if (descResult.HasError())
+  auto descResult = LaunchDescription::from_yaml_file(filePath);
+  if (descResult.has_error())
   {
-    return Result<void>(descResult.GetError());
+    return Result<void>(descResult.get_error());
   }
   
   // Set launch arguments
@@ -57,16 +57,16 @@ Result<void> IncludeLaunchDescription::Execute(LaunchContext& context)
   {
     if (arg.second)
     {
-      std::string value = arg.second->Perform(context);
+      std::string value = arg.second->perform(context);
       context.SetLaunchConfiguration(arg.first, value);
     }
   }
   
   // Visit the included launch description
-  auto visitResult = descResult.GetValue()->Visit(context);
-  if (visitResult.HasError())
+  auto visitResult = descResult.get_value()->visit(context);
+  if (visitResult.has_error())
   {
-    return Result<void>(visitResult.GetError());
+    return Result<void>(visitResult.get_error());
   }
   
   return Result<void>();

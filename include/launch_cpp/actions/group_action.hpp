@@ -38,7 +38,7 @@ class GroupAction final : public Action
 
   ~GroupAction() override = default;
 
-  Result<void> Execute(LaunchContext& context) override;
+  Result<void> execute(LaunchContext& context) override;
 
   const std::vector<ActionPtr>& GetActions() const noexcept { return options_.actions; }
   const ConditionPtr& GetCondition() const noexcept { return options_.condition; }

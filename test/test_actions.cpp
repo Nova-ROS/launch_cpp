@@ -120,14 +120,14 @@ TEST(DeclareLaunchArgumentTest, Execute)
   options.defaultValue = std::make_shared<TextSubstitution>("default_val");
   
   auto action = std::make_shared<DeclareLaunchArgument>(options);
-  auto result = action->Execute(ctx);
+  auto result = action->execute(ctx);
   
-  EXPECT_TRUE(result.HasValue());
+  EXPECT_TRUE(result.has_value());
   EXPECT_TRUE(ctx.HasLaunchConfiguration("my_arg"));
   
   auto val_result = ctx.GetLaunchConfiguration("my_arg");
-  EXPECT_TRUE(val_result.HasValue());
-  EXPECT_EQ(val_result.GetValue(), "default_val");
+  EXPECT_TRUE(val_result.has_value());
+  EXPECT_EQ(val_result.get_value(), "default_val");
 }
 
 // Test: SetLaunchConfiguration basic creation
@@ -150,14 +150,14 @@ TEST(SetLaunchConfigurationTest, Execute)
   options.value = std::make_shared<TextSubstitution>("my_value");
   
   auto action = std::make_shared<SetLaunchConfiguration>(options);
-  auto result = action->Execute(ctx);
+  auto result = action->execute(ctx);
   
-  EXPECT_TRUE(result.HasValue());
+  EXPECT_TRUE(result.has_value());
   EXPECT_TRUE(ctx.HasLaunchConfiguration("my_config"));
   
   auto val_result = ctx.GetLaunchConfiguration("my_config");
-  EXPECT_TRUE(val_result.HasValue());
-  EXPECT_EQ(val_result.GetValue(), "my_value");
+  EXPECT_TRUE(val_result.has_value());
+  EXPECT_EQ(val_result.get_value(), "my_value");
 }
 
 // Test: SetLaunchConfiguration with null substitution
@@ -169,14 +169,14 @@ TEST(SetLaunchConfigurationTest, ExecuteWithNullSubstitution)
   options.value = nullptr;
   
   auto action = std::make_shared<SetLaunchConfiguration>(options);
-  auto result = action->Execute(ctx);
+  auto result = action->execute(ctx);
   
-  EXPECT_TRUE(result.HasValue());
+  EXPECT_TRUE(result.has_value());
   EXPECT_TRUE(ctx.HasLaunchConfiguration("empty_config"));
   
   auto val_result = ctx.GetLaunchConfiguration("empty_config");
-  EXPECT_TRUE(val_result.HasValue());
-  EXPECT_EQ(val_result.GetValue(), "");
+  EXPECT_TRUE(val_result.has_value());
+  EXPECT_EQ(val_result.get_value(), "");
 }
 
 // Test: TimerAction basic creation
@@ -216,10 +216,10 @@ TEST(TimerActionTest, ExecuteTiming)
   auto action = std::make_shared<TimerAction>(options);
   
   auto start = std::chrono::steady_clock::now();
-  auto result = action->Execute(ctx);
+  auto result = action->execute(ctx);
   auto end = std::chrono::steady_clock::now();
   
-  EXPECT_TRUE(result.HasValue());
+  EXPECT_TRUE(result.has_value());
   
   auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
   EXPECT_GE(elapsed.count(), 90);  // Should wait at least 90ms (with some tolerance)
@@ -232,7 +232,7 @@ TEST(GroupActionTest, BasicCreation)
   
   auto action = std::make_shared<GroupAction>(options);
   EXPECT_EQ(action->GetActions().size(), 0U);
-  EXPECT_EQ(action->GetCondition(), nullptr);
+  EXPECT_EQ(action->get_condition(), nullptr);
 }
 
 // Test: GroupAction with nested actions
@@ -268,9 +268,9 @@ TEST(GroupActionTest, ExecuteWithoutCondition)
   options.actions.push_back(std::make_shared<SetLaunchConfiguration>(set_opts));
   
   auto action = std::make_shared<GroupAction>(options);
-  auto result = action->Execute(ctx);
+  auto result = action->execute(ctx);
   
-  EXPECT_TRUE(result.HasValue());
+  EXPECT_TRUE(result.has_value());
   EXPECT_TRUE(ctx.HasLaunchConfiguration("group_config"));
 }
 
@@ -290,9 +290,9 @@ TEST(GroupActionTest, ExecuteWithCondition)
   options.condition = std::make_shared<IfCondition>(std::make_shared<TextSubstitution>("true"));
   
   auto action = std::make_shared<GroupAction>(options);
-  auto result = action->Execute(ctx);
+  auto result = action->execute(ctx);
   
-  EXPECT_TRUE(result.HasValue());
+  EXPECT_TRUE(result.has_value());
   EXPECT_TRUE(ctx.HasLaunchConfiguration("conditional_config"));
 }
 
@@ -312,9 +312,9 @@ TEST(GroupActionTest, ExecuteWithFailingCondition)
   options.condition = std::make_shared<IfCondition>(std::make_shared<TextSubstitution>("false"));
   
   auto action = std::make_shared<GroupAction>(options);
-  auto result = action->Execute(ctx);
+  auto result = action->execute(ctx);
   
-  EXPECT_TRUE(result.HasValue());
+  EXPECT_TRUE(result.has_value());
   EXPECT_FALSE(ctx.HasLaunchConfiguration("should_not_exist"));
 }
 
@@ -336,7 +336,7 @@ TEST(ActionBaseTest, GetCondition)
   options.cmd = {std::make_shared<TextSubstitution>("echo"), std::make_shared<TextSubstitution>("test")};
   
   auto action = std::make_shared<ExecuteProcess>(options);
-  EXPECT_EQ(action->GetCondition(), nullptr);
+  EXPECT_EQ(action->get_condition(), nullptr);
 }
 
 // Test: Action with condition
@@ -347,7 +347,7 @@ TEST(ActionBaseTest, WithCondition)
   
   auto action = std::make_shared<ExecuteProcess>(options);
   // Action doesn't have condition field in Options, it's set via base class
-  EXPECT_EQ(action->GetCondition(), nullptr);
+  EXPECT_EQ(action->get_condition(), nullptr);
 }
 
 int main(int argc, char** argv)

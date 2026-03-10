@@ -39,7 +39,7 @@ class DeclareLaunchArgument final : public Action
   
   ~DeclareLaunchArgument() override = default;
   
-  Result<void> Execute(LaunchContext& context) override;
+  Result<void> execute(LaunchContext& context) override;
   
   const std::string& GetName() const noexcept { return options_.name; }
   const SubstitutionPtr& GetDefaultValue() const noexcept { return options_.defaultValue; }

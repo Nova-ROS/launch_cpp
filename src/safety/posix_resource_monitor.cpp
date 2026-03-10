@@ -47,13 +47,13 @@ public:
     Impl() = default;
     ~Impl() = default;
 
-    OsalResult<SystemResources> GetSystemResourcesInternal();
-    OsalResult<ResourceUsage> GetProcessResourcesInternal(ProcessId pid);
-    OsalResult<bool> AreResourcesAvailableInternal(uint64_t estimated_memory);
-    OsalResult<void> SetResourceLimitsInternal(
+    OsalResult<SystemResources> get_system_resources_internal();
+    OsalResult<ResourceUsage> get_process_resources_internal(ProcessId pid);
+    OsalResult<bool> are_resources_available_internal(uint64_t estimated_memory);
+    OsalResult<void> set_resource_limits_internal(
         ProcessId pid, uint64_t max_memory, double max_cpu_percent);
 
-    void RegisterThresholdCallbackInternal(
+    void register_threshold_callback_internal(
         double threshold,
         std::function<void(const SystemResources&)> callback);
     
@@ -96,36 +96,36 @@ PosixResourceMonitor::~PosixResourceMonitor() {
     impl_->StopMonitoring();
 }
 
-OsalResult<SystemResources> PosixResourceMonitor::GetSystemResources() {
-    return impl_->GetSystemResourcesInternal();
+OsalResult<SystemResources> PosixResourceMonitor::get_system_resources() {
+    return impl_->get_system_resources_internal();
 }
 
-OsalResult<ResourceUsage> PosixResourceMonitor::GetProcessResources(ProcessId pid) {
-    return impl_->GetProcessResourcesInternal(pid);
+OsalResult<ResourceUsage> PosixResourceMonitor::get_process_resources(ProcessId pid) {
+    return impl_->get_process_resources_internal(pid);
 }
 
-OsalResult<bool> PosixResourceMonitor::AreResourcesAvailable(uint64_t estimated_memory) {
-    return impl_->AreResourcesAvailableInternal(estimated_memory);
+OsalResult<bool> PosixResourceMonitor::are_resources_available(uint64_t estimated_memory) {
+    return impl_->are_resources_available_internal(estimated_memory);
 }
 
-OsalResult<void> PosixResourceMonitor::SetResourceLimits(
+OsalResult<void> PosixResourceMonitor::set_resource_limits(
     ProcessId pid,
     uint64_t max_memory,
     double max_cpu_percent) {
-    return impl_->SetResourceLimitsInternal(pid, max_memory, max_cpu_percent);
+    return impl_->set_resource_limits_internal(pid, max_memory, max_cpu_percent);
 }
 
-void PosixResourceMonitor::RegisterThresholdCallback(
+void PosixResourceMonitor::register_threshold_callback(
     double threshold,
     std::function<void(const SystemResources&)> callback) {
-    impl_->RegisterThresholdCallbackInternal(threshold, callback);
+    impl_->register_threshold_callback_internal(threshold, callback);
 }
 
 // ============================================================================
 // Implementation Details
 // ============================================================================
 
-OsalResult<SystemResources> PosixResourceMonitor::Impl::GetSystemResourcesInternal() {
+OsalResult<SystemResources> PosixResourceMonitor::Impl::get_system_resources_internal() {
     SystemResources resources;
     
     // Get memory information
@@ -161,7 +161,7 @@ OsalResult<SystemResources> PosixResourceMonitor::Impl::GetSystemResourcesIntern
     return OsalResult<SystemResources>(resources);
 }
 
-OsalResult<ResourceUsage> PosixResourceMonitor::Impl::GetProcessResourcesInternal(ProcessId pid) {
+OsalResult<ResourceUsage> PosixResourceMonitor::Impl::get_process_resources_internal(ProcessId pid) {
     ResourceUsage usage;
     
     // Get memory usage
@@ -188,17 +188,17 @@ OsalResult<ResourceUsage> PosixResourceMonitor::Impl::GetProcessResourcesInterna
     return OsalResult<ResourceUsage>(usage);
 }
 
-OsalResult<bool> PosixResourceMonitor::Impl::AreResourcesAvailableInternal(
+OsalResult<bool> PosixResourceMonitor::Impl::are_resources_available_internal(
     uint64_t estimated_memory) {
     
-    auto sys_result = GetSystemResourcesInternal();
-    if (sys_result.HasError()) {
+    auto sys_result = get_system_resources_internal();
+    if (sys_result.has_error()) {
         return OsalResult<bool>(
-            sys_result.GetStatus(),
-            sys_result.GetErrorMessage());
+            sys_result.get_status(),
+            sys_result.get_error_message());
     }
     
-    const auto& resources = sys_result.GetValue();
+    const auto& resources = sys_result.get_value();
     
     // Check if enough memory available
     if (resources.available_memory_bytes < estimated_memory) {
@@ -213,7 +213,7 @@ OsalResult<bool> PosixResourceMonitor::Impl::AreResourcesAvailableInternal(
     return OsalResult<bool>(true);
 }
 
-OsalResult<void> PosixResourceMonitor::Impl::SetResourceLimitsInternal(
+OsalResult<void> PosixResourceMonitor::Impl::set_resource_limits_internal(
     ProcessId pid,
     uint64_t max_memory,
     double max_cpu_percent) {
@@ -237,7 +237,7 @@ OsalResult<void> PosixResourceMonitor::Impl::SetResourceLimitsInternal(
     return OsalResult<void>();
 }
 
-void PosixResourceMonitor::Impl::RegisterThresholdCallbackInternal(
+void PosixResourceMonitor::Impl::register_threshold_callback_internal(
     double threshold,
     std::function<void(const SystemResources&)> callback) {
     
@@ -253,9 +253,9 @@ void PosixResourceMonitor::Impl::RegisterThresholdCallbackInternal(
 
 void PosixResourceMonitor::Impl::MonitorThread() {
     while (monitoring_) {
-        auto result = GetSystemResourcesInternal();
-        if (!result.HasError()) {
-            const auto& resources = result.GetValue();
+        auto result = get_system_resources_internal();
+        if (!result.has_error()) {
+            const auto& resources = result.get_value();
             
             // Check all callbacks
             std::lock_guard<std::mutex> lock(callback_mutex_);

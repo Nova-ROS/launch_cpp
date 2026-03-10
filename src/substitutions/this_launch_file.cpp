@@ -19,7 +19,7 @@
 namespace launch_cpp
 {
 
-std::string ThisLaunchFile::Perform(const LaunchContext& context) const
+std::string ThisLaunchFile::perform(const LaunchContext& context) const
 {
   return context.GetCurrentLaunchFile();
 }

@@ -20,7 +20,7 @@
 namespace launch_cpp
 {
 
-std::string ThisLaunchFileDir::Perform(const LaunchContext& context) const
+std::string ThisLaunchFileDir::perform(const LaunchContext& context) const
 {
   std::string launch_file = context.GetCurrentLaunchFile();
   if (launch_file.empty())

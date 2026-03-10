@@ -46,10 +46,10 @@ class EventHandler
   EventHandler& operator=(EventHandler&&) = default;
   
   // AUTOSAR C++14: M0-1-9 - Pure virtual function
-  virtual bool Matches(const Event& event) const = 0;
-  
-  virtual Result<LaunchDescriptionEntityVector> Handle(
-    const Event& event, 
+  virtual bool matches(const Event& event) const = 0;
+
+  virtual Result<LaunchDescriptionEntityVector> handle(
+    const Event& event,
     LaunchContext& context) = 0;
 };
 
@@ -63,14 +63,14 @@ class FunctionEventHandler final : public EventHandler
   
   FunctionEventHandler(MatcherFunc matcher, HandlerFunc handler)
     : matcher_(std::move(matcher)), handler_(std::move(handler)) {}
-  
-  bool Matches(const Event& event) const override
+
+  bool matches(const Event& event) const override
   {
     return matcher_(event);
   }
-  
-  Result<LaunchDescriptionEntityVector> Handle(
-    const Event& event, 
+
+  Result<LaunchDescriptionEntityVector> handle(
+    const Event& event,
     LaunchContext& context) override
   {
     return handler_(event, context);

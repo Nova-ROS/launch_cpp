@@ -44,14 +44,14 @@ class EventDispatcher
   EventDispatcher& operator=(EventDispatcher&&) = delete;
 
   // Register an event handler
-  void RegisterHandler(const EventHandlerPtr& handler)
+  void register_handler(const EventHandlerPtr& handler)
   {
     std::lock_guard<std::mutex> lock(handlersMutex_);
     handlers_.push_back(handler);
   }
 
   // Unregister an event handler
-  void UnregisterHandler(const EventHandler* handler)
+  void unregister_handler(const EventHandler* handler)
   {
     std::lock_guard<std::mutex> lock(handlersMutex_);
     for (auto it = handlers_.begin(); it != handlers_.end(); ++it)
@@ -65,23 +65,23 @@ class EventDispatcher
   }
 
   // Dispatch event to matching handlers
-  Result<LaunchDescriptionEntityVector> Dispatch(const Event& event, LaunchContext& context)
+  Result<LaunchDescriptionEntityVector> dispatch(const Event& event, LaunchContext& context)
   {
     std::lock_guard<std::mutex> lock(handlersMutex_);
     LaunchDescriptionEntityVector all_entities;
 
     for (const auto& handler : handlers_)
     {
-      if (handler && handler->Matches(event))
+      if (handler && handler->matches(event))
       {
-        Result<LaunchDescriptionEntityVector> result = handler->Handle(event, context);
-        if (result.HasError())
+        Result<LaunchDescriptionEntityVector> result = handler->handle(event, context);
+        if (result.has_error())
         {
           return result;
         }
 
         // Append entities
-        const LaunchDescriptionEntityVector& entities = result.GetValue();
+        const LaunchDescriptionEntityVector& entities = result.get_value();
         all_entities.insert(all_entities.end(), entities.begin(), entities.end());
       }
     }
@@ -90,14 +90,14 @@ class EventDispatcher
   }
 
   // Get number of registered handlers
-  std::size_t GetHandlerCount() const
+  std::size_t get_handler_count() const
   {
     std::lock_guard<std::mutex> lock(handlersMutex_);
     return handlers_.size();
   }
 
   // Clear all handlers
-  void ClearHandlers()
+  void clear_handlers()
   {
     std::lock_guard<std::mutex> lock(handlersMutex_);
     handlers_.clear();

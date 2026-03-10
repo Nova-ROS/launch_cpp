@@ -35,35 +35,35 @@ namespace launch_cpp {
 MockProcessExecutor::MockProcessExecutor() = default;
 MockProcessExecutor::~MockProcessExecutor() = default;
 
-void MockProcessExecutor::SetExecuteCallback(ExecuteCallback callback) {
+void MockProcessExecutor::set_execute_callback(ExecuteCallback callback) {
     execute_cb_ = callback;
 }
 
-void MockProcessExecutor::SetWaitCallback(WaitCallback callback) {
+void MockProcessExecutor::set_wait_callback(WaitCallback callback) {
     wait_cb_ = callback;
 }
 
-void MockProcessExecutor::SetIsRunningCallback(IsRunningCallback callback) {
+void MockProcessExecutor::set_is_running_callback(IsRunningCallback callback) {
     is_running_cb_ = callback;
 }
 
-void MockProcessExecutor::SetTerminateCallback(TerminateCallback callback) {
+void MockProcessExecutor::set_terminate_callback(TerminateCallback callback) {
     terminate_cb_ = callback;
 }
 
-void MockProcessExecutor::SetKillCallback(KillCallback callback) {
+void MockProcessExecutor::set_kill_callback(KillCallback callback) {
     kill_cb_ = callback;
 }
 
-void MockProcessExecutor::SetSendSignalCallback(SendSignalCallback callback) {
+void MockProcessExecutor::set_send_signal_callback(SendSignalCallback callback) {
     send_signal_cb_ = callback;
 }
 
-void MockProcessExecutor::SetGetStateCallback(GetStateCallback callback) {
+void MockProcessExecutor::set_get_state_callback(GetStateCallback callback) {
     get_state_cb_ = callback;
 }
 
-OsalResult<ProcessId> MockProcessExecutor::Execute(
+OsalResult<ProcessId> MockProcessExecutor::execute(
     const CommandLine& command,
     const ProcessOptions& options) {
     
@@ -76,7 +76,7 @@ OsalResult<ProcessId> MockProcessExecutor::Execute(
     return OsalResult<ProcessId>(next_pid.fetch_add(1));
 }
 
-OsalResult<ProcessResult> MockProcessExecutor::Wait(
+OsalResult<ProcessResult> MockProcessExecutor::wait(
     ProcessId pid,
     std::chrono::milliseconds timeout) {
     
@@ -92,14 +92,14 @@ OsalResult<ProcessResult> MockProcessExecutor::Wait(
     return OsalResult<ProcessResult>(result);
 }
 
-OsalResult<bool> MockProcessExecutor::IsRunning(ProcessId pid) {
+OsalResult<bool> MockProcessExecutor::is_running(ProcessId pid) {
     if (is_running_cb_) {
         return is_running_cb_(pid);
     }
     return OsalResult<bool>(false);
 }
 
-OsalResult<void> MockProcessExecutor::Terminate(
+OsalResult<void> MockProcessExecutor::terminate(
     ProcessId pid,
     std::chrono::milliseconds timeout) {
     
@@ -109,21 +109,21 @@ OsalResult<void> MockProcessExecutor::Terminate(
     return OsalResult<void>();
 }
 
-OsalResult<void> MockProcessExecutor::Kill(ProcessId pid) {
+OsalResult<void> MockProcessExecutor::kill(ProcessId pid) {
     if (kill_cb_) {
         return kill_cb_(pid);
     }
     return OsalResult<void>();
 }
 
-OsalResult<void> MockProcessExecutor::SendSignal(ProcessId pid, int32_t signal) {
+OsalResult<void> MockProcessExecutor::send_signal(ProcessId pid, int32_t signal) {
     if (send_signal_cb_) {
         return send_signal_cb_(pid, signal);
     }
     return OsalResult<void>();
 }
 
-OsalResult<ProcessState> MockProcessExecutor::GetState(ProcessId pid) {
+OsalResult<ProcessState> MockProcessExecutor::get_state(ProcessId pid) {
     if (get_state_cb_) {
         return get_state_cb_(pid);
     }

@@ -50,24 +50,24 @@ class LaunchDescription final : public LaunchDescriptionEntity
   LaunchDescription& operator=(LaunchDescription&&) = default;
   
   // Add entities
-  void Add(const LaunchDescriptionEntityPtr& entity);
-  void Add(LaunchDescriptionEntityPtr&& entity);
-  
+  void add(const LaunchDescriptionEntityPtr& entity);
+  void add(LaunchDescriptionEntityPtr&& entity);
+
   template<typename T, typename... Args>
-  void Emplace(Args&&... args)
+  void emplace(Args&&... args)
   {
-    Add(MakeShared<T>(std::forward<Args>(args)...));
+    add(MakeShared<T>(std::forward<Args>(args)...));
   }
-  
+
   // AUTOSAR C++14: M0-1-9 - Override Visit
-  Result<LaunchDescriptionEntityVector> Visit(LaunchContext& context) override;
-  
+  Result<LaunchDescriptionEntityVector> visit(LaunchContext& context) override;
+
   // Getters
-  const LaunchDescriptionEntityVector& GetEntities() const noexcept { return entities_; }
-  
+  const LaunchDescriptionEntityVector& get_entities() const noexcept { return entities_; }
+
   // Factory methods
-  static Result<LaunchDescriptionPtr> FromYaml(const std::string& yamlString);
-  static Result<LaunchDescriptionPtr> FromYamlFile(const std::string& filePath);
+  static Result<LaunchDescriptionPtr> from_yaml(const std::string& yaml_string);
+  static Result<LaunchDescriptionPtr> from_yaml_file(const std::string& file_path);
   
  private:
   LaunchDescriptionEntityVector entities_;
