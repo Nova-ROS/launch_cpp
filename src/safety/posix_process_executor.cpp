@@ -415,4 +415,4 @@ void PosixProcessExecutor::Impl::setup_child_environment(
     }
 }
 
-} // namespace launch_cpp
+}  // namespace launch_cpp

@@ -188,7 +188,7 @@ YamlValue launch_cpp::YamlParser::parse_array_element_object(std::istringstream&
 
   // Parse the first line (e.g., "- type: execute_process")
   std::string trimmedFirst = trim(firstLine);
-  std::string content = trim(trimmedFirst.substr(1)); // Remove '-'
+  std::string content = trim(trimmedFirst.substr(1));  // Remove '-'
 
   size_t colonPos = content.find(':');
   if (colonPos != std::string::npos)
@@ -267,7 +267,7 @@ YamlValue launch_cpp::YamlParser::parse_array_element_object(std::istringstream&
 
     // This is a field of our object - parse it
     // Remove the leading whitespace to make it look like a top-level line
-    std::string deindented = lineStr.substr(baseIndent + 2); // +2 for the "- " we removed
+    std::string deindented = lineStr.substr(baseIndent + 2);  // +2 for the "- " we removed
     std::istringstream fieldStream(deindented);
     int fieldLine = 0;
 

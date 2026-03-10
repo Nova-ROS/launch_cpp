@@ -55,7 +55,7 @@ enum class ErrorCode : std::int32_t
 {
   kSuccess = 0,              ///< Operation completed successfully
   kInvalidArgument = 1,      ///< Invalid parameter passed to function
-  kInvalidConfiguration = 2, ///< Configuration error or missing value
+  kInvalidConfiguration = 2,  ///< Configuration error or missing value
   kProcessSpawnFailed = 3,   ///< Failed to spawn child process
   kProcessNotFound = 4,      ///< Specified process not found
   kEventHandlerError = 5,    ///< Event handler execution failed
