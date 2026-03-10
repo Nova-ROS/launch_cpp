@@ -49,3 +49,11 @@ target_link_libraries(test_dependency_manager launch_cpp_core)
 # Variable substitution tests
 ament_add_gtest(test_variable_substitution test_variable_substitution.cpp)
 target_link_libraries(test_variable_substitution launch_cpp_core)
+
+# YAML parser edge case tests for coverage improvement
+ament_add_gtest(test_yaml_parser_edge test_yaml_parser_edge.cpp)
+target_link_libraries(test_yaml_parser_edge launch_cpp_core)
+
+# Additional condition tests for coverage improvement
+ament_add_gtest(test_conditions_edge test_conditions_edge.cpp)
+target_link_libraries(test_conditions_edge launch_cpp_core)
