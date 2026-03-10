@@ -36,19 +36,19 @@ class LaunchDescription final : public LaunchDescriptionEntity
  public:
   // AUTOSAR C++14: A12-1-1 - Default constructor
   LaunchDescription() = default;
-  
+
   explicit LaunchDescription(const LaunchDescriptionEntityVector& entities);
   explicit LaunchDescription(LaunchDescriptionEntityVector&& entities);
-  
+
   // AUTOSAR C++14: A12-8-4 - Virtual destructor
   ~LaunchDescription() override = default;
-  
+
   // AUTOSAR C++14: A10-3-3 - Declare special functions
   LaunchDescription(const LaunchDescription&) = default;
   LaunchDescription& operator=(const LaunchDescription&) = default;
   LaunchDescription(LaunchDescription&&) = default;
   LaunchDescription& operator=(LaunchDescription&&) = default;
-  
+
   // Add entities
   void add(const LaunchDescriptionEntityPtr& entity);
   void add(LaunchDescriptionEntityPtr&& entity);
@@ -68,7 +68,7 @@ class LaunchDescription final : public LaunchDescriptionEntity
   // Factory methods
   static Result<LaunchDescriptionPtr> from_yaml(const std::string& yaml_string);
   static Result<LaunchDescriptionPtr> from_yaml_file(const std::string& file_path);
-  
+
  private:
   LaunchDescriptionEntityVector entities_;
 };

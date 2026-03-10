@@ -46,23 +46,23 @@ Result<LaunchDescriptionEntityVector> LaunchDescription::visit(LaunchContext& co
 {
   LaunchDescriptionEntityVector result;
   result.reserve(entities_.size());
-  
+
   for (LaunchDescriptionEntityPtr& entity : entities_)
   {
     if (!entity)
     {
       continue;
     }
-    
+
     Result<LaunchDescriptionEntityVector> visitResult = entity->visit(context);
-    
+
     if (visitResult.has_error())
     {
       return visitResult;
     }
-    
+
     LaunchDescriptionEntityVector& childEntities = visitResult.get_value();
-    
+
     for (LaunchDescriptionEntityPtr& child : childEntities)
     {
       if (child)
@@ -71,7 +71,7 @@ Result<LaunchDescriptionEntityVector> LaunchDescription::visit(LaunchContext& co
       }
     }
   }
-  
+
   return Result<LaunchDescriptionEntityVector>(std::move(result));
 }
 
@@ -82,7 +82,7 @@ Result<LaunchDescriptionPtr> LaunchDescription::from_yaml(const std::string& yam
   {
     return Result<LaunchDescriptionPtr>(yamlResult.get_error());
   }
-  
+
   return YamlLaunchBuilder::build(yamlResult.get_value());
 }
 
@@ -93,7 +93,7 @@ Result<LaunchDescriptionPtr> LaunchDescription::from_yaml_file(const std::string
   {
     return Result<LaunchDescriptionPtr>(yamlResult.get_error());
   }
-  
+
   return YamlLaunchBuilder::build(yamlResult.get_value());
 }
 

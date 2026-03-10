@@ -23,12 +23,12 @@ namespace launch_cpp
 std::string EnvironmentVariable::perform(const LaunchContext& context) const
 {
   std::string value = context.get_environment_variable(name_);
-  
+
   if (value.empty())
   {
     return default_value_;
   }
-  
+
   return value;
 }
 

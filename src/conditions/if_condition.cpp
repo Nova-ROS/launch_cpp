@@ -26,20 +26,20 @@ bool IfCondition::evaluate(const LaunchContext& context) const
   {
     return false;
   }
-  
+
   std::string result = expression_->perform(context);
-  
+
   // Truthy check: not empty and not "false" or "0"
   if (result.empty())
   {
     return false;
   }
-  
+
   if (result == "false" || result == "0" || result == "no" || result == "NO")
   {
     return false;
   }
-  
+
   return true;
 }
 

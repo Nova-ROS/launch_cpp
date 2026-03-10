@@ -59,7 +59,7 @@ class ExecuteProcess final : public Action
     // Dependency options
     std::vector<std::string> depends_on;              // List of process names this process depends on
   };
-  
+
   explicit ExecuteProcess(const Options& options);
 
   ~ExecuteProcess() override;

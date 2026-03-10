@@ -15,13 +15,13 @@
 /**
  * @file dependency_manager.hpp
  * @brief Manages process dependencies and startup order
- * 
+ *
  * @details Integrates DependencyResolver with LaunchService to ensure
  *          processes are started in the correct order based on their
  *          declared dependencies.
- * 
+ *
  * @ASIL ASIL B
- * 
+ *
  * @requirements
  * - REQ-LAUNCH-DEP-001: Resolve and respect process dependencies
  * - REQ-LAUNCH-DEP-002: Detect circular dependencies
@@ -44,7 +44,7 @@ namespace launch_cpp
 
 /**
  * @brief Manages process dependencies and execution order
- * 
+ *
  * @details This class wraps DependencyResolver and provides a high-level
  *          interface for managing ExecuteProcess actions with dependencies.
  */

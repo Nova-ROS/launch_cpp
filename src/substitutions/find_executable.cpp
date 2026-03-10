@@ -26,21 +26,21 @@ namespace launch_cpp
 std::string FindExecutable::perform(const LaunchContext& context) const
 {
   (void)context;  // Context not used, but required by interface
-  
+
   const char* pathEnv = std::getenv("PATH");
   if (!pathEnv)
   {
     return name_;  // Return original name if PATH not set
   }
-  
+
   std::string pathStr(pathEnv);
   std::istringstream iss(pathStr);
   std::string path;
-  
+
   while (std::getline(iss, path, ':'))
   {
     std::string fullPath = path + "/" + name_;
-    
+
     // Check if file exists and is executable
     struct stat st;
     if (stat(fullPath.c_str(), &st) == 0)
@@ -51,7 +51,7 @@ std::string FindExecutable::perform(const LaunchContext& context) const
       }
     }
   }
-  
+
   // Not found in PATH, return original name
   return name_;
 }

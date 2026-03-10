@@ -38,18 +38,18 @@ class Singleton final
   Singleton(Singleton&&) = delete;
   Singleton& operator=(Singleton&&) = delete;
   ~Singleton() = delete;
-  
+
   // AUTOSAR C++14: M0-1-9 - Declare functions as noexcept
   static T& instance() noexcept
   {
     // AUTOSAR C++14: Double-checked locking pattern
     T* instance = instance_.load(std::memory_order_acquire);
-    
+
     if (instance == nullptr)
     {
       std::lock_guard<std::mutex> lock(mutex_);
       instance = instance_.load(std::memory_order_relaxed);
-      
+
       if (instance == nullptr)
       {
         // AUTOSAR C++14: A18-5-2 - Use placement new
@@ -58,16 +58,16 @@ class Singleton final
         instance_.store(instance, std::memory_order_release);
       }
     }
-    
+
     return *instance;
   }
-  
+
   // AUTOSAR C++14: Check if initialized
   static bool is_initialized() noexcept
   {
     return instance_.load(std::memory_order_acquire) != nullptr;
   }
-  
+
  private:
   static std::atomic<T*> instance_;
   static std::mutex mutex_;

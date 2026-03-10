@@ -27,20 +27,20 @@ class TextSubstitution final : public Substitution
  public:
   explicit TextSubstitution(const std::string& text)
     : text_(text) {}
-  
+
   explicit TextSubstitution(std::string&& text)
     : text_(std::move(text)) {}
-  
+
   ~TextSubstitution() override = default;
-  
+
   std::string perform(const LaunchContext& context) const override
   {
     (void)context;  // AUTOSAR: Explicitly mark unused parameter
     return text_;
   }
-  
+
   const std::string& get_text() const noexcept { return text_; }
-  
+
  private:
   std::string text_;
 };

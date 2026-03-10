@@ -105,14 +105,14 @@ class LaunchService final
     std::vector<std::string> argv;  ///< Command-line arguments
     bool noninteractive;            ///< Non-interactive mode flag
     bool debug;                     ///< Debug mode flag
-    
+
     /**
      * @brief Default constructor
      * @post Options initialized with defaults (noninteractive=false, debug=false)
      */
     Options() : noninteractive(false), debug(false) {}
   };
-  
+
   /**
    * @brief Construct launch service
    *
@@ -126,7 +126,7 @@ class LaunchService final
    * @requirements REQ-LAUNCH-SERVICE-001
    */
   explicit LaunchService(const Options& options = Options());
-  
+
   /**
    * @brief Destroy launch service
    *
@@ -138,31 +138,31 @@ class LaunchService final
    * @requirements REQ-LAUNCH-SERVICE-003
    */
   ~LaunchService() noexcept;
-  
+
   /**
    * @brief Copy constructor (deleted)
    * @note Services are non-copyable to prevent state duplication
    */
   LaunchService(const LaunchService&) = delete;
-  
+
   /**
    * @brief Copy assignment operator (deleted)
    * @note Services are non-copyable
    */
   LaunchService& operator=(const LaunchService&) = delete;
-  
+
   /**
    * @brief Move constructor (deleted)
    * @note Services are non-movable
    */
   LaunchService(LaunchService&&) = delete;
-  
+
   /**
    * @brief Move assignment operator (deleted)
    * @note Services are non-movable
    */
   LaunchService& operator=(LaunchService&&) = delete;
-  
+
   /**
    * @brief Run the launch service
    *
@@ -183,7 +183,7 @@ class LaunchService final
    * @requirements REQ-LAUNCH-SERVICE-001, REQ-LAUNCH-SERVICE-002
    */
   std::int32_t run(bool shutdown_when_idle = true);
-  
+
   /**
    * @brief Add a launch description to be processed
    *
@@ -254,7 +254,7 @@ class LaunchService final
    * @thread_safety Thread-safe
    */
   bool is_idle() const;
-  
+
   /**
    * @brief Get current service status
    *
@@ -268,7 +268,7 @@ class LaunchService final
   {
     return status_.load(std::memory_order_acquire);
   }
-  
+
   /**
    * @brief Get the launch context (non-const)
    *
@@ -282,7 +282,7 @@ class LaunchService final
    * @thread_safety Not thread-safe with context modification
    */
   LaunchContext& get_context();
-  
+
   /**
    * @brief Get the launch context (const)
    *
@@ -296,7 +296,7 @@ class LaunchService final
    * @thread_safety Thread-safe for read-only access
    */
   const LaunchContext& get_context() const;
-  
+
  private:
   /**
    * @brief Main event processing loop
@@ -330,7 +330,7 @@ class LaunchService final
    * @details Performs cleanup and state transitions for shutdown.
    */
   void handle_shutdown(const std::string& reason);
-  
+
   /**
    * @brief Private implementation (Pimpl idiom)
    *
@@ -338,7 +338,7 @@ class LaunchService final
    */
   class Impl;
   std::unique_ptr<Impl> impl_;
-  
+
   /**
    * @brief Current service status
    *
@@ -346,7 +346,7 @@ class LaunchService final
    *          Use memory_order_acquire for loads, release for stores.
    */
   std::atomic<LaunchServiceStatus> status_;
-  
+
   /**
    * @brief Shutdown requested flag
    *
@@ -354,7 +354,7 @@ class LaunchService final
    *          Set by Shutdown(), checked by RunLoop().
    */
   std::atomic<bool> shutdown_requested_;
-  
+
   /**
    * @brief Registered launch descriptions
    *
@@ -362,7 +362,7 @@ class LaunchService final
    *          Protected by descriptions_mutex_.
    */
   std::vector<LaunchDescriptionPtr> descriptions_;
-  
+
   /**
    * @brief Mutex for descriptions_ access
    *
@@ -370,7 +370,7 @@ class LaunchService final
    *          Lock order: descriptions_mutex_ must be acquired before other locks.
    */
   std::mutex descriptions_mutex_;
-  
+
   /**
    * @brief Worker thread for event processing
    *

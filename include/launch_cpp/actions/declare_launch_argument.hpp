@@ -34,18 +34,18 @@ class DeclareLaunchArgument final : public Action
     std::string description;
     std::vector<std::string> choices;
   };
-  
+
   explicit DeclareLaunchArgument(const Options& options);
-  
+
   ~DeclareLaunchArgument() override = default;
-  
+
   Result<void> execute(LaunchContext& context) override;
-  
+
   const std::string& get_name() const noexcept { return options_.name; }
   const SubstitutionPtr& get_default_value() const noexcept { return options_.defaultValue; }
   const std::string& get_description() const noexcept { return options_.description; }
   const std::vector<std::string>& get_choices() const noexcept { return options_.choices; }
-  
+
  private:
   Options options_;
 };

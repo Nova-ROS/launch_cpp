@@ -22,12 +22,12 @@ namespace launch_cpp
 std::string LaunchConfiguration::perform(const LaunchContext& context) const
 {
   Result<std::string> result = context.get_launch_configuration(name_);
-  
+
   if (result.has_error())
   {
     return "";
   }
-  
+
   return result.get_value();
 }
 

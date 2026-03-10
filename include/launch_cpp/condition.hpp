@@ -33,19 +33,19 @@ class Condition
 {
  public:
   Condition() = default;
-  
+
   // AUTOSAR C++14: A12-8-4 - Virtual destructor
   virtual ~Condition() {}
-  
+
   // AUTOSAR C++14: A10-3-3 - Declare special functions
   Condition(const Condition&) = default;
   Condition& operator=(const Condition&) = default;
   Condition(Condition&&) = default;
   Condition& operator=(Condition&&) = default;
-  
+
   // AUTOSAR C++14: M0-1-9 - Pure virtual function
   virtual bool evaluate(const LaunchContext& context) const = 0;
-  
+
   // Convenience operator
   bool operator()(const LaunchContext& context) const
   {
@@ -60,15 +60,15 @@ class FunctionCondition final : public Condition
 {
  public:
   using EvalFunc = std::function<bool(const LaunchContext&)>;
-  
+
   explicit FunctionCondition(EvalFunc func)
     : func_(std::move(func)) {}
-  
+
   bool evaluate(const LaunchContext& context) const override
   {
     return func_(context);
   }
-  
+
  private:
   EvalFunc func_;
 };

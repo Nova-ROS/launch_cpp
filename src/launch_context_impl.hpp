@@ -33,19 +33,19 @@ class LaunchContextImpl final : public LaunchContext
     : args_(args)
   {
   }
-  
+
   ~LaunchContextImpl() override = default;
-  
+
   void register_event_handler(const EventHandlerPtr& handler) override
   {
     std::lock_guard<std::mutex> lock(handlers_mutex_);
     handlers_.push_back(handler);
   }
-  
+
   void unregister_event_handler(const EventHandler* handler) override
   {
     std::lock_guard<std::mutex> lock(handlers_mutex_);
-    
+
     for (auto it = handlers_.begin(); it != handlers_.end(); ++it)
     {
       if (it->get() == handler)
@@ -55,74 +55,74 @@ class LaunchContextImpl final : public LaunchContext
       }
     }
   }
-  
+
   const EventHandlerVector& get_event_handlers() const override
   {
     return handlers_;
   }
-  
+
   void set_launch_configuration(const std::string& key, const std::string& value) override
   {
     std::lock_guard<std::mutex> lock(config_mutex_);
     configurations_[key] = value;
   }
-  
+
   Result<std::string> get_launch_configuration(const std::string& key) const override
   {
     std::lock_guard<std::mutex> lock(config_mutex_);
-    
+
     auto it = configurations_.find(key);
     if (it == configurations_.end())
     {
       return Result<std::string>(Error(ErrorCode::kInvalidArgument, "Configuration not found"));
     }
-    
+
     return Result<std::string>(it->second);
   }
-  
+
   bool has_launch_configuration(const std::string& key) const override
   {
     std::lock_guard<std::mutex> lock(config_mutex_);
     return configurations_.find(key) != configurations_.end();
   }
-  
+
   std::string get_environment_variable(const std::string& name) const override
   {
     const char* value = std::getenv(name.c_str());
     return value ? std::string(value) : std::string();
   }
-  
+
   void set_environment_variable(const std::string& name, const std::string& value) override
   {
     setenv(name.c_str(), value.c_str(), 1);
   }
-  
+
   void emit_event(EventPtr event) override
   {
     // TODO: Implement event queue
     (void)event;
   }
-  
+
   void set_current_launch_file(const std::string& path) override
   {
     std::lock_guard<std::mutex> lock(launch_file_mutex_);
     current_launch_file_ = path;
   }
-  
+
   std::string get_current_launch_file() const override
   {
     std::lock_guard<std::mutex> lock(launch_file_mutex_);
     return current_launch_file_;
   }
-  
+
  private:
   Arguments args_;
   EventHandlerVector handlers_;
   mutable std::mutex handlers_mutex_;
-  
+
   std::unordered_map<std::string, std::string> configurations_;
   mutable std::mutex config_mutex_;
-  
+
   std::string current_launch_file_;
   mutable std::mutex launch_file_mutex_;
 };

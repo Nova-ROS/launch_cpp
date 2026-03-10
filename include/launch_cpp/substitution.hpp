@@ -32,19 +32,19 @@ class Substitution
 {
  public:
   Substitution() = default;
-  
+
   // AUTOSAR C++14: A12-8-4 - Virtual destructor
   virtual ~Substitution() {}
-  
+
   // AUTOSAR C++14: A10-3-3 - Declare special functions
   Substitution(const Substitution&) = default;
   Substitution& operator=(const Substitution&) = default;
   Substitution(Substitution&&) = default;
   Substitution& operator=(Substitution&&) = default;
-  
+
   // AUTOSAR C++14: M0-1-9 - Pure virtual function
   virtual std::string perform(const LaunchContext& context) const = 0;
-  
+
   // Convenience operator
   std::string operator()(const LaunchContext& context) const
   {

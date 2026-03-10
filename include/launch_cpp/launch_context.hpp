@@ -73,13 +73,13 @@ class LaunchContext
     std::vector<std::string> argv;  ///< Command-line arguments
     bool noninteractive = false;    ///< Non-interactive mode flag
   };
-  
+
   /**
    * @brief Default constructor
    * @note Creates empty context
    */
   LaunchContext() = default;
-  
+
   /**
    * @brief Virtual destructor
    *
@@ -87,31 +87,31 @@ class LaunchContext
    * @note Ensures proper cleanup of derived implementations
    */
   virtual ~LaunchContext() {}
-  
+
   /**
    * @brief Copy constructor (deleted)
    * @note Contexts are non-copyable to prevent state duplication
    */
   LaunchContext(const LaunchContext&) = delete;
-  
+
   /**
    * @brief Copy assignment operator (deleted)
    * @note Contexts are non-copyable
    */
   LaunchContext& operator=(const LaunchContext&) = delete;
-  
+
   /**
    * @brief Move constructor (deleted)
    * @note Contexts should not be moved during execution
    */
   LaunchContext(LaunchContext&&) = delete;
-  
+
   /**
    * @brief Move assignment operator (deleted)
    * @note Contexts should not be moved during execution
    */
   LaunchContext& operator=(LaunchContext&&) = delete;
-  
+
   /**
    * @brief Register an event handler
    *
@@ -128,7 +128,7 @@ class LaunchContext
    * @requirements REQ-LAUNCH-CONTEXT-002
    */
   virtual void register_event_handler(const EventHandlerPtr& handler) = 0;
-  
+
   /**
    * @brief Unregister an event handler
    *
@@ -145,7 +145,7 @@ class LaunchContext
    * @requirements REQ-LAUNCH-CONTEXT-002
    */
   virtual void unregister_event_handler(const EventHandler* handler) = 0;
-  
+
   /**
    * @brief Get all registered event handlers
    *
@@ -162,7 +162,7 @@ class LaunchContext
    * @requirements REQ-LAUNCH-CONTEXT-002
    */
   virtual const EventHandlerVector& get_event_handlers() const = 0;
-  
+
   /**
    * @brief Set a launch configuration value
    *
@@ -180,7 +180,7 @@ class LaunchContext
    * @requirements REQ-LAUNCH-CONTEXT-001
    */
   virtual void set_launch_configuration(const std::string& key, const std::string& value) = 0;
-  
+
   /**
    * @brief Get a launch configuration value
    *
@@ -198,7 +198,7 @@ class LaunchContext
    * @requirements REQ-LAUNCH-CONTEXT-001
    */
   virtual Result<std::string> get_launch_configuration(const std::string& key) const = 0;
-  
+
   /**
    * @brief Check if a configuration key exists
    *
@@ -213,7 +213,7 @@ class LaunchContext
    * @requirements REQ-LAUNCH-CONTEXT-001
    */
   virtual bool has_launch_configuration(const std::string& key) const = 0;
-  
+
   /**
    * @brief Set the current launch file path
    *
@@ -229,7 +229,7 @@ class LaunchContext
    * @requirements REQ-LAUNCH-CONTEXT-004
    */
   virtual void set_current_launch_file(const std::string& path) = 0;
-  
+
   /**
    * @brief Get the current launch file path
    *
@@ -243,7 +243,7 @@ class LaunchContext
    * @requirements REQ-LAUNCH-CONTEXT-004
    */
   virtual std::string get_current_launch_file() const = 0;
-  
+
   /**
    * @brief Get an environment variable
    *
@@ -261,7 +261,7 @@ class LaunchContext
    * @requirements REQ-LAUNCH-CONTEXT-003
    */
   virtual std::string get_environment_variable(const std::string& name) const = 0;
-  
+
   /**
    * @brief Set an environment variable
    *
@@ -279,7 +279,7 @@ class LaunchContext
    * @requirements REQ-LAUNCH-CONTEXT-003
    */
   virtual void set_environment_variable(const std::string& name, const std::string& value) = 0;
-  
+
   /**
    * @brief Emit an event to all registered handlers
    *

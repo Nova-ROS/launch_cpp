@@ -35,16 +35,16 @@ class EventHandler
 {
  public:
   EventHandler() = default;
-  
+
   // AUTOSAR C++14: A12-8-4 - Virtual destructor
   virtual ~EventHandler() {}
-  
+
   // AUTOSAR C++14: A10-3-3 - Declare special functions
   EventHandler(const EventHandler&) = default;
   EventHandler& operator=(const EventHandler&) = default;
   EventHandler(EventHandler&&) = default;
   EventHandler& operator=(EventHandler&&) = default;
-  
+
   // AUTOSAR C++14: M0-1-9 - Pure virtual function
   virtual bool matches(const Event& event) const = 0;
 
@@ -60,7 +60,7 @@ class FunctionEventHandler final : public EventHandler
   using MatcherFunc = std::function<bool(const Event&)>;
   using HandlerFunc = std::function<Result<LaunchDescriptionEntityVector>(
     const Event&, LaunchContext&)>;
-  
+
   FunctionEventHandler(MatcherFunc matcher, HandlerFunc handler)
     : matcher_(std::move(matcher)), handler_(std::move(handler)) {}
 
@@ -75,7 +75,7 @@ class FunctionEventHandler final : public EventHandler
   {
     return handler_(event, context);
   }
-  
+
  private:
   MatcherFunc matcher_;
   HandlerFunc handler_;

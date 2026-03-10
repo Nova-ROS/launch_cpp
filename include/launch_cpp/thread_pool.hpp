@@ -48,23 +48,23 @@ class ThreadPool final
  public:
   // AUTOSAR C++14: A12-1-1 - Use member initialization list
   explicit ThreadPool(std::size_t numThreads);
-  
+
   // AUTOSAR C++14: A12-8-4 - Declare destructor noexcept
   ~ThreadPool() noexcept;
-  
+
   // AUTOSAR C++14: A10-3-2 - Declare special functions
   ThreadPool(const ThreadPool&) = delete;
   ThreadPool& operator=(const ThreadPool&) = delete;
   ThreadPool(ThreadPool&&) = delete;
   ThreadPool& operator=(ThreadPool&&) = delete;
-  
+
   // AUTOSAR C++14: M0-1-9 - Declare functions as noexcept
   Error submit(std::function<void()> task);
 
   void shutdown();
 
   std::size_t get_thread_count() const noexcept { return threads_.size(); }
-  
+
   ThreadPoolStatus get_status() const noexcept
   {
     return status_.load(std::memory_order_acquire);

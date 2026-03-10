@@ -27,13 +27,13 @@ std::string ThisLaunchFileDir::perform(const LaunchContext& context) const
   {
     return "";
   }
-  
+
   size_t last_slash = launch_file.find_last_of("/");
   if (last_slash == std::string::npos)
   {
     return ".";
   }
-  
+
   return launch_file.substr(0, last_slash);
 }
 

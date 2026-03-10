@@ -96,19 +96,19 @@ public:
      * @brief Default constructor (success)
      */
     OsalResult() : status_(OsalStatus::kSuccess) {}
-    
+
     /**
      * @brief Construct from value
      * @param value Value to store
      */
     explicit OsalResult(T value) : status_(OsalStatus::kSuccess), value_(std::move(value)) {}
-    
+
     /**
      * @brief Construct from status
      * @param status Error status
      */
     explicit OsalResult(OsalStatus status) : status_(status) {}
-    
+
     /**
      * @brief Construct from status with message
      * @param status Error status
@@ -122,7 +122,7 @@ public:
      * @return true if status is kSuccess
      */
     bool is_success() const { return status_ == OsalStatus::kSuccess; }
-    
+
     /**
      * @brief Check if operation failed
      * @return true if status is not kSuccess
@@ -134,7 +134,7 @@ public:
      * @return OsalStatus value
      */
     OsalStatus get_status() const { return status_; }
-    
+
     /**
      * @brief Get error message
      * @return Error description (empty if success)
@@ -147,7 +147,7 @@ public:
      * @pre is_success() must be true
      */
     T& get_value() { return value_; }
-    
+
     /**
      * @brief Get value const reference
      * @return Const reference to stored value
@@ -173,13 +173,13 @@ public:
      * @brief Default constructor (success)
      */
     OsalResult() : status_(OsalStatus::kSuccess) {}
-    
+
     /**
      * @brief Construct from status
      * @param status Error status
      */
     explicit OsalResult(OsalStatus status) : status_(status) {}
-    
+
     /**
      * @brief Construct from status with message
      * @param status Error status
@@ -193,7 +193,7 @@ public:
      * @return true if status is kSuccess
      */
     bool is_success() const { return status_ == OsalStatus::kSuccess; }
-    
+
     /**
      * @brief Check if operation failed
      * @return true if status is not kSuccess
@@ -205,7 +205,7 @@ public:
      * @return OsalStatus value
      */
     OsalStatus get_status() const { return status_; }
-    
+
     /**
      * @brief Get error message
      * @return Error description (empty if success)

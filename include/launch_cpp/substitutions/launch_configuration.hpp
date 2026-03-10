@@ -28,13 +28,13 @@ class LaunchConfiguration final : public Substitution
  public:
   explicit LaunchConfiguration(const std::string& name)
     : name_(name) {}
-  
+
   ~LaunchConfiguration() override = default;
-  
+
   std::string perform(const LaunchContext& context) const override;
-  
+
   const std::string& get_name() const noexcept { return name_; }
-  
+
  private:
   std::string name_;
 };

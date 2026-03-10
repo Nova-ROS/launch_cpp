@@ -64,7 +64,7 @@ class Event
    * @note AUTOSAR C++14: A12-1-1 - Use member initialization list
    */
   Event() : timestamp_(std::chrono::steady_clock::now()) {}
-  
+
   /**
    * @brief Virtual destructor
    *
@@ -72,31 +72,31 @@ class Event
    * @note Enables polymorphic deletion
    */
   virtual ~Event() {}
-  
+
   /**
    * @brief Copy constructor
    * @note AUTOSAR C++14: A10-3-3 - Explicitly declared
    */
   Event(const Event&) = default;
-  
+
   /**
    * @brief Copy assignment operator
    * @note AUTOSAR C++14: A10-3-3 - Explicitly declared
    */
   Event& operator=(const Event&) = default;
-  
+
   /**
    * @brief Move constructor
    * @note AUTOSAR C++14: A10-3-3 - Explicitly declared
    */
   Event(Event&&) = default;
-  
+
   /**
    * @brief Move assignment operator
    * @note AUTOSAR C++14: A10-3-3 - Explicitly declared
    */
   Event& operator=(Event&&) = default;
-  
+
   /**
    * @brief Get the event type identifier
    *
@@ -131,7 +131,7 @@ class Event
   {
     return timestamp_;
   }
-  
+
  protected:
   std::chrono::steady_clock::time_point timestamp_;  ///< Creation timestamp
 };
@@ -156,7 +156,7 @@ class ProcessStartedEvent final : public Event
    */
   ProcessStartedEvent(std::int32_t pid, const std::string& name)
     : pid_(pid), name_(name) {}
-  
+
   /**
    * @brief Get event type
    * @return "process_started"
@@ -174,7 +174,7 @@ class ProcessStartedEvent final : public Event
    * @return Process name
    */
   const std::string& get_name() const noexcept { return name_; }
-  
+
  private:
   std::int32_t pid_;      ///< Process identifier
   std::string name_;      ///< Process name
@@ -201,7 +201,7 @@ class ProcessExitedEvent final : public Event
    */
   ProcessExitedEvent(std::int32_t pid, std::int32_t returnCode, const std::string& name)
     : pid_(pid), return_code_(returnCode), name_(name) {}
-  
+
   /**
    * @brief Get event type
    * @return "process_exited"
@@ -225,7 +225,7 @@ class ProcessExitedEvent final : public Event
    * @return Process name
    */
   const std::string& get_name() const noexcept { return name_; }
-  
+
  private:
   std::int32_t pid_;          ///< Process identifier
   std::int32_t return_code_;   ///< Exit status code
@@ -251,7 +251,7 @@ class ShutdownEvent final : public Event
    */
   explicit ShutdownEvent(const std::string& reason)
     : reason_(reason) {}
-  
+
   /**
    * @brief Get event type
    * @return "shutdown"
@@ -263,7 +263,7 @@ class ShutdownEvent final : public Event
    * @return Shutdown reason description
    */
   const std::string& get_reason() const noexcept { return reason_; }
-  
+
  private:
   std::string reason_;  ///< Shutdown reason
 };

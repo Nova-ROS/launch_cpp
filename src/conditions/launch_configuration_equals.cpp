@@ -23,19 +23,19 @@ namespace launch_cpp
 bool LaunchConfigurationEquals::evaluate(const LaunchContext& context) const
 {
   Result<std::string> actual = context.get_launch_configuration(name_);
-  
+
   if (actual.has_error())
   {
     return false;
   }
-  
+
   if (!expected_)
   {
     return false;
   }
-  
+
   std::string expectedValue = expected_->perform(context);
-  
+
   return actual.get_value() == expectedValue;
 }
 

@@ -15,12 +15,12 @@
 /**
  * @file variable_substitution.hpp
  * @brief Variable substitution for launch files $(var name)
- * 
+ *
  * @details Implements variable substitution using $(var variable_name) syntax.
  * Variables are resolved from launch configurations.
- * 
+ *
  * @ASIL ASIL B
- * 
+ *
  * @requirements
  * - REQ-LAUNCH-SUBST-001: Support variable substitution
  * - REQ-LAUNCH-SUBST-002: Resolve variables from launch context
@@ -38,17 +38,17 @@ namespace launch_cpp
 
 /**
  * @brief Variable substitution using $(var name) syntax
- * 
+ *
  * @details Replaces $(var variable_name) with the value from launch configuration.
  * If the variable is not found, returns an empty string or the default value.
- * 
+ *
  * Example:
  * @code
  * VariableSubstitution var("my_param");
  * std::string result = var.Perform(context);
  * // If context has "my_param" = "value", result = "value"
  * @endcode
- * 
+ *
  * @requirement REQ-LAUNCH-SUBST-001
  */
 class VariableSubstitution final : public Substitution
@@ -68,7 +68,7 @@ class VariableSubstitution final : public Substitution
    * @brief Perform variable substitution
    * @param context Launch context containing variable values
    * @return Resolved variable value or default
-   * 
+   *
    * @requirement REQ-LAUNCH-SUBST-002
    */
   std::string perform(const LaunchContext& context) const override

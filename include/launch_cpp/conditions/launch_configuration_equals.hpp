@@ -28,14 +28,14 @@ class LaunchConfigurationEquals final : public Condition
  public:
   LaunchConfigurationEquals(const std::string& name, const SubstitutionPtr& expected)
     : name_(name), expected_(expected) {}
-  
+
   ~LaunchConfigurationEquals() override = default;
-  
+
   bool evaluate(const LaunchContext& context) const override;
-  
+
   const std::string& get_name() const noexcept { return name_; }
   const SubstitutionPtr& get_expected() const noexcept { return expected_; }
-  
+
  private:
   std::string name_;
   SubstitutionPtr expected_;

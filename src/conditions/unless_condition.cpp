@@ -26,20 +26,20 @@ bool UnlessCondition::evaluate(const LaunchContext& context) const
   {
     return true;  // If no expression, condition is true (execute unless nothing)
   }
-  
+
   std::string result = expression_->perform(context);
-  
+
   // Truthy check: empty or "false" or "0" means false, so Unless returns true
   if (result.empty())
   {
     return true;
   }
-  
+
   if (result == "false" || result == "0")
   {
     return true;
   }
-  
+
   return false;  // Expression is true, so Unless is false
 }
 

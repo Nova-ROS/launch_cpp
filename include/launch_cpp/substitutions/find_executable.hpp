@@ -28,11 +28,11 @@ class FindExecutable final : public Substitution
  public:
   explicit FindExecutable(std::string name)
     : name_(std::move(name)) {}
-  
+
   ~FindExecutable() override = default;
-  
+
   std::string perform(const LaunchContext& context) const override;
-  
+
  private:
   std::string name_;
 };

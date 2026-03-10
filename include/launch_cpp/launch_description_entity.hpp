@@ -32,16 +32,16 @@ class LaunchDescriptionEntity
 {
  public:
   LaunchDescriptionEntity() = default;
-  
+
   // AUTOSAR C++14: A12-8-4 - Virtual destructor
   virtual ~LaunchDescriptionEntity() {}
-  
+
   // AUTOSAR C++14: A10-3-3 - Declare special functions
   LaunchDescriptionEntity(const LaunchDescriptionEntity&) = default;
   LaunchDescriptionEntity& operator=(const LaunchDescriptionEntity&) = default;
   LaunchDescriptionEntity(LaunchDescriptionEntity&&) = default;
   LaunchDescriptionEntity& operator=(LaunchDescriptionEntity&&) = default;
-  
+
   // AUTOSAR C++14: M0-1-9 - Pure virtual function
   virtual Result<LaunchDescriptionEntityVector> visit(LaunchContext& context) = 0;
 };

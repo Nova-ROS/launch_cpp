@@ -69,7 +69,7 @@ class Action : public LaunchDescriptionEntity
    * @note AUTOSAR C++14: A12-1-1 - Use member initialization list
    */
   Action() : condition_(nullptr) {}
-  
+
   /**
    * @brief Constructor with condition
    *
@@ -80,7 +80,7 @@ class Action : public LaunchDescriptionEntity
    */
   explicit Action(const ConditionPtr& condition)
     : condition_(condition) {}
-  
+
   /**
    * @brief Virtual destructor
    *
@@ -88,31 +88,31 @@ class Action : public LaunchDescriptionEntity
    * @note Ensures proper cleanup of derived classes
    */
   virtual ~Action() {}
-  
+
   /**
    * @brief Copy constructor
    * @note AUTOSAR C++14: A10-3-3 - Explicitly declared special functions
    */
   Action(const Action&) = default;
-  
+
   /**
    * @brief Copy assignment operator
    * @note AUTOSAR C++14: A10-3-3 - Explicitly declared special functions
    */
   Action& operator=(const Action&) = default;
-  
+
   /**
    * @brief Move constructor
    * @note AUTOSAR C++14: A10-3-3 - Explicitly declared special functions
    */
   Action(Action&&) = default;
-  
+
   /**
    * @brief Move assignment operator
    * @note AUTOSAR C++14: A10-3-3 - Explicitly declared special functions
    */
   Action& operator=(Action&&) = default;
-  
+
   /**
    * @brief Visit the action in the launch context
    *
@@ -153,7 +153,7 @@ class Action : public LaunchDescriptionEntity
    * @requirements REQ-LAUNCH-ACTION-001
    */
   virtual Result<void> execute(LaunchContext& context) = 0;
-  
+
   /**
    * @brief Check if action has a condition
    *
@@ -194,7 +194,7 @@ class Action : public LaunchDescriptionEntity
    * @note Protected to allow derived classes to modify condition
    */
   void set_condition(const ConditionPtr& condition) { condition_ = condition; }
-  
+
  private:
   ConditionPtr condition_;  ///< Optional condition for conditional execution
 };

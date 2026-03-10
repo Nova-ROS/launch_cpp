@@ -27,13 +27,13 @@ class IfCondition final : public Condition
  public:
   explicit IfCondition(const SubstitutionPtr& expression)
     : expression_(expression) {}
-  
+
   ~IfCondition() override = default;
-  
+
   bool evaluate(const LaunchContext& context) const override;
-  
+
   const SubstitutionPtr& get_expression() const noexcept { return expression_; }
-  
+
  private:
   SubstitutionPtr expression_;
 };

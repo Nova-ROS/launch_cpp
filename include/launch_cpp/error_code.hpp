@@ -91,7 +91,7 @@ class Error final
    * @note AUTOSAR C++14: A12-1-1 - Use member initialization list
    */
   Error() : code_(ErrorCode::kSuccess), message_() {}
-  
+
   /**
    * @brief Construct with error code
    *
@@ -100,7 +100,7 @@ class Error final
    */
   explicit Error(ErrorCode code)
     : code_(code), message_(get_default_message(code)) {}
-  
+
   /**
    * @brief Construct with error code and custom message
    *
@@ -110,7 +110,7 @@ class Error final
    */
   Error(ErrorCode code, const std::string& message)
     : code_(code), message_(message) {}
-  
+
   /**
    * @brief Get the error code
    *
@@ -143,7 +143,7 @@ class Error final
    * @note Convenience method for error checking
    */
   bool is_error() const noexcept { return code_ != ErrorCode::kSuccess; }
-  
+
   /**
    * @brief Boolean conversion operator
    *
@@ -151,7 +151,7 @@ class Error final
    * @note Allows use in if statements: if (error) { ... }
    */
   explicit operator bool() const noexcept { return is_success(); }
-  
+
  private:
   /**
    * @brief Get default message for error code
@@ -161,7 +161,7 @@ class Error final
    * @note Returns pointer to static string - do not free
    */
   static const char* get_default_message(ErrorCode code);
-  
+
   ErrorCode code_;       ///< Error code value
   std::string message_;  ///< Human-readable message
 };
@@ -233,7 +233,7 @@ class Result final
    * @note AUTOSAR C++14: A12-1-1 - Member initialization
    */
   Result() : value_(), error_(ErrorCode::kSuccess) {}
-  
+
   /**
    * @brief Construct from value (copy)
    *
@@ -242,7 +242,7 @@ class Result final
    */
   explicit Result(const T& value)
     : value_(value), error_(ErrorCode::kSuccess) {}
-  
+
   /**
    * @brief Construct from value (move)
    *
@@ -251,7 +251,7 @@ class Result final
    */
   explicit Result(T&& value)
     : value_(std::move(value)), error_(ErrorCode::kSuccess) {}
-  
+
   /**
    * @brief Construct from error (copy)
    *
@@ -260,7 +260,7 @@ class Result final
    */
   explicit Result(const Error& error)
     : value_(), error_(error) {}
-  
+
   /**
    * @brief Construct from error (move)
    *
@@ -269,7 +269,7 @@ class Result final
    */
   explicit Result(Error&& error)
     : value_(), error_(std::move(error)) {}
-  
+
   /**
    * @brief Check if result contains a value
    *
@@ -311,7 +311,7 @@ class Result final
    * @return Const reference to error
    */
   const Error& get_error() const noexcept { return error_; }
-  
+
   /**
    * @brief Boolean conversion operator
    *
@@ -338,7 +338,7 @@ class Result<void> final
    * @brief Default constructor (success)
    */
   Result() : error_(ErrorCode::kSuccess) {}
-  
+
   /**
    * @brief Construct from error (copy)
    *
@@ -346,7 +346,7 @@ class Result<void> final
    */
   explicit Result(const Error& error)
     : error_(error) {}
-  
+
   /**
    * @brief Construct from error (move)
    *
@@ -354,7 +354,7 @@ class Result<void> final
    */
   explicit Result(Error&& error)
     : error_(std::move(error)) {}
-  
+
   /**
    * @brief Check if result represents success
    *
@@ -375,7 +375,7 @@ class Result<void> final
    * @return Const reference to error
    */
   const Error& get_error() const noexcept { return error_; }
-  
+
   /**
    * @brief Boolean conversion operator
    *

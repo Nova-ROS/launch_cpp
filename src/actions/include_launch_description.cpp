@@ -33,10 +33,10 @@ Result<void> IncludeLaunchDescription::execute(LaunchContext& context)
   {
     return Result<void>(Error(ErrorCode::kInvalidArgument, "No launch description source provided"));
   }
-  
+
   // Resolve the file path
   std::string filePath = options_.launchDescriptionSource->perform(context);
-  
+
   // Check if file exists
   std::ifstream file(filePath);
   if (!file.is_open())
@@ -44,14 +44,14 @@ Result<void> IncludeLaunchDescription::execute(LaunchContext& context)
     return Result<void>(Error(ErrorCode::kInvalidArgument, "Launch file not found: " + filePath));
   }
   file.close();
-  
+
   // Parse the launch file
   auto descResult = LaunchDescription::from_yaml_file(filePath);
   if (descResult.has_error())
   {
     return Result<void>(descResult.get_error());
   }
-  
+
   // Set launch arguments
   for (const auto& arg : options_.launchArguments)
   {
@@ -61,14 +61,14 @@ Result<void> IncludeLaunchDescription::execute(LaunchContext& context)
       context.set_launch_configuration(arg.first, value);
     }
   }
-  
+
   // Visit the included launch description
   auto visitResult = descResult.get_value()->visit(context);
   if (visitResult.has_error())
   {
     return Result<void>(visitResult.get_error());
   }
-  
+
   return Result<void>();
 }
 

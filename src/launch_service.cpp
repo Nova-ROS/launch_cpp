@@ -61,7 +61,7 @@ class LaunchService::Impl
     // Options reserved for future expansion
     (void)options;
   }
-  
+
   /**
    * @brief Launch context implementation
    * @note Provides concrete implementation of abstract LaunchContext interface

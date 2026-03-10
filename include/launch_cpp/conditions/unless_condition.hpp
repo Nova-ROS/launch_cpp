@@ -27,11 +27,11 @@ class UnlessCondition final : public Condition
  public:
   explicit UnlessCondition(const SubstitutionPtr& expression)
     : expression_(expression) {}
-  
+
   ~UnlessCondition() override = default;
-  
+
   bool evaluate(const LaunchContext& context) const override;
-  
+
  private:
   SubstitutionPtr expression_;
 };

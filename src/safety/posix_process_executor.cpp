@@ -16,7 +16,7 @@
 /**
  * @file posix_process_executor.cpp
  * @brief POSIX implementation of ProcessExecutor
- * 
+ *
  * ASIL: B (Simple adapter - code reviewed)
  * This is a thin wrapper around POSIX system calls.
  * Business logic is in NodeActionRefactored, not here.
@@ -63,10 +63,10 @@ public:
 private:
     // Convert CommandLine to argv array
     std::vector<char*> build_argv(const std::vector<std::string>& args);
-    
+
     // Get program path (check ROS2_PATH env var)
     std::string resolve_program_path(const std::string& program);
-    
+
     // Setup child process environment
     void setup_child_environment(const std::vector<std::pair<std::string, std::string>>& env);
 };
@@ -75,7 +75,7 @@ private:
 // Public Interface
 // ============================================================================
 
-PosixProcessExecutor::PosixProcessExecutor() 
+PosixProcessExecutor::PosixProcessExecutor()
     : impl_(std::make_unique<Impl>()) {}
 
 PosixProcessExecutor::~PosixProcessExecutor() = default;
@@ -139,7 +139,7 @@ OsalResult<ProcessId> PosixProcessExecutor::Impl::execute_internal(
 
     // Fork child process
     pid_t pid = fork();
-    
+
     if (pid < 0) {
         // Fork failed
         return OsalResult<ProcessId>(
@@ -149,7 +149,7 @@ OsalResult<ProcessId> PosixProcessExecutor::Impl::execute_internal(
 
     if (pid == 0) {
         // Child process
-        
+
         // Change working directory if specified
         if (!command.working_directory.empty()) {
             if (chdir(command.working_directory.c_str()) != 0) {
@@ -203,7 +203,7 @@ OsalResult<ProcessResult> PosixProcessExecutor::Impl::wait_internal(
         // Non-blocking wait with polling
         while (true) {
             result = waitpid(static_cast<pid_t>(pid), &status, WNOHANG);
-            
+
             if (result == pid) {
                 // Process exited
                 break;
@@ -241,8 +241,8 @@ OsalResult<ProcessResult> PosixProcessExecutor::Impl::wait_internal(
 
     if (WIFEXITED(status)) {
         proc_result.exit_code = WEXITSTATUS(status);
-        proc_result.final_state = (proc_result.exit_code == 0) 
-            ? ProcessState::kStopped 
+        proc_result.final_state = (proc_result.exit_code == 0)
+            ? ProcessState::kStopped
             : ProcessState::kCrashed;
     } else if (WIFSIGNALED(status)) {
         proc_result.exit_code = -WTERMSIG(status);
@@ -258,7 +258,7 @@ OsalResult<ProcessResult> PosixProcessExecutor::Impl::wait_internal(
 OsalResult<bool> PosixProcessExecutor::Impl::is_running_internal(ProcessId pid) {
     // Use kill with signal 0 to check if process exists
     int result = ::kill(static_cast<pid_t>(pid), 0);
-    
+
     if (result == 0) {
         return OsalResult<bool>(true);
     } else {
@@ -298,7 +298,7 @@ OsalResult<void> PosixProcessExecutor::Impl::terminate_internal(
 
     while (true) {
         pid_t wait_result = waitpid(static_cast<pid_t>(pid), &status, WNOHANG);
-        
+
         if (wait_result == pid) {
             // Process exited gracefully
             return OsalResult<void>();
@@ -324,7 +324,7 @@ OsalResult<void> PosixProcessExecutor::Impl::terminate_internal(
 
 OsalResult<void> PosixProcessExecutor::Impl::kill_internal(ProcessId pid) {
     int result = ::kill(static_cast<pid_t>(pid), SIGKILL);
-    
+
     if (result < 0) {
         if (errno == ESRCH) {
             // Already gone
@@ -338,16 +338,16 @@ OsalResult<void> PosixProcessExecutor::Impl::kill_internal(ProcessId pid) {
     // Reap the zombie
     int status = 0;
     waitpid(static_cast<pid_t>(pid), &status, 0);
-    
+
     return OsalResult<void>();
 }
 
 OsalResult<void> PosixProcessExecutor::Impl::send_signal_internal(
-    ProcessId pid, 
+    ProcessId pid,
     int32_t signal) {
 
     int result = ::kill(static_cast<pid_t>(pid), static_cast<int>(signal));
-    
+
     if (result < 0) {
         return OsalResult<void>(
             OsalStatus::kError,
@@ -378,7 +378,7 @@ OsalResult<ProcessState> PosixProcessExecutor::Impl::get_state_internal(ProcessI
 
 std::vector<char*> PosixProcessExecutor::Impl::build_argv(
     const std::vector<std::string>& args) {
-    
+
     std::vector<char*> argv;
     for (auto& arg : args) {
         argv.push_back(const_cast<char*>(arg.c_str()));
@@ -389,7 +389,7 @@ std::vector<char*> PosixProcessExecutor::Impl::build_argv(
 
 std::string PosixProcessExecutor::Impl::resolve_program_path(
     const std::string& program) {
-    
+
     // If program is already an absolute path, use it
     if (program[0] == '/') {
         return program;
@@ -409,7 +409,7 @@ std::string PosixProcessExecutor::Impl::resolve_program_path(
 
 void PosixProcessExecutor::Impl::setup_child_environment(
     const std::vector<std::pair<std::string, std::string>>& env) {
-    
+
     for (const auto& [key, value] : env) {
         setenv(key.c_str(), value.c_str(), 1);  // 1 = overwrite
     }

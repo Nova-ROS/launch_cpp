@@ -16,7 +16,7 @@
 /**
  * @file mock_osal.cpp
  * @brief Mock implementations for unit testing
- * 
+ *
  * ASIL: Not used in production - for testing only
  */
 
@@ -66,11 +66,11 @@ void MockProcessExecutor::set_get_state_callback(GetStateCallback callback) {
 OsalResult<ProcessId> MockProcessExecutor::execute(
     const CommandLine& command,
     const ProcessOptions& options) {
-    
+
     if (execute_cb_) {
         return execute_cb_(command, options);
     }
-    
+
     // Default: return a mock PID
     static std::atomic<ProcessId> next_pid{1000};
     return OsalResult<ProcessId>(next_pid.fetch_add(1));
@@ -79,11 +79,11 @@ OsalResult<ProcessId> MockProcessExecutor::execute(
 OsalResult<ProcessResult> MockProcessExecutor::wait(
     ProcessId pid,
     std::chrono::milliseconds timeout) {
-    
+
     if (wait_cb_) {
         return wait_cb_(pid, timeout);
     }
-    
+
     // Default: return success
     ProcessResult result;
     result.pid = pid;
@@ -102,7 +102,7 @@ OsalResult<bool> MockProcessExecutor::is_running(ProcessId pid) {
 OsalResult<void> MockProcessExecutor::terminate(
     ProcessId pid,
     std::chrono::milliseconds timeout) {
-    
+
     if (terminate_cb_) {
         return terminate_cb_(pid, timeout);
     }

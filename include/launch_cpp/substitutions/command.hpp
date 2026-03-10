@@ -28,11 +28,11 @@ class Command final : public Substitution
  public:
   explicit Command(std::vector<SubstitutionPtr> command)
     : command_(std::move(command)) {}
-  
+
   ~Command() override = default;
-  
+
   std::string perform(const LaunchContext& context) const override;
-  
+
  private:
   std::vector<SubstitutionPtr> command_;
 };

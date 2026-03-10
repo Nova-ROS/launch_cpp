@@ -28,19 +28,19 @@ class IncludeLaunchDescription final : public Action
 {
  public:
   using LaunchArgument = std::pair<std::string, SubstitutionPtr>;
-  
+
   struct Options
   {
     SubstitutionPtr launchDescriptionSource;  // Path to launch file
     std::vector<LaunchArgument> launchArguments;
   };
-  
+
   explicit IncludeLaunchDescription(const Options& options);
-  
+
   ~IncludeLaunchDescription() override = default;
-  
+
   Result<void> execute(LaunchContext& context) override;
-  
+
  private:
   Options options_;
 };

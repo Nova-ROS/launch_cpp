@@ -32,14 +32,14 @@ Result<void> DeclareLaunchArgument::execute(LaunchContext& context)
   {
     return Result<void>();
   }
-  
+
   // Use default value if provided
   if (options_.defaultValue)
   {
     std::string value = options_.defaultValue->perform(context);
     context.set_launch_configuration(options_.name, value);
   }
-  
+
   return Result<void>();
 }
 
