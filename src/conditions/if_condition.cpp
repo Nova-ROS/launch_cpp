@@ -35,7 +35,7 @@ bool IfCondition::evaluate(const LaunchContext& context) const
     return false;
   }
 
-  if (result == "false" || result == "0" || result == "no" || result == "NO")
+  if (result == "false" || result == "0")
   {
     return false;
   }

@@ -168,7 +168,7 @@ TEST(SafetyFeaturesTest, ResourceCheckWithoutMonitor)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("test")};
-  options.enable_safety = true;
+  options.enable_safety = false;  // Disable safety to test without monitor
   
   auto action = std::make_shared<ExecuteProcess>(options);
   

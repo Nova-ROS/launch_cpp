@@ -52,8 +52,8 @@ std::string FindExecutable::perform(const LaunchContext& context) const
     }
   }
 
-  // Not found in PATH, return original name
-  return name_;
+  // Not found in PATH, return empty string
+  return "";
 }
 
 }  // namespace launch_cpp
