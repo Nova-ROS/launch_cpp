@@ -133,7 +133,7 @@ OsalResult<void> PosixWatchdog::Impl::register_node_internal(
 
     if (timeout_ms == 0) {
         return OsalResult<void>(
-            OsalStatus::kInvalidArgument,
+            OsalStatus::K_INVALID_ARGUMENT,
             "Timeout must be greater than 0");
     }
 
@@ -181,7 +181,7 @@ OsalResult<void> PosixWatchdog::Impl::submit_heartbeat_internal(
     // Validate checksum
     if (!validate_heartbeat(message)) {
         return OsalResult<void>(
-            OsalStatus::kInvalidArgument,
+            OsalStatus::K_INVALID_ARGUMENT,
             "Invalid heartbeat checksum");
     }
 

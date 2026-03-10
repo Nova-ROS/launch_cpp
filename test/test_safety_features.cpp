@@ -55,7 +55,7 @@ class MockLaunchContext : public LaunchContext
   {
     auto it = configs_.find(key);
     if (it == configs_.end()) {
-      return Result<std::string>(Error(ErrorCode::kInvalidArgument, "Not found"));
+      return Result<std::string>(Error(ErrorCode::K_INVALID_ARGUMENT, "Not found"));
     }
     return Result<std::string>(it->second);
   }
@@ -383,7 +383,7 @@ TEST(SafetyFeaturesTest, GetReturnCodeWithSafetyEnabled)
       ProcessResult result;
       result.pid = 1234;
       result.exit_code = 0;
-      result.final_state = ProcessState::kStopped;
+      result.final_state = ProcessState::K_STOPPED;
       return OsalResult<ProcessResult>(result);
     });
   
@@ -392,9 +392,9 @@ TEST(SafetyFeaturesTest, GetReturnCodeWithSafetyEnabled)
   auto result = action->execute(context);
   EXPECT_TRUE(result.has_value());
   
-  auto returnCodeResult = action->get_return_code();
+  auto return_codeResult = action->get_return_code();
   // May or may not have value depending on implementation
-  (void)returnCodeResult;
+  (void)return_codeResult;
   EXPECT_TRUE(true);
 }
 
@@ -486,7 +486,7 @@ TEST(SafetyFeaturesTest, EmptyCommandWithSafety)
   
   auto result = action->execute(context);
   EXPECT_TRUE(result.has_error());
-  EXPECT_EQ(result.get_error().get_code(), ErrorCode::kInvalidArgument);
+  EXPECT_EQ(result.get_error().get_code(), ErrorCode::K_INVALID_ARGUMENT);
 }
 
 TEST(SafetyFeaturesTest, ResourceLimitsZeroValues)
@@ -547,8 +547,8 @@ TEST(SafetyFeaturesTest, GetStatusBeforeExecution)
   auto pidResult = action->get_pid();
   EXPECT_TRUE(pidResult.has_error());
   
-  auto returnCodeResult = action->get_return_code();
-  EXPECT_TRUE(returnCodeResult.has_error());
+  auto return_codeResult = action->get_return_code();
+  EXPECT_TRUE(return_codeResult.has_error());
 }
 
 // ============================================================================
@@ -614,7 +614,7 @@ TEST(SafetyFeaturesTest, WatchdogHeartbeat)
   msg.sequence = 1;
   msg.timestamp_us = std::chrono::duration_cast<std::chrono::microseconds>(
     std::chrono::steady_clock::now().time_since_epoch()).count();
-  msg.state = ProcessState::kRunning;
+  msg.state = ProcessState::K_RUNNING;
   msg.checksum = msg.calculate_checksum();
   
   auto hbResult = watchdog->submit_heartbeat(msg);

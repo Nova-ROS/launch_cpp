@@ -60,7 +60,7 @@ namespace launch_cpp
  * @requirements REQ-LAUNCH-TYPES-001
  */
 template<typename T, typename... Args>
-inline std::unique_ptr<T> MakeUnique(Args&&... args)
+inline std::unique_ptr<T> make_unique(Args&&... args)
 {
   return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
@@ -82,7 +82,7 @@ inline std::unique_ptr<T> MakeUnique(Args&&... args)
  * @requirements REQ-LAUNCH-TYPES-001
  */
 template<typename T, typename... Args>
-inline std::shared_ptr<T> MakeShared(Args&&... args)
+inline std::shared_ptr<T> make_shared(Args&&... args)
 {
   return std::shared_ptr<T>(new T(std::forward<Args>(args)...));
 }

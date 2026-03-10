@@ -55,7 +55,7 @@ class MockLaunchContext : public LaunchContext
   {
     auto it = configs_.find(key);
     if (it == configs_.end()) {
-      return Result<std::string>(Error(ErrorCode::kInvalidArgument, "Not found"));
+      return Result<std::string>(Error(ErrorCode::K_INVALID_ARGUMENT, "Not found"));
     }
     return Result<std::string>(it->second);
   }
@@ -79,7 +79,7 @@ class MockLaunchContext : public LaunchContext
 // Mock-based Safety Tests
 // ============================================================================
 
-TEST(SafetyMockTest, ExecuteWithMockSuccess)
+TEST(SafetyMockTest, ExecuteWithMocK_SUCCESS)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("echo"), text("hello")};
@@ -320,7 +320,7 @@ TEST(SafetyMockEdgeTest, EmptyCommand)
   auto result = action->execute(context);
   
   EXPECT_TRUE(result.has_error());
-  EXPECT_EQ(result.get_error().get_code(), ErrorCode::kInvalidArgument);
+  EXPECT_EQ(result.get_error().get_code(), ErrorCode::K_INVALID_ARGUMENT);
 }
 
 TEST(SafetyMockEdgeTest, MultipleSafetyOptionsCombination)
@@ -380,8 +380,8 @@ TEST(SafetyMockStatusTest, GetStatusBeforeExecution)
   auto pidResult = action->get_pid();
   EXPECT_TRUE(pidResult.has_error());
   
-  auto returnCodeResult = action->get_return_code();
-  EXPECT_TRUE(returnCodeResult.has_error());
+  auto return_codeResult = action->get_return_code();
+  EXPECT_TRUE(return_codeResult.has_error());
 }
 
 TEST(SafetyMockStatusTest, GetStatusAfterExecution)

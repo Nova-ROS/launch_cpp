@@ -125,7 +125,7 @@ OsalResult<ProcessId> PosixProcessExecutor::Impl::execute_internal(
     // Validate command
     if (command.program.empty()) {
         return OsalResult<ProcessId>(
-            OsalStatus::kInvalidArgument,
+            OsalStatus::K_INVALID_ARGUMENT,
             "Program path is empty");
     }
 
@@ -212,7 +212,7 @@ OsalResult<ProcessResult> PosixProcessExecutor::Impl::wait_internal(
                 auto elapsed = std::chrono::steady_clock::now() - start_time;
                 if (elapsed >= timeout) {
                     return OsalResult<ProcessResult>(
-                        OsalStatus::kTimeout,
+                        OsalStatus::K_TIMEOUT,
                         "Wait timeout");
                 }
                 // Short sleep to avoid busy waiting
@@ -242,7 +242,7 @@ OsalResult<ProcessResult> PosixProcessExecutor::Impl::wait_internal(
     if (WIFEXITED(status)) {
         proc_result.exit_code = WEXITSTATUS(status);
         proc_result.final_state = (proc_result.exit_code == 0)
-            ? ProcessState::kStopped
+            ? ProcessState::K_STOPPED
             : ProcessState::kCrashed;
     } else if (WIFSIGNALED(status)) {
         proc_result.exit_code = -WTERMSIG(status);
@@ -366,9 +366,9 @@ OsalResult<ProcessState> PosixProcessExecutor::Impl::get_state_internal(ProcessI
     }
 
     if (running_result.get_value()) {
-        return OsalResult<ProcessState>(ProcessState::kRunning);
+        return OsalResult<ProcessState>(ProcessState::K_RUNNING);
     } else {
-        return OsalResult<ProcessState>(ProcessState::kStopped);
+        return OsalResult<ProcessState>(ProcessState::K_STOPPED);
     }
 }
 

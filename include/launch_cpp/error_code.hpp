@@ -53,21 +53,21 @@ namespace launch_cpp
  */
 enum class ErrorCode : std::int32_t
 {
-  kSuccess = 0,              ///< Operation completed successfully
-  kInvalidArgument = 1,      ///< Invalid parameter passed to function
-  kInvalidConfiguration = 2,  ///< Configuration error or missing value
-  kProcessSpawnFailed = 3,   ///< Failed to spawn child process
-  kProcessNotFound = 4,      ///< Specified process not found
-  kEventHandlerError = 5,    ///< Event handler execution failed
-  kSubstitutionError = 6,    ///< Substitution evaluation failed
-  kCyclicDependency = 7,     ///< Circular dependency detected
-  kTimeout = 8,              ///< Operation timed out
-  kShutdownRequested = 9,    ///< System shutdown in progress
-  kNotImplemented = 10,      ///< Feature not implemented
-  kInternalError = 11,       ///< Internal inconsistency or bug
-  kResourceExhausted = 12,   ///< System resources exhausted
-  kMaxRetriesExceeded = 13,  ///< Maximum retry attempts exceeded
-  kUnknownError = 99         ///< Unclassified error
+  K_SUCCESS = 0,              ///< Operation completed successfully
+  K_INVALID_ARGUMENT = 1,      ///< Invalid parameter passed to function
+  K_INVALID_CONFIGURATION = 2,  ///< Configuration error or missing value
+  K_PROCESS_SPAWN_FAILED = 3,   ///< Failed to spawn child process
+  K_PROCESS_NOT_FOUND = 4,      ///< Specified process not found
+  K_EVENT_HANDLER_ERROR = 5,    ///< Event handler execution failed
+  K_SUBSTITUTION_ERROR = 6,    ///< Substitution evaluation failed
+  K_CYCLIC_DEPENDENCY = 7,     ///< Circular dependency detected
+  K_TIMEOUT = 8,              ///< Operation timed out
+  K_SHUTDOWN_REQUESTED = 9,    ///< System shutdown in progress
+  K_NOT_IMPLEMENTED = 10,      ///< Feature not implemented
+  K_INTERNAL_ERROR = 11,       ///< Internal inconsistency or bug
+  K_RESOURCE_EXHAUSTED = 12,   ///< System resources exhausted
+  K_MAX_RETRIES_EXCEEDED = 13,  ///< Maximum retry attempts exceeded
+  K_UNKNOWN_ERROR = 99         ///< Unclassified error
 };
 
 /**
@@ -90,7 +90,7 @@ class Error final
    * @post Error represents success state
    * @note AUTOSAR C++14: A12-1-1 - Use member initialization list
    */
-  Error() : code_(ErrorCode::kSuccess), message_() {}
+  Error() : code_(ErrorCode::K_SUCCESS), message_() {}
 
   /**
    * @brief Construct with error code
@@ -131,18 +131,18 @@ class Error final
   /**
    * @brief Check if this represents success
    *
-   * @return true if code is kSuccess
+   * @return true if code is K_SUCCESS
    * @note Convenience method for success checking
    */
-  bool is_success() const noexcept { return code_ == ErrorCode::kSuccess; }
+  bool is_success() const noexcept { return code_ == ErrorCode::K_SUCCESS; }
 
   /**
    * @brief Check if this represents an error
    *
-   * @return true if code is not kSuccess
+   * @return true if code is not K_SUCCESS
    * @note Convenience method for error checking
    */
-  bool is_error() const noexcept { return code_ != ErrorCode::kSuccess; }
+  bool is_error() const noexcept { return code_ != ErrorCode::K_SUCCESS; }
 
   /**
    * @brief Boolean conversion operator
@@ -178,31 +178,31 @@ inline const char* Error::get_default_message(ErrorCode code)
 {
   switch (code)
   {
-    case ErrorCode::kSuccess:
+    case ErrorCode::K_SUCCESS:
       return "Success";
-    case ErrorCode::kInvalidArgument:
+    case ErrorCode::K_INVALID_ARGUMENT:
       return "Invalid argument";
-    case ErrorCode::kInvalidConfiguration:
+    case ErrorCode::K_INVALID_CONFIGURATION:
       return "Invalid configuration";
-    case ErrorCode::kProcessSpawnFailed:
+    case ErrorCode::K_PROCESS_SPAWN_FAILED:
       return "Failed to spawn process";
-    case ErrorCode::kProcessNotFound:
+    case ErrorCode::K_PROCESS_NOT_FOUND:
       return "Process not found";
-    case ErrorCode::kEventHandlerError:
+    case ErrorCode::K_EVENT_HANDLER_ERROR:
       return "Event handler error";
-    case ErrorCode::kSubstitutionError:
+    case ErrorCode::K_SUBSTITUTION_ERROR:
       return "Substitution evaluation error";
-    case ErrorCode::kCyclicDependency:
+    case ErrorCode::K_CYCLIC_DEPENDENCY:
       return "Cyclic dependency detected";
-    case ErrorCode::kTimeout:
+    case ErrorCode::K_TIMEOUT:
       return "Operation timed out";
-    case ErrorCode::kShutdownRequested:
+    case ErrorCode::K_SHUTDOWN_REQUESTED:
       return "Shutdown requested";
-    case ErrorCode::kNotImplemented:
+    case ErrorCode::K_NOT_IMPLEMENTED:
       return "Feature not implemented";
-    case ErrorCode::kInternalError:
+    case ErrorCode::K_INTERNAL_ERROR:
       return "Internal error";
-    case ErrorCode::kUnknownError:
+    case ErrorCode::K_UNKNOWN_ERROR:
     default:
       return "Unknown error";
   }
@@ -232,7 +232,7 @@ class Result final
    * @post Result contains default-constructed T
    * @note AUTOSAR C++14: A12-1-1 - Member initialization
    */
-  Result() : value_(), error_(ErrorCode::kSuccess) {}
+  Result() : value_(), error_(ErrorCode::K_SUCCESS) {}
 
   /**
    * @brief Construct from value (copy)
@@ -241,7 +241,7 @@ class Result final
    * @post Result contains value, success state
    */
   explicit Result(const T& value)
-    : value_(value), error_(ErrorCode::kSuccess) {}
+    : value_(value), error_(ErrorCode::K_SUCCESS) {}
 
   /**
    * @brief Construct from value (move)
@@ -250,7 +250,7 @@ class Result final
    * @post Result contains moved value, success state
    */
   explicit Result(T&& value)
-    : value_(std::move(value)), error_(ErrorCode::kSuccess) {}
+    : value_(std::move(value)), error_(ErrorCode::K_SUCCESS) {}
 
   /**
    * @brief Construct from error (copy)
@@ -337,7 +337,7 @@ class Result<void> final
   /**
    * @brief Default constructor (success)
    */
-  Result() : error_(ErrorCode::kSuccess) {}
+  Result() : error_(ErrorCode::K_SUCCESS) {}
 
   /**
    * @brief Construct from error (copy)

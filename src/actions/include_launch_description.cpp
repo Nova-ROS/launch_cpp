@@ -31,22 +31,22 @@ Result<void> IncludeLaunchDescription::execute(LaunchContext& context)
 {
   if (!options_.launchDescriptionSource)
   {
-    return Result<void>(Error(ErrorCode::kInvalidArgument, "No launch description source provided"));
+    return Result<void>(Error(ErrorCode::K_INVALID_ARGUMENT, "No launch description source provided"));
   }
 
   // Resolve the file path
-  std::string filePath = options_.launchDescriptionSource->perform(context);
+  std::string file_path = options_.launchDescriptionSource->perform(context);
 
   // Check if file exists
-  std::ifstream file(filePath);
+  std::ifstream file(file_path);
   if (!file.is_open())
   {
-    return Result<void>(Error(ErrorCode::kInvalidArgument, "Launch file not found: " + filePath));
+    return Result<void>(Error(ErrorCode::K_INVALID_ARGUMENT, "Launch file not found: " + file_path));
   }
   file.close();
 
   // Parse the launch file
-  auto descResult = LaunchDescription::from_yaml_file(filePath);
+  auto descResult = LaunchDescription::from_yaml_file(file_path);
   if (descResult.has_error())
   {
     return Result<void>(descResult.get_error());

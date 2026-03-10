@@ -86,9 +86,9 @@ Result<LaunchDescriptionPtr> LaunchDescription::from_yaml(const std::string& yam
   return YamlLaunchBuilder::build(yamlResult.get_value());
 }
 
-Result<LaunchDescriptionPtr> LaunchDescription::from_yaml_file(const std::string& filePath)
+Result<LaunchDescriptionPtr> LaunchDescription::from_yaml_file(const std::string& file_path)
 {
-  auto yamlResult = YamlParser::parse_file(filePath);
+  auto yamlResult = YamlParser::parse_file(file_path);
   if (yamlResult.has_error())
   {
     return Result<LaunchDescriptionPtr>(yamlResult.get_error());

@@ -20,7 +20,7 @@ namespace launch_cpp
 {
 
 ThreadPool::ThreadPool(std::size_t num_threads)
-  : status_(ThreadPoolStatus::kRunning)
+  : status_(ThreadPoolStatus::K_RUNNING)
 {
   threads_.reserve(num_threads);
 
@@ -39,9 +39,9 @@ Error ThreadPool::submit(std::function<void()> task)
 {
   ThreadPoolStatus current_status = status_.load(std::memory_order_acquire);
 
-  if (current_status != ThreadPoolStatus::kRunning)
+  if (current_status != ThreadPoolStatus::K_RUNNING)
   {
-    return Error(ErrorCode::kInternalError, "Thread pool is not running");
+    return Error(ErrorCode::K_INTERNAL_ERROR, "Thread pool is not running");
   }
 
   {
@@ -55,11 +55,11 @@ Error ThreadPool::submit(std::function<void()> task)
 
 void ThreadPool::shutdown()
 {
-  ThreadPoolStatus expected = ThreadPoolStatus::kRunning;
+  ThreadPoolStatus expected = ThreadPoolStatus::K_RUNNING;
 
   if (!status_.compare_exchange_strong(
         expected,
-        ThreadPoolStatus::kShuttingDown,
+        ThreadPoolStatus::K_SHUTTING_DOWN,
         std::memory_order_release,
         std::memory_order_relaxed))
   {
@@ -76,7 +76,7 @@ void ThreadPool::shutdown()
     }
   }
 
-  status_.store(ThreadPoolStatus::kStopped, std::memory_order_release);
+  status_.store(ThreadPoolStatus::K_STOPPED, std::memory_order_release);
 }
 
 void ThreadPool::worker_thread()
@@ -90,10 +90,10 @@ void ThreadPool::worker_thread()
 
       condition_.wait(lock, [this]() {
         return !task_queue_.empty() ||
-               status_.load(std::memory_order_acquire) != ThreadPoolStatus::kRunning;
+               status_.load(std::memory_order_acquire) != ThreadPoolStatus::K_RUNNING;
       });
 
-      if (status_.load(std::memory_order_acquire) != ThreadPoolStatus::kRunning &&
+      if (status_.load(std::memory_order_acquire) != ThreadPoolStatus::K_RUNNING &&
           task_queue_.empty())
       {
         return;

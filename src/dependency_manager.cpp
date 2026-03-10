@@ -25,18 +25,18 @@ Error DependencyManager::add_process(
 {
   if (name.empty())
   {
-    return Error(ErrorCode::kInvalidArgument, "Process name cannot be empty");
+    return Error(ErrorCode::K_INVALID_ARGUMENT, "Process name cannot be empty");
   }
 
   if (!action)
   {
-    return Error(ErrorCode::kInvalidArgument, "Process action cannot be null");
+    return Error(ErrorCode::K_INVALID_ARGUMENT, "Process action cannot be null");
   }
 
   // Check for duplicate
   if (processes_.find(name) != processes_.end())
   {
-    return Error(ErrorCode::kInvalidConfiguration,
+    return Error(ErrorCode::K_INVALID_CONFIGURATION,
                  "Process '" + name + "' already exists");
   }
 
@@ -68,7 +68,7 @@ Error DependencyManager::execute_all(LaunchContext& context)
   auto result = resolve_dependencies();
   if (!result.success)
   {
-    return Error(ErrorCode::kCyclicDependency, result.error_message);
+    return Error(ErrorCode::K_CYCLIC_DEPENDENCY, result.error_message);
   }
 
   // Execute in order
@@ -79,14 +79,14 @@ Error DependencyManager::execute_all(LaunchContext& context)
     auto it = processes_.find(process_name);
     if (it == processes_.end())
     {
-      return Error(ErrorCode::kProcessNotFound,
+      return Error(ErrorCode::K_PROCESS_NOT_FOUND,
                    "Process '" + process_name + "' not found");
     }
 
     // Check if ready
     if (!is_ready(process_name, completed))
     {
-      return Error(ErrorCode::kCyclicDependency,
+      return Error(ErrorCode::K_CYCLIC_DEPENDENCY,
                    "Dependencies not satisfied for '" + process_name + "'");
     }
 

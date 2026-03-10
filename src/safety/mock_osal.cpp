@@ -88,7 +88,7 @@ OsalResult<ProcessResult> MockProcessExecutor::wait(
     ProcessResult result;
     result.pid = pid;
     result.exit_code = 0;
-    result.final_state = ProcessState::kStopped;
+    result.final_state = ProcessState::K_STOPPED;
     return OsalResult<ProcessResult>(result);
 }
 

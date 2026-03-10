@@ -195,12 +195,12 @@ class ProcessExitedEvent final : public Event
    * @brief Constructor
    *
    * @param pid Process ID of exited process
-   * @param returnCode Process exit code
+   * @param return_code Process exit code
    * @param name Process name/identifier
    * @post Event initialized with process exit info
    */
-  ProcessExitedEvent(std::int32_t pid, std::int32_t returnCode, const std::string& name)
-    : pid_(pid), return_code_(returnCode), name_(name) {}
+  ProcessExitedEvent(std::int32_t pid, std::int32_t return_code, const std::string& name)
+    : pid_(pid), return_code_(return_code), name_(name) {}
 
   /**
    * @brief Get event type

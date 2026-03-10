@@ -34,12 +34,12 @@ Result<YamlValue> YamlParser::parse(const std::string& content)
   return parse_object(stream, line, 0);
 }
 
-Result<YamlValue> YamlParser::parse_file(const std::string& filePath)
+Result<YamlValue> YamlParser::parse_file(const std::string& file_path)
 {
-  std::ifstream file(filePath);
+  std::ifstream file(file_path);
   if (!file.is_open())
   {
-    return Result<YamlValue>(Error(ErrorCode::kInvalidArgument, "Failed to open file: " + filePath));
+    return Result<YamlValue>(Error(ErrorCode::K_INVALID_ARGUMENT, "Failed to open file: " + file_path));
   }
 
   std::string content((std::istreambuf_iterator<char>(file)),
@@ -507,7 +507,7 @@ Result<LaunchDescriptionPtr> YamlLaunchBuilder::build(const YamlValue& yaml)
 {
   if (!yaml.is_object())
   {
-    return Result<LaunchDescriptionPtr>(Error(ErrorCode::kInvalidConfiguration, "Root must be an object"));
+    return Result<LaunchDescriptionPtr>(Error(ErrorCode::K_INVALID_CONFIGURATION, "Root must be an object"));
   }
 
   auto desc = std::make_shared<LaunchDescription>();
@@ -515,7 +515,7 @@ Result<LaunchDescriptionPtr> YamlLaunchBuilder::build(const YamlValue& yaml)
   auto entities = yaml.as_object().find("entities");
   if (entities == yaml.as_object().end() || !entities->second.is_array())
   {
-    return Result<LaunchDescriptionPtr>(Error(ErrorCode::kInvalidConfiguration, "Missing 'entities' array"));
+    return Result<LaunchDescriptionPtr>(Error(ErrorCode::K_INVALID_CONFIGURATION, "Missing 'entities' array"));
   }
 
   for (const auto& entityYaml : entities->second.as_array())
@@ -542,7 +542,7 @@ Result<ActionPtr> YamlLaunchBuilder::build_action(const YamlValue& actionYaml)
   auto typeIt = actionYaml.as_object().find("type");
   if (typeIt == actionYaml.as_object().end() || !typeIt->second.is_string())
   {
-    return Result<ActionPtr>(Error(ErrorCode::kInvalidConfiguration, "Action missing 'type' field"));
+    return Result<ActionPtr>(Error(ErrorCode::K_INVALID_CONFIGURATION, "Action missing 'type' field"));
   }
 
   std::string type = typeIt->second.as_string();
@@ -623,7 +623,7 @@ Result<ActionPtr> YamlLaunchBuilder::build_action(const YamlValue& actionYaml)
     return Result<ActionPtr>(std::make_shared<DeclareLaunchArgument>(options));
   }
 
-  return Result<ActionPtr>(Error(ErrorCode::kNotImplemented, "Unknown action type: " + type));
+  return Result<ActionPtr>(Error(ErrorCode::K_NOT_IMPLEMENTED, "Unknown action type: " + type));
 }
 
 Result<SubstitutionPtr> YamlLaunchBuilder::build_substitution(const std::string& value)
@@ -685,7 +685,7 @@ Result<ConditionPtr> YamlLaunchBuilder::build_condition(const YamlValue& conditi
 {
   (void)conditionYaml;
   // TODO(launch_cpp): Implement condition building
-  return Result<ConditionPtr>(Error(ErrorCode::kNotImplemented, "Condition building not yet implemented"));
+  return Result<ConditionPtr>(Error(ErrorCode::K_NOT_IMPLEMENTED, "Condition building not yet implemented"));
 }
 
 }  // namespace launch_cpp

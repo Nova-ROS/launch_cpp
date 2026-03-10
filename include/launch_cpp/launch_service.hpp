@@ -56,7 +56,7 @@ class EventHandler;
  * @brief Launch service states
  *
  * @details Enumerates the possible states of the launch service.
- *          State transitions: kIdle -> kRunning -> kShuttingDown -> kStopped
+ *          State transitions: K_IDLE -> K_RUNNING -> K_SHUTTING_DOWN -> K_STOPPED
  *
  * @note AUTOSAR C++14: A7-2-4 - Use enum class for strong typing
  *
@@ -64,10 +64,10 @@ class EventHandler;
  */
 enum class LaunchServiceStatus : std::int32_t
 {
-  kIdle = 0,          ///< Initial state, ready to run
-  kRunning = 1,       ///< Active, processing launch descriptions
-  kShuttingDown = 2,  ///< Shutdown in progress
-  kStopped = 3        ///< Final state, resources released
+  K_IDLE = 0,          ///< Initial state, ready to run
+  K_RUNNING = 1,       ///< Active, processing launch descriptions
+  K_SHUTTING_DOWN = 2,  ///< Shutdown in progress
+  K_STOPPED = 3        ///< Final state, resources released
 };
 
 /**
@@ -117,7 +117,7 @@ class LaunchService final
    * @brief Construct launch service
    *
    * @param options Service configuration (uses defaults if not provided)
-   * @post Service created in kIdle state
+   * @post Service created in K_IDLE state
    *
    * @note Implementation uses Pimpl idiom for ABI compatibility
    *
@@ -169,7 +169,7 @@ class LaunchService final
    * @param shutdownWhenIdle If true, shut down after processing
    * @return Exit code (0 = success, non-zero = error)
    *
-   * @pre Service must be in kIdle state
+   * @pre Service must be in K_IDLE state
    * @post If successful, processes all registered launch descriptions
    * @post If shutdownWhenIdle, service shut down before return
    *
@@ -220,7 +220,7 @@ class LaunchService final
    * @return Error object indicating success or failure
    *
    * @pre May be called from any state
-   * @post Service transitions to kStopped
+   * @post Service transitions to K_STOPPED
    *
    * @note Initiates graceful shutdown
    * @note Idempotent - safe to call multiple times
@@ -236,7 +236,7 @@ class LaunchService final
   /**
    * @brief Check if service is running
    *
-   * @return true if in kRunning state
+   * @return true if in K_RUNNING state
    *
    * @note Thread-safe via atomic operations
    *
@@ -247,7 +247,7 @@ class LaunchService final
   /**
    * @brief Check if service is idle
    *
-   * @return true if in kIdle state
+   * @return true if in K_IDLE state
    *
    * @note Thread-safe via atomic operations
    *

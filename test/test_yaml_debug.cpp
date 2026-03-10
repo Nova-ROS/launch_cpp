@@ -52,9 +52,9 @@ int main()
   // Test 3: Parse from file
   std::cout << "\nTest 3: Parse from file" << std::endl;
   {
-    std::string filePath = "/home/bingdian/work/ros2/jazzy/src/ros2/launch_cpp/examples/test_simple.yaml";
+    std::string file_path = "/home/bingdian/work/ros2/jazzy/src/ros2/launch_cpp/examples/test_simple.yaml";
 
-    auto result = YamlParser::parse_file(filePath);
+    auto result = YamlParser::parse_file(file_path);
     if (result.has_error()) {
       std::cout << "Error: " << result.get_error().get_message() << std::endl;
     } else {

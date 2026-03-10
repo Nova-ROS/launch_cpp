@@ -34,9 +34,9 @@ namespace launch_cpp
 // AUTOSAR C++14: A7-2-4 - Use enum class for enumeration types
 enum class ThreadPoolStatus : std::int32_t
 {
-  kRunning = 0,
-  kShuttingDown = 1,
-  kStopped = 2
+  K_RUNNING = 0,
+  K_SHUTTING_DOWN = 1,
+  K_STOPPED = 2
 };
 
 // AUTOSAR C++14: Forward declaration
@@ -47,7 +47,7 @@ class ThreadPool final
 {
  public:
   // AUTOSAR C++14: A12-1-1 - Use member initialization list
-  explicit ThreadPool(std::size_t numThreads);
+  explicit ThreadPool(std::size_t num_threads);
 
   // AUTOSAR C++14: A12-8-4 - Declare destructor noexcept
   ~ThreadPool() noexcept;

@@ -76,7 +76,7 @@ class LaunchService::Impl
  * @post Service created in idle state
  * @post Implementation allocated
  *
- * @note Service starts in kIdle state, transitions to kRunning via Run()
+ * @note Service starts in K_IDLE state, transitions to K_RUNNING via Run()
  * @note AUTOSAR C++14: Use member initialization list
  *
  * @thread_safety Not thread-safe during construction
@@ -85,7 +85,7 @@ class LaunchService::Impl
  */
 LaunchService::LaunchService(const Options& options)
   : impl_(std::make_unique<Impl>(options)),
-    status_(LaunchServiceStatus::kIdle),
+    status_(LaunchServiceStatus::K_IDLE),
     shutdown_requested_(false)
 {
 }
@@ -119,8 +119,8 @@ LaunchService::~LaunchService() noexcept
  * @param shutdownWhenIdle If true, shut down after processing all descriptions
  * @return Exit code (0 = success, non-zero = error)
  *
- * @pre Service must be in kIdle state
- * @post If successful, service transitions through kRunning to kStopped
+ * @pre Service must be in K_IDLE state
+ * @post If successful, service transitions through K_RUNNING to K_STOPPED
  * @post If shutdownWhenIdle, service is shut down before return
  *
  * @note Thread-safe state transition using compare_exchange
@@ -135,17 +135,17 @@ LaunchService::~LaunchService() noexcept
  */
 std::int32_t LaunchService::run(bool shutdown_when_idle)
 {
-  // Attempt state transition: kIdle -> kRunning
+  // Attempt state transition: K_IDLE -> K_RUNNING
   // Using compare_exchange for thread-safe check-and-set
-  LaunchServiceStatus expected = LaunchServiceStatus::kIdle;
+  LaunchServiceStatus expected = LaunchServiceStatus::K_IDLE;
 
   if (!status_.compare_exchange_strong(
         expected,
-        LaunchServiceStatus::kRunning,
+        LaunchServiceStatus::K_RUNNING,
         std::memory_order_release,   // Success: synchronize-with readers
         std::memory_order_relaxed))  // Failure: no ordering needed
   {
-    // State was not kIdle, cannot start
+    // State was not K_IDLE, cannot start
     std::cerr << "Launch service is not in idle state" << std::endl;
     return 1;
   }
@@ -213,7 +213,7 @@ Error LaunchService::include_launch_description(const LaunchDescriptionPtr& desc
   // Validate input
   if (!description)
   {
-    return Error(ErrorCode::kInvalidArgument, "Null launch description");
+    return Error(ErrorCode::K_INVALID_ARGUMENT, "Null launch description");
   }
 
   // Critical section: Modify shared descriptions vector
@@ -251,7 +251,7 @@ void LaunchService::emit_event(EventPtr event)
  * @return Error object (success or error details)
  *
  * @pre May be called from any state
- * @post Service transitions to kStopped
+ * @post Service transitions to K_STOPPED
  * @post shutdown_requested_ flag set
  *
  * @note Thread-safe state transition
@@ -266,12 +266,12 @@ void LaunchService::emit_event(EventPtr event)
  */
 Error LaunchService::shutdown()
 {
-  // Attempt state transition: kRunning -> kShuttingDown
-  LaunchServiceStatus expected = LaunchServiceStatus::kRunning;
+  // Attempt state transition: K_RUNNING -> K_SHUTTING_DOWN
+  LaunchServiceStatus expected = LaunchServiceStatus::K_RUNNING;
 
   if (!status_.compare_exchange_strong(
         expected,
-        LaunchServiceStatus::kShuttingDown,
+        LaunchServiceStatus::K_SHUTTING_DOWN,
         std::memory_order_release,
         std::memory_order_relaxed))
   {
@@ -286,7 +286,7 @@ Error LaunchService::shutdown()
   // TODO(launch_cpp): Timeout handling for unresponsive components
 
   // Final state transition
-  status_.store(LaunchServiceStatus::kStopped, std::memory_order_release);
+  status_.store(LaunchServiceStatus::K_STOPPED, std::memory_order_release);
 
   return Error();  // Success
 }
@@ -294,7 +294,7 @@ Error LaunchService::shutdown()
 /**
  * @brief Check if service is running
  *
- * @return true if in kRunning state
+ * @return true if in K_RUNNING state
  *
  * @pre None
  * @post Returns current state
@@ -306,13 +306,13 @@ Error LaunchService::shutdown()
  */
 bool LaunchService::is_running() const noexcept
 {
-  return status_.load(std::memory_order_acquire) == LaunchServiceStatus::kRunning;
+  return status_.load(std::memory_order_acquire) == LaunchServiceStatus::K_RUNNING;
 }
 
 /**
  * @brief Check if service is idle
  *
- * @return true if in kIdle state
+ * @return true if in K_IDLE state
  *
  * @pre None
  * @post Returns current state
@@ -323,7 +323,7 @@ bool LaunchService::is_running() const noexcept
  */
 bool LaunchService::is_idle() const
 {
-  return status_.load(std::memory_order_acquire) == LaunchServiceStatus::kIdle;
+  return status_.load(std::memory_order_acquire) == LaunchServiceStatus::K_IDLE;
 }
 
 /**

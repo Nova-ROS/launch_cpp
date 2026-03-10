@@ -42,7 +42,7 @@ class MockLaunchContext : public LaunchContext
   {
     auto it = configs_.find(key);
     if (it == configs_.end()) {
-      return Result<std::string>(Error(ErrorCode::kInvalidArgument, "Not found"));
+      return Result<std::string>(Error(ErrorCode::K_INVALID_ARGUMENT, "Not found"));
     }
     return Result<std::string>(it->second);
   }

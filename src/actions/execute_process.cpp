@@ -115,7 +115,7 @@ Result<std::vector<std::string>> ExecuteProcess::validate_and_escape_command(
   if (cmd.empty())
   {
     return Result<std::vector<std::string>>(
-        Error(ErrorCode::kInvalidArgument, "Empty command"));
+        Error(ErrorCode::K_INVALID_ARGUMENT, "Empty command"));
   }
 
   // Use CommandBuilder for validation and escaping
@@ -128,7 +128,7 @@ Result<std::vector<std::string>> ExecuteProcess::validate_and_escape_command(
     if (arg.empty())
     {
       return Result<std::vector<std::string>>(
-          Error(ErrorCode::kInvalidArgument, "Empty argument in command"));
+          Error(ErrorCode::K_INVALID_ARGUMENT, "Empty argument in command"));
     }
 
     // Escape argument if needed
@@ -152,7 +152,7 @@ Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
     auto result = resource_monitor_->are_resources_available(estimatedMemory);
     if (!result.is_success() || !result.get_value())
     {
-      return Result<void>(Error(ErrorCode::kProcessSpawnFailed,
+      return Result<void>(Error(ErrorCode::K_PROCESS_SPAWN_FAILED,
                                 "Insufficient resources to start process"));
     }
   }
@@ -182,7 +182,7 @@ Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
     auto result = process_executor_->execute(command, processOptions);
     if (!result.is_success())
     {
-      return Result<void>(Error(ErrorCode::kProcessSpawnFailed,
+      return Result<void>(Error(ErrorCode::K_PROCESS_SPAWN_FAILED,
                                 result.get_error_message()));
     }
 
@@ -236,7 +236,7 @@ Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
 
     if (pid < 0)
     {
-      return Result<void>(Error(ErrorCode::kProcessSpawnFailed, "Fork failed"));
+      return Result<void>(Error(ErrorCode::K_PROCESS_SPAWN_FAILED, "Fork failed"));
     }
 
     if (pid == 0)
@@ -262,8 +262,8 @@ Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
     // Wait for process if output is set to screen
     if (options_.output == "screen")
     {
-      int returnCode = process_->wait();
-      (void)returnCode;
+      int return_code = process_->wait();
+      (void)return_code;
     }
 
     return Result<void>();
@@ -339,7 +339,7 @@ Result<void> ExecuteProcess::execute_with_retry(LaunchContext& context,
   }
 
   // All retries exhausted
-  return Result<void>(Error(ErrorCode::kMaxRetriesExceeded,
+  return Result<void>(Error(ErrorCode::K_MAX_RETRIES_EXCEEDED,
                             "Max retry attempts exceeded"));
 }
 
@@ -351,9 +351,9 @@ bool ExecuteProcess::is_retryable_error(ErrorCode code) const
   // - Timeout (might succeed next time)
   switch (code)
   {
-    case ErrorCode::kProcessSpawnFailed:
-    case ErrorCode::kTimeout:
-    case ErrorCode::kResourceExhausted:
+    case ErrorCode::K_PROCESS_SPAWN_FAILED:
+    case ErrorCode::K_TIMEOUT:
+    case ErrorCode::K_RESOURCE_EXHAUSTED:
       return true;
     default:
       return false;
@@ -410,7 +410,7 @@ Error ExecuteProcess::shutdown()
       process_id_,
       std::chrono::seconds(options_.sigterm_timeout));
     return result.is_success() ? Error() :
-           Error(ErrorCode::kInternalError, result.get_error_message());
+           Error(ErrorCode::K_INTERNAL_ERROR, result.get_error_message());
   }
 
   // Legacy path
@@ -429,7 +429,7 @@ Error ExecuteProcess::terminate()
       process_id_,
       std::chrono::seconds(options_.sigterm_timeout));
     return result.is_success() ? Error() :
-           Error(ErrorCode::kInternalError, result.get_error_message());
+           Error(ErrorCode::K_INTERNAL_ERROR, result.get_error_message());
   }
 
   // Legacy path
@@ -446,7 +446,7 @@ Error ExecuteProcess::kill()
   {
     auto result = process_executor_->kill(process_id_);
     return result.is_success() ? Error() :
-           Error(ErrorCode::kInternalError, result.get_error_message());
+           Error(ErrorCode::K_INTERNAL_ERROR, result.get_error_message());
   }
 
   // Legacy path
@@ -508,7 +508,7 @@ Result<std::int32_t> ExecuteProcess::get_return_code() const
   // Legacy path
   if (!process_)
   {
-    return Result<std::int32_t>(Error(ErrorCode::kInternalError, "Process not started"));
+    return Result<std::int32_t>(Error(ErrorCode::K_INTERNAL_ERROR, "Process not started"));
   }
   return Result<std::int32_t>(process_->get_return_code());
 }
@@ -523,7 +523,7 @@ Result<std::int32_t> ExecuteProcess::get_pid() const
   // Legacy path
   if (!process_)
   {
-    return Result<std::int32_t>(Error(ErrorCode::kInternalError, "Process not started"));
+    return Result<std::int32_t>(Error(ErrorCode::K_INTERNAL_ERROR, "Process not started"));
   }
   return Result<std::int32_t>(process_->get_pid());
 }
