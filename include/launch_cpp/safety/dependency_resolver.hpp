@@ -149,7 +149,7 @@ public:
      *
      * @requirement TSR-002.3: Parallel startup
      */
-    std::vector<std::string> GetReadyNodes(
+    std::vector<std::string> get_ready_nodes(
         const std::set<std::string>& remaining_nodes,
         const std::set<std::string>& started_nodes,
         const std::map<std::string, NodeConfig>& all_nodes) const;
@@ -187,7 +187,7 @@ private:
     /**
      * @brief Build node name to config map
      */
-    std::map<std::string, NodeConfig> BuildNodeMap(
+    std::map<std::string, NodeConfig> build_node_map(
         const std::vector<NodeConfig>& nodes) const;
 };
 
@@ -222,7 +222,7 @@ inline std::vector<std::string> DependencyResolver::get_missing_dependencies(
     return missing;
 }
 
-inline std::map<std::string, NodeConfig> DependencyResolver::BuildNodeMap(
+inline std::map<std::string, NodeConfig> DependencyResolver::build_node_map(
     const std::vector<NodeConfig>& nodes) const {
     std::map<std::string, NodeConfig> node_map;
     for (const auto& node : nodes) {
@@ -251,7 +251,7 @@ inline bool DependencyResolver::can_start_node(
     return true;
 }
 
-inline std::vector<std::string> DependencyResolver::GetReadyNodes(
+inline std::vector<std::string> DependencyResolver::get_ready_nodes(
     const std::set<std::string>& remaining_nodes,
     const std::set<std::string>& started_nodes,
     const std::map<std::string, NodeConfig>& all_nodes) const {
@@ -452,7 +452,7 @@ public:
     }
 
     // Test case: Simple linear dependency A -> B -> C
-    std::vector<NodeConfig> CreateLinearDependencies() const {
+    std::vector<NodeConfig> create_linear_dependencies() const {
         return {
             {"A", {}},
             {"B", {"A"}},
@@ -461,7 +461,7 @@ public:
     }
 
     // Test case: Diamond dependency A -> B, A -> C, B -> D, C -> D
-    std::vector<NodeConfig> CreateDiamondDependencies() const {
+    std::vector<NodeConfig> create_diamond_dependencies() const {
         return {
             {"A", {}},
             {"B", {"A"}},
@@ -471,7 +471,7 @@ public:
     }
 
     // Test case: Circular dependency A -> B -> C -> A
-    std::vector<NodeConfig> CreateCircularDependencies() const {
+    std::vector<NodeConfig> create_circular_dependencies() const {
         return {
             {"A", {"C"}},
             {"B", {"A"}},
@@ -480,7 +480,7 @@ public:
     }
 
     // Test case: Missing dependency
-    std::vector<NodeConfig> CreateMissingDependency() const {
+    std::vector<NodeConfig> create_missing_dependency() const {
         return {
             {"A", {}},
             {"B", {"C"}}  // C doesn't exist
@@ -488,7 +488,7 @@ public:
     }
 
     // Test case: Complex graph
-    std::vector<NodeConfig> CreateComplexDependencies() const {
+    std::vector<NodeConfig> create_complex_dependencies() const {
         return {
             {"sensor", {}},
             {"filter", {"sensor"}},

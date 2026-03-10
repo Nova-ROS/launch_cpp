@@ -225,7 +225,7 @@ private:
     /**
      * @brief Execute with retry logic
      */
-    Result<void> ExecuteWithRetry(LaunchContext& context);
+    Result<void> execute_with_retry(LaunchContext& context);
 
     /**
      * @brief Single attempt to start node
@@ -235,7 +235,7 @@ private:
     /**
      * @brief Register node with watchdog
      */
-    Result<void> RegisterWithWatchdog();
+    Result<void> register_with_watchdog();
 
     /**
      * @brief Unregister node from watchdog
@@ -389,7 +389,7 @@ public:
         return options;
     }
 
-    std::shared_ptr<NodeActionRefactored> CreateNodeAction(
+    std::shared_ptr<NodeActionRefactored> create_node_action(
         const NodeActionOptions& options,
         const MockDependencies& deps) const {
         return std::make_shared<NodeActionRefactored>(

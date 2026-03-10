@@ -167,7 +167,7 @@ public:
             }
 
             // Calculate and apply delay
-            auto delay = CalculateDelay(attempt);
+            auto delay = calculate_delay(attempt);
             sleep(delay);
         }
 
@@ -199,7 +199,7 @@ public:
      * - Attempt 2: 1500ms
      * - Attempt 3: 2250ms
      */
-    std::chrono::milliseconds CalculateDelay(uint32_t attempt_number) const {
+    std::chrono::milliseconds calculate_delay(uint32_t attempt_number) const {
         if (attempt_number == 0) {
             return std::chrono::milliseconds(0);
         }
@@ -264,7 +264,7 @@ public:
 
     bool should_retry(ErrorCode) const { return false; }
 
-    std::chrono::milliseconds CalculateDelay(uint32_t) const {
+    std::chrono::milliseconds calculate_delay(uint32_t) const {
         return std::chrono::milliseconds(0);
     }
 };
@@ -301,7 +301,7 @@ public:
 
     bool should_retry(ErrorCode) const { return true; }
 
-    std::chrono::milliseconds CalculateDelay(uint32_t) const { return delay_; }
+    std::chrono::milliseconds calculate_delay(uint32_t) const { return delay_; }
 
 private:
     uint32_t max_attempts_;
@@ -345,7 +345,7 @@ public:
     }
 
     // Helper to create a failing operation that succeeds after N attempts
-    std::function<RetryableResult<int>()> CreateFailNTimesOperation(
+    std::function<RetryableResult<int>()> create_fail_n_times_operation(
         uint32_t fail_count,
         ErrorCode error_code = ErrorCode::kTimeout) const {
 
@@ -360,7 +360,7 @@ public:
     }
 
     // Helper to create an always failing operation
-    std::function<RetryableResult<int>()> CreateAlwaysFailOperation(
+    std::function<RetryableResult<int>()> create_always_fail_operation(
         ErrorCode error_code = ErrorCode::kTimeout) const {
 
         return [error_code]() -> RetryableResult<int> {
@@ -369,7 +369,7 @@ public:
     }
 
     // Helper to create an always succeeding operation
-    std::function<RetryableResult<int>()> CreateAlwaysSucceedOperation(
+    std::function<RetryableResult<int>()> create_always_succeed_operation(
         int value = 42) const {
 
         return [value]() -> RetryableResult<int> {
