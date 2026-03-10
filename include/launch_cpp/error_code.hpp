@@ -99,7 +99,7 @@ class Error final
    * @post Error created with code and default message
    */
   explicit Error(ErrorCode code)
-    : code_(code), message_(GetDefaultMessage(code)) {}
+    : code_(code), message_(get_default_message(code)) {}
   
   /**
    * @brief Construct with error code and custom message
@@ -160,7 +160,7 @@ class Error final
    * @return Static string with description
    * @note Returns pointer to static string - do not free
    */
-  static const char* GetDefaultMessage(ErrorCode code);
+  static const char* get_default_message(ErrorCode code);
   
   ErrorCode code_;       ///< Error code value
   std::string message_;  ///< Human-readable message
@@ -174,7 +174,7 @@ class Error final
  * @note AUTOSAR C++14: M7-1-2 - Use const reference for non-modifiable
  * @note Returns English descriptions
  */
-inline const char* Error::GetDefaultMessage(ErrorCode code)
+inline const char* Error::get_default_message(ErrorCode code)
 {
   switch (code)
   {

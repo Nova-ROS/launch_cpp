@@ -63,7 +63,7 @@ class Singleton final
   }
   
   // AUTOSAR C++14: Check if initialized
-  static bool IsInitialized() noexcept
+  static bool is_initialized() noexcept
   {
     return instance_.load(std::memory_order_acquire) != nullptr;
   }
