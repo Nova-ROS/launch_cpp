@@ -329,7 +329,7 @@ inline bool NodeActionRefactored::is_restart_allowed() const {
         return false;
     }
 
-    return stats_.restart_count < retry_policy_->GetMaxAttempts();
+    return stats_.restart_count < retry_policy_->get_max_attempts();
 }
 
 inline void NodeActionRefactored::increment_restart_count() {
