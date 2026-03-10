@@ -146,7 +146,7 @@ using SubstitutionVector = std::vector<SubstitutionPtr>;
  * @requirements REQ-LAUNCH-TYPES-002
  */
 template<typename To, typename From>
-inline To* PolymorphicCast(From* ptr)
+inline To* polymorphic_cast(From* ptr)
 {
   return dynamic_cast<To*>(ptr);
 }
@@ -170,7 +170,7 @@ inline To* PolymorphicCast(From* ptr)
  * @requirements REQ-LAUNCH-TYPES-002
  */
 template<typename To, typename From>
-inline const To* PolymorphicCast(const From* ptr)
+inline const To* polymorphic_cast(const From* ptr)
 {
   return dynamic_cast<const To*>(ptr);
 }

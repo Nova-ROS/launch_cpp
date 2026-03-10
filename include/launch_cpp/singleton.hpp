@@ -40,7 +40,7 @@ class Singleton final
   ~Singleton() = delete;
   
   // AUTOSAR C++14: M0-1-9 - Declare functions as noexcept
-  static T& Instance() noexcept
+  static T& instance() noexcept
   {
     // AUTOSAR C++14: Double-checked locking pattern
     T* instance = instance_.load(std::memory_order_acquire);
