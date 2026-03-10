@@ -43,6 +43,7 @@ set(CPP_LAUNCH_CORE_SOURCES
   src/conditions/if_condition.cpp
   src/conditions/launch_configuration_equals.cpp
   src/conditions/unless_condition.cpp
+  src/dependency_manager.cpp
   # Safety architecture sources
   src/safety/posix_process_executor.cpp
   src/safety/posix_resource_monitor.cpp
@@ -154,6 +155,14 @@ if(BUILD_TESTING)
   # Mock-based safety tests
   ament_add_gtest(test_safety_mock test/test_safety_mock.cpp)
   target_link_libraries(test_safety_mock launch_cpp_core)
+  
+  # Dependency manager tests
+  ament_add_gtest(test_dependency_manager test/test_dependency_manager.cpp)
+  target_link_libraries(test_dependency_manager launch_cpp_core)
+  
+  # Variable substitution tests
+  ament_add_gtest(test_variable_substitution test/test_variable_substitution.cpp)
+  target_link_libraries(test_variable_substitution launch_cpp_core)
 endif()
 
 ament_package()

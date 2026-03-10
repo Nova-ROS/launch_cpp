@@ -55,6 +55,9 @@ class ExecuteProcess final : public Action
     std::uint32_t maxRetries = 0;                    // 0 = no retry
     std::chrono::milliseconds retryDelay{5000};     // Delay between retries
     double retryBackoffMultiplier = 1.0;              // 1.0 = linear, >1.0 = exponential
+    
+    // Dependency options
+    std::vector<std::string> dependsOn;              // List of process names this process depends on
   };
   
   explicit ExecuteProcess(const Options& options);

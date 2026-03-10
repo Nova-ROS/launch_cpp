@@ -18,6 +18,8 @@
 #include "launch_cpp/actions/declare_launch_argument.hpp"
 #include "launch_cpp/substitutions/text_substitution.hpp"
 #include "launch_cpp/substitutions/launch_configuration.hpp"
+#include "launch_cpp/substitutions/variable_substitution.hpp"
+#include "launch_cpp/substitutions/environment_variable.hpp"
 #include "launch_cpp/conditions/if_condition.hpp"
 #include <cctype>
 #include <algorithm>
@@ -574,6 +576,14 @@ Result<ActionPtr> YamlLaunchBuilder::BuildAction(const YamlValue& actionYaml)
   {
     ExecuteProcess::Options options;
     
+    // Parse process name
+    auto nameIt = actionYaml.AsObject().find("name");
+    if (nameIt != actionYaml.AsObject().end() && nameIt->second.IsString())
+    {
+      options.name = std::make_shared<TextSubstitution>(nameIt->second.AsString());
+    }
+    
+    // Parse command with variable substitution support
     auto cmdIt = actionYaml.AsObject().find("cmd");
     if (cmdIt != actionYaml.AsObject().end() && cmdIt->second.IsArray())
     {
@@ -581,15 +591,38 @@ Result<ActionPtr> YamlLaunchBuilder::BuildAction(const YamlValue& actionYaml)
       {
         if (cmdElem.IsString())
         {
-          options.cmd.push_back(std::make_shared<TextSubstitution>(cmdElem.AsString()));
+          auto substResult = BuildSubstitution(cmdElem.AsString());
+          if (substResult.HasValue())
+          {
+            options.cmd.push_back(substResult.GetValue());
+          }
+          else
+          {
+            // Fallback to text if substitution building fails
+            options.cmd.push_back(std::make_shared<TextSubstitution>(cmdElem.AsString()));
+          }
         }
       }
     }
     
+    // Parse output
     auto outputIt = actionYaml.AsObject().find("output");
     if (outputIt != actionYaml.AsObject().end() && outputIt->second.IsString())
     {
       options.output = outputIt->second.AsString();
+    }
+    
+    // Parse dependencies
+    auto dependsIt = actionYaml.AsObject().find("depends_on");
+    if (dependsIt != actionYaml.AsObject().end() && dependsIt->second.IsArray())
+    {
+      for (const auto& depElem : dependsIt->second.AsArray())
+      {
+        if (depElem.IsString())
+        {
+          options.dependsOn.push_back(depElem.AsString());
+        }
+      }
     }
     
     return Result<ActionPtr>(std::make_shared<ExecuteProcess>(options));
@@ -624,7 +657,58 @@ Result<ActionPtr> YamlLaunchBuilder::BuildAction(const YamlValue& actionYaml)
 
 Result<SubstitutionPtr> YamlLaunchBuilder::BuildSubstitution(const std::string& value)
 {
-  // Simple implementation - just treat as text
+  // Local trim function
+  auto local_trim = [](const std::string& s) -> std::string {
+    size_t start = s.find_first_not_of(" \t\r\n");
+    if (start == std::string::npos) return "";
+    size_t end = s.find_last_not_of(" \t\r\n");
+    return s.substr(start, end - start + 1);
+  };
+
+  // Check for variable substitution syntax: $(var variable_name)
+  if (value.length() > 7 && value.substr(0, 6) == "$(var ")
+  {
+    size_t end = value.find(')', 6);
+    if (end != std::string::npos)
+    {
+      std::string var_name = value.substr(6, end - 6);
+      // Trim whitespace
+      var_name = local_trim(var_name);
+      if (!var_name.empty())
+      {
+        return Result<SubstitutionPtr>(std::make_shared<VariableSubstitution>(var_name));
+      }
+    }
+  }
+
+  // Check for launch configuration syntax: $(find pkg) or other substitutions
+  if (value.length() > 3 && value[0] == '$' && value[1] == '(')
+  {
+    size_t space_pos = value.find(' ', 2);
+    size_t end_pos = value.find(')', 2);
+
+    if (end_pos != std::string::npos)
+    {
+      std::string subst_type = value.substr(2, space_pos - 2);
+
+      if (subst_type == "find" && space_pos != std::string::npos)
+      {
+        // $(find package_name) - return as text for now
+        // TODO: Implement find_package substitution
+        return Result<SubstitutionPtr>(std::make_shared<TextSubstitution>(value));
+      }
+      else if (subst_type == "env" && space_pos != std::string::npos)
+      {
+        // $(env VAR_NAME) - environment variable
+        std::string var_name = value.substr(space_pos + 1, end_pos - space_pos - 1);
+        var_name = local_trim(var_name);
+        return Result<SubstitutionPtr>(std::make_shared<EnvironmentVariable>(var_name));
+      }
+      // Add more substitution types as needed
+    }
+  }
+
+  // Default: treat as text
   return Result<SubstitutionPtr>(std::make_shared<TextSubstitution>(value));
 }
 

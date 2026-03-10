@@ -1,0 +1,43 @@
+# Example launch file with dependencies
+# Demonstrates DependencyResolver functionality
+
+entities:
+  # Database must start first
+  - type: execute_process
+    name: database
+    cmd:
+      - echo
+      - "Starting database..."
+    output: screen
+  
+  # API server depends on database
+  - type: execute_process
+    name: api_server
+    cmd:
+      - echo
+      - "Starting API server..."
+    output: screen
+    depends_on:
+      - database
+  
+  # Web UI depends on API server
+  - type: execute_process
+    name: web_ui
+    cmd:
+      - echo
+      - "Starting Web UI..."
+    output: screen
+    depends_on:
+      - api_server
+  
+  # Logger depends on everything
+  - type: execute_process
+    name: logger
+    cmd:
+      - echo
+      - "Starting logger..."
+    output: screen
+    depends_on:
+      - database
+      - api_server
+      - web_ui
