@@ -68,9 +68,7 @@ std::int32_t main(std::int32_t argc, char* argv[])
     if (arg == "--debug")
     {
       options.debug = true;
-    }
-    else
-    {
+    } else {
       options.argv.push_back(arg);
     }
   }

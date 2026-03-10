@@ -160,15 +160,13 @@ Result<YamlValue> YamlParser::parse_array(std::istringstream& stream, int& line,
           return nextResult;
         }
         result.add_array_element(nextResult.get_value());
-      }
-      else if (content.find(':') != std::string::npos)
+      } else if (content.find(':') != std::string::npos)
       {
         // This is an inline object start like "- type: execute_process"
         // Parse this and subsequent lines at higher indent
         YamlValue element = parse_array_element_object(stream, line, lineStr, baseIndent);
         result.add_array_element(element);
-      }
-      else
+      } else
       {
         // Simple scalar value
         auto scalarResult = parse_scalar(content);
@@ -221,8 +219,7 @@ YamlValue launch_cpp::YamlParser::parse_array_element_object(std::istringstream&
           {
             objectValue.set_object_field(key, arrayResult.get_value());
           }
-        }
-        else
+        } else
         {
           // It's a nested object or scalar
           stream.seekg(pos);
@@ -233,14 +230,12 @@ YamlValue launch_cpp::YamlParser::parse_array_element_object(std::istringstream&
             objectValue.set_object_field(key, nestedResult.get_value());
           }
         }
-      }
-      else
+      } else
       {
         // No more lines - empty value
         objectValue.set_object_field(key, YamlValue());
       }
-    }
-    else
+    } else
     {
       // Inline value
       auto scalarResult = parse_scalar(value);
@@ -312,8 +307,7 @@ YamlValue launch_cpp::YamlParser::parse_array_element_object(std::istringstream&
             {
               objectValue.set_object_field(key, arrayResult.get_value());
             }
-          }
-          else
+          } else
           {
             // It's a nested object or scalar
             stream.seekg(afterKeyPos);
@@ -324,14 +318,12 @@ YamlValue launch_cpp::YamlParser::parse_array_element_object(std::istringstream&
               objectValue.set_object_field(key, valueResult.get_value());
             }
           }
-        }
-        else
+        } else
         {
           // No more lines - empty value
           objectValue.set_object_field(key, YamlValue());
         }
-      }
-      else
+      } else
       {
         // Inline value
         auto scalarResult = parse_scalar(value);
@@ -340,8 +332,7 @@ YamlValue launch_cpp::YamlParser::parse_array_element_object(std::istringstream&
           objectValue.set_object_field(key, scalarResult.get_value());
         }
       }
-    }
-    else if (trimmed[0] == '-')
+    } else if (trimmed[0] == '-')
     {
       // This is an array element at a nested level
       // Need special handling - back up and parse as array
@@ -431,8 +422,7 @@ Result<YamlValue> YamlParser::parse_object(std::istringstream& stream, int& line
               return arrayResult;
             }
             result.set_object_field(key, arrayResult.get_value());
-          }
-          else
+          } else
           {
             auto objResult = parse_object(stream, line, nextIndent);
             if (objResult.has_error())
@@ -441,18 +431,15 @@ Result<YamlValue> YamlParser::parse_object(std::istringstream& stream, int& line
             }
             result.set_object_field(key, objResult.get_value());
           }
-        }
-        else
+        } else
         {
           result.set_object_field(key, YamlValue());
         }
-      }
-      else
+      } else
       {
         result.set_object_field(key, YamlValue());
       }
-    }
-    else if (value[0] == '[')
+    } else if (value[0] == '[')
     {
       // Inline array
       YamlValue arr;
@@ -478,8 +465,7 @@ Result<YamlValue> YamlParser::parse_object(std::istringstream& stream, int& line
         start = end + 1;
       }
       result.set_object_field(key, arr);
-    }
-    else
+    } else
     {
       // Simple value
       auto valResult = parse_scalar(value);
@@ -595,8 +581,7 @@ Result<ActionPtr> YamlLaunchBuilder::build_action(const YamlValue& actionYaml)
           if (substResult.has_value())
           {
             options.cmd.push_back(substResult.get_value());
-          }
-          else
+          } else
           {
             // Fallback to text if substitution building fails
             options.cmd.push_back(std::make_shared<TextSubstitution>(cmdElem.as_string()));
@@ -626,8 +611,7 @@ Result<ActionPtr> YamlLaunchBuilder::build_action(const YamlValue& actionYaml)
     }
 
     return Result<ActionPtr>(std::make_shared<ExecuteProcess>(options));
-  }
-  else if (type == "declare_launch_argument")
+  } else if (type == "declare_launch_argument")
   {
     DeclareLaunchArgument::Options options;
 
@@ -696,8 +680,7 @@ Result<SubstitutionPtr> YamlLaunchBuilder::build_substitution(const std::string&
         // $(find package_name) - return as text for now
         // TODO: Implement find_package substitution
         return Result<SubstitutionPtr>(std::make_shared<TextSubstitution>(value));
-      }
-      else if (subst_type == "env" && space_pos != std::string::npos)
+      } else if (subst_type == "env" && space_pos != std::string::npos)
       {
         // $(env VAR_NAME) - environment variable
         std::string var_name = value.substr(space_pos + 1, end_pos - space_pos - 1);

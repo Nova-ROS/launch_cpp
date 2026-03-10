@@ -230,8 +230,7 @@ Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
     process_ = std::make_unique<Process>(static_cast<pid_t>(process_id_));
 
     return Result<void>();
-  }
-  else
+  } else
   {
     // Legacy execution path (original implementation)
     pid_t pid = fork();
