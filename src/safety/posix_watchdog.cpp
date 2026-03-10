@@ -57,14 +57,14 @@ public:
     Impl() : running_(false) {}
     ~Impl() { stop_internal(); }
 
-    OsalResult<void> register_nodeInternal(
+    OsalResult<void> register_node_internal(
         uint32_t node_id,
         uint32_t timeout_ms,
         HeartbeatCallback callback);
 
-    OsalResult<void> unregister_nodeInternal(uint32_t node_id);
-    OsalResult<void> submit_heartbeatInternal(const HeartbeatMessage& message);
-    OsalResult<bool> is_responsiveInternal(uint32_t node_id);
+    OsalResult<void> unregister_node_internal(uint32_t node_id);
+    OsalResult<void> submit_heartbeat_internal(const HeartbeatMessage& message);
+    OsalResult<bool> is_responsive_internal(uint32_t node_id);
     void set_timeout_callback_internal(std::function<void(uint32_t)> callback);
     OsalResult<void> start_internal();
     OsalResult<void> stop_internal();
@@ -95,19 +95,19 @@ OsalResult<void> PosixWatchdog::register_node(
     uint32_t node_id,
     uint32_t timeout_ms,
     HeartbeatCallback callback) {
-    return impl_->register_nodeInternal(node_id, timeout_ms, callback);
+    return impl_->register_node_internal(node_id, timeout_ms, callback);
 }
 
 OsalResult<void> PosixWatchdog::unregister_node(uint32_t node_id) {
-    return impl_->unregister_nodeInternal(node_id);
+    return impl_->unregister_node_internal(node_id);
 }
 
 OsalResult<void> PosixWatchdog::submit_heartbeat(const HeartbeatMessage& message) {
-    return impl_->submit_heartbeatInternal(message);
+    return impl_->submit_heartbeat_internal(message);
 }
 
 OsalResult<bool> PosixWatchdog::is_responsive(uint32_t node_id) {
-    return impl_->is_responsiveInternal(node_id);
+    return impl_->is_responsive_internal(node_id);
 }
 
 void PosixWatchdog::set_timeout_callback(std::function<void(uint32_t)> callback) {
@@ -126,7 +126,7 @@ OsalResult<void> PosixWatchdog::stop() {
 // Implementation Details
 // ============================================================================
 
-OsalResult<void> PosixWatchdog::Impl::register_nodeInternal(
+OsalResult<void> PosixWatchdog::Impl::register_node_internal(
     uint32_t node_id,
     uint32_t timeout_ms,
     HeartbeatCallback callback) {
@@ -161,7 +161,7 @@ OsalResult<void> PosixWatchdog::Impl::register_nodeInternal(
     return OsalResult<void>();
 }
 
-OsalResult<void> PosixWatchdog::Impl::unregister_nodeInternal(uint32_t node_id) {
+OsalResult<void> PosixWatchdog::Impl::unregister_node_internal(uint32_t node_id) {
     std::lock_guard<std::mutex> lock(nodes_mutex_);
     
     auto it = nodes_.find(node_id);
@@ -175,7 +175,7 @@ OsalResult<void> PosixWatchdog::Impl::unregister_nodeInternal(uint32_t node_id) 
     return OsalResult<void>();
 }
 
-OsalResult<void> PosixWatchdog::Impl::submit_heartbeatInternal(
+OsalResult<void> PosixWatchdog::Impl::submit_heartbeat_internal(
     const HeartbeatMessage& message) {
     
     // Validate checksum
@@ -215,7 +215,7 @@ OsalResult<void> PosixWatchdog::Impl::submit_heartbeatInternal(
     return OsalResult<void>();
 }
 
-OsalResult<bool> PosixWatchdog::Impl::is_responsiveInternal(uint32_t node_id) {
+OsalResult<bool> PosixWatchdog::Impl::is_responsive_internal(uint32_t node_id) {
     std::lock_guard<std::mutex> lock(nodes_mutex_);
     
     auto it = nodes_.find(node_id);
