@@ -179,6 +179,10 @@ TEST(SafetyIntegrationTest, ExecuteWithMockExecutor)
   
   action->set_process_executor(mockExecutor);
   
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
+  
   MockLaunchContext context;
   auto result = action->execute(context);
   
@@ -238,7 +242,7 @@ TEST(SafetyIntegrationTest, CheckResourcesAvailableWithoutMonitor)
 {
   ExecuteProcess::Options options;
   options.cmd = {text("test")};
-  options.enable_safety = true;
+  options.enable_safety = false;  // Disable safety to test without monitor
   
   auto action = std::make_shared<ExecuteProcess>(options);
   
@@ -337,6 +341,10 @@ TEST(SafetyIntegrationTest, ExecuteWithResourceCheck)
   
   action->set_process_executor(mockExecutor);
   
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
+  
   MockLaunchContext context;
   auto result = action->execute(context);
   
@@ -384,6 +392,10 @@ TEST(SafetyIntegrationTest, ProcessControlWithSafety)
   
   action->set_process_executor(mockExecutor);
   
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
+  
   // First execute to set up the process
   MockLaunchContext context;
   options.output = "log";
@@ -423,6 +435,10 @@ TEST(SafetyIntegrationTest, GetStatusWithSafety)
     });
   
   action->set_process_executor(mockExecutor);
+  
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
   
   MockLaunchContext context;
   auto result = action->execute(context);

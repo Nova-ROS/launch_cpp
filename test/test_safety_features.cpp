@@ -155,6 +155,9 @@ TEST(SafetyFeaturesTest, ResourceCheckWithMonitor)
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
   action->set_process_executor(mockExecutor);
   
+  // Inject mock resource monitor
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
   
   // Check resources - should work with mock monitor
   bool available = action->check_resources_available(100 * 1024 * 1024);
@@ -207,6 +210,10 @@ TEST(SafetyFeaturesTest, ShutdownWithSafetyEnabled)
   
   action->set_process_executor(mockExecutor);
   
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
+  
   // Execute process
   auto result = action->execute(context);
   EXPECT_TRUE(result.has_value());
@@ -246,6 +253,10 @@ TEST(SafetyFeaturesTest, TerminateWithSafetyEnabled)
   
   action->set_process_executor(mockExecutor);
   
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
+  
   auto result = action->execute(context);
   EXPECT_TRUE(result.has_value());
   
@@ -282,6 +293,10 @@ TEST(SafetyFeaturesTest, KillWithSafetyEnabled)
     });
   
   action->set_process_executor(mockExecutor);
+  
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
   
   auto result = action->execute(context);
   EXPECT_TRUE(result.has_value());
@@ -321,6 +336,10 @@ TEST(SafetyFeaturesTest, IsRunningWithSafetyEnabled)
   
   action->set_process_executor(mockExecutor);
   
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
+  
   auto result = action->execute(context);
   EXPECT_TRUE(result.has_value());
   
@@ -349,6 +368,10 @@ TEST(SafetyFeaturesTest, GetPidWithSafetyEnabled)
     });
   
   action->set_process_executor(mockExecutor);
+  
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
   
   auto result = action->execute(context);
   EXPECT_TRUE(result.has_value());
@@ -385,6 +408,10 @@ TEST(SafetyFeaturesTest, GetReturnCodeWithSafetyEnabled)
     });
   
   action->set_process_executor(mockExecutor);
+  
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
   
   auto result = action->execute(context);
   EXPECT_TRUE(result.has_value());
@@ -428,6 +455,10 @@ TEST(SafetyFeaturesTest, SendSignalWithSafetyEnabled)
   
   action->set_process_executor(mockExecutor);
   
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
+  
   auto result = action->execute(context);
   EXPECT_TRUE(result.has_value());
   
@@ -458,6 +489,10 @@ TEST(SafetyFeaturesTest, DestructorWithWatchdog)
       });
     
     action->set_process_executor(mockExecutor);
+    
+    // Inject mock resource monitor to avoid real resource checks
+    auto mockMonitor = std::make_shared<MockResourceMonitor>();
+    action->set_resource_monitor(mockMonitor);
   
     auto result = action->execute(context);
     EXPECT_TRUE(result.has_value());
@@ -506,6 +541,10 @@ TEST(SafetyFeaturesTest, ResourceLimitsZeroValues)
     });
   
   action->set_process_executor(mockExecutor);
+  
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
   
   auto result = action->execute(context);
   EXPECT_TRUE(result.has_value());
@@ -659,6 +698,10 @@ TEST(SafetyFeaturesIntegrationTest, FullSafetyWorkflow)
     });
   
   action->set_process_executor(mockExecutor);
+  
+  // Inject mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->set_resource_monitor(mockMonitor);
   
   // Execute
   auto result = action->execute(context);
