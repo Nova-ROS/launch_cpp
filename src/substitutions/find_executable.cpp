@@ -27,27 +27,27 @@ std::string FindExecutable::perform(const LaunchContext& context) const
 {
   (void)context;  // Context not used, but required by interface
 
-  const char* pathEnv = std::getenv("PATH");
-  if (!pathEnv)
+  const char* path_env = std::getenv("PATH");
+  if (!path_env)
   {
     return name_;  // Return original name if PATH not set
   }
 
-  std::string pathStr(pathEnv);
-  std::istringstream iss(pathStr);
+  std::string path_str(path_env);
+  std::istringstream iss(path_str);
   std::string path;
 
   while (std::getline(iss, path, ':'))
   {
-    std::string fullPath = path + "/" + name_;
+    std::string full_path = path + "/" + name_;
 
     // Check if file exists and is executable
     struct stat st;
-    if (stat(fullPath.c_str(), &st) == 0)
+    if (stat(full_path.c_str(), &st) == 0)
     {
       if (S_ISREG(st.st_mode) && (st.st_mode & S_IXUSR))
       {
-        return fullPath;
+        return full_path;
       }
     }
   }

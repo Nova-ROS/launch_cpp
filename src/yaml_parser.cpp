@@ -51,21 +51,21 @@ Result<YamlValue> YamlParser::parse_file(const std::string& file_path)
 
 Result<YamlValue> YamlParser::parse_value(std::istringstream& stream, int& line)
 {
-  std::string lineStr;
-  if (!std::getline(stream, lineStr))
+  std::string line_str;
+  if (!std::getline(stream, line_str))
   {
     return Result<YamlValue>(YamlValue());
   }
 
   line++;
-  lineStr = trim(lineStr);
+  line_str = trim(line_str);
 
-  if (lineStr.empty() || lineStr[0] == '#')
+  if (line_str.empty() || line_str[0] == '#')
   {
     return parse_value(stream, line);
   }
 
-  return parse_scalar(lineStr);
+  return parse_scalar(line_str);
 }
 
 Result<YamlValue> YamlParser::parse_scalar(const std::string& value)
@@ -83,29 +83,29 @@ Result<YamlValue> YamlParser::parse_scalar(const std::string& value)
   }
 
   // Check for number
-  bool isNumber = true;
-  bool hasDot = false;
+  bool is_number = true;
+  bool has_dot = false;
   for (size_t i = 0; i < trimmed.size(); ++i)
   {
     if (i == 0 && (trimmed[i] == '-' || trimmed[i] == '+')) continue;
     if (trimmed[i] == '.')
     {
-      if (hasDot)
+      if (has_dot)
       {
-        isNumber = false;
+        is_number = false;
         break;
       }
-      hasDot = true;
+      has_dot = true;
       continue;
     }
     if (!std::isdigit(static_cast<unsigned char>(trimmed[i])))
     {
-      isNumber = false;
+      is_number = false;
       break;
     }
   }
 
-  if (isNumber && !trimmed.empty())
+  if (is_number && !trimmed.empty())
   {
     try
     {
@@ -122,57 +122,57 @@ Result<YamlValue> YamlParser::parse_scalar(const std::string& value)
   return Result<YamlValue>(YamlValue(unquote(trimmed)));
 }
 
-Result<YamlValue> YamlParser::parse_array(std::istringstream& stream, int& line, int baseIndent)
+Result<YamlValue> YamlParser::parse_array(std::istringstream& stream, int& line, int base_indent)
 {
   YamlValue result;
-  std::string lineStr;
+  std::string line_str;
 
-  while (std::getline(stream, lineStr))
+  while (std::getline(stream, line_str))
   {
     line++;
 
-    std::string trimmedLine = trim(lineStr);
-    if (trimmedLine.empty() || trimmedLine[0] == '#')
+    std::string trimmed_line = trim(line_str);
+    if (trimmed_line.empty() || trimmed_line[0] == '#')
     {
       continue;
     }
 
-    int indent = get_indent(lineStr);
-    if (indent < baseIndent)
+    int indent = get_indent(line_str);
+    if (indent < base_indent)
     {
       // End of array - put line back
-      stream.seekg(-static_cast<int>(lineStr.length()) - 1, std::ios::cur);
+      stream.seekg(-static_cast<int>(line_str.length()) - 1, std::ios::cur);
       line--;
       break;
     }
 
-    if (trimmedLine[0] == '-')
+    if (trimmed_line[0] == '-')
     {
       // Remove the '-'
-      std::string content = trim(trimmedLine.substr(1));
+      std::string content = trim(trimmed_line.substr(1));
 
       if (content.empty())
       {
         // Multi-line value or object starts on next line
-        auto nextResult = parse_value(stream, line);
-        if (nextResult.has_error())
+        auto next_result = parse_value(stream, line);
+        if (next_result.has_error())
         {
-          return nextResult;
+          return next_result;
         }
-        result.add_array_element(nextResult.get_value());
+        result.add_array_element(next_result.get_value());
       } else if (content.find(':') != std::string::npos) {
         // This is an inline object start like "- type: execute_process"
         // Parse this and subsequent lines at higher indent
-        YamlValue element = parse_array_element_object(stream, line, lineStr, baseIndent);
+        YamlValue element = parse_array_element_object(stream, line, line_str, base_indent);
         result.add_array_element(element);
       } else {
         // Simple scalar value
-        auto scalarResult = parse_scalar(content);
-        if (scalarResult.has_error())
+        auto scalar_result = parse_scalar(content);
+        if (scalar_result.has_error())
         {
-          return scalarResult;
+          return scalar_result;
         }
-        result.add_array_element(scalarResult.get_value());
+        result.add_array_element(scalar_result.get_value());
       }
     }
   }
@@ -182,82 +182,82 @@ Result<YamlValue> YamlParser::parse_array(std::istringstream& stream, int& line,
 
 // Parse an object element in an array (handles "- key: value" and subsequent fields)
 YamlValue launch_cpp::YamlParser::parse_array_element_object(std::istringstream& stream, int& line,
-                                               const std::string& firstLine, int baseIndent)
+                                               const std::string& first_line, int base_indent)
 {
-  YamlValue objectValue;
+  YamlValue object_value;
 
   // Parse the first line (e.g., "- type: execute_process")
-  std::string trimmedFirst = trim(firstLine);
-  std::string content = trim(trimmedFirst.substr(1));  // Remove '-'
+  std::string trimmed_first = trim(first_line);
+  std::string content = trim(trimmed_first.substr(1));  // Remove '-'
 
-  size_t colonPos = content.find(':');
-  if (colonPos != std::string::npos)
+  size_t colon_pos = content.find(':');
+  if (colon_pos != std::string::npos)
   {
-    std::string key = trim(content.substr(0, colonPos));
-    std::string value = trim(content.substr(colonPos + 1));
+    std::string key = trim(content.substr(0, colon_pos));
+    std::string value = trim(content.substr(colon_pos + 1));
 
     if (value.empty())
     {
       // Value is on subsequent lines - check if it's an array or object/scalar
       auto pos = stream.tellg();
-      std::string nextLine;
-      if (std::getline(stream, nextLine))
+      std::string next_line;
+      if (std::getline(stream, next_line))
       {
         line++;
-        std::string trimmedNext = trim(nextLine);
-        int nextIndent = get_indent(nextLine);
+        std::string trimmed_next = trim(next_line);
+        int next_indent = get_indent(next_line);
 
-        if (nextIndent > baseIndent && !trimmedNext.empty() && trimmedNext[0] == '-')
+        if (next_indent > base_indent && !trimmed_next.empty() && trimmed_next[0] == '-')
         {
           // It's an array - parse it
           stream.seekg(pos);
           line--;
-          auto arrayResult = parse_array(stream, line, nextIndent);
-          if (!arrayResult.has_error())
+          auto array_result = parse_array(stream, line, next_indent);
+          if (!array_result.has_error())
           {
-            objectValue.set_object_field(key, arrayResult.get_value());
+            object_value.set_object_field(key, array_result.get_value());
           }
         } else {
           // It's a nested object or scalar
           stream.seekg(pos);
           line--;
-          auto nestedResult = parse_value(stream, line);
-          if (!nestedResult.has_error())
+          auto nested_result = parse_value(stream, line);
+          if (!nested_result.has_error())
           {
-            objectValue.set_object_field(key, nestedResult.get_value());
+            object_value.set_object_field(key, nested_result.get_value());
           }
         }
       } else {
         // No more lines - empty value
-        objectValue.set_object_field(key, YamlValue());
+        object_value.set_object_field(key, YamlValue());
       }
     } else {
       // Inline value
-      auto scalarResult = parse_scalar(value);
-      if (!scalarResult.has_error())
+      auto scalar_result = parse_scalar(value);
+      if (!scalar_result.has_error())
       {
-        objectValue.set_object_field(key, scalarResult.get_value());
+        object_value.set_object_field(key, scalar_result.get_value());
       }
     }
   }
 
   // Continue reading additional fields at higher indent level
-  std::string lineStr;
+  std::string line_str;
   auto pos = stream.tellg();
 
-  while (std::getline(stream, lineStr))
+  while (std::getline(stream, line_str))
   {
     line++;
 
-    std::string trimmed = trim(lineStr);
+    std::string trimmed = trim(line_str);
     if (trimmed.empty() || trimmed[0] == '#')
     {
       pos = stream.tellg();
       continue;
     }
 
-    int indent = get_indent(lineStr);
-    if (indent <= baseIndent)
+    int indent = get_indent(line_str);
+    if (indent <= base_indent)
     {
       // End of this object element
       stream.seekg(pos);
@@ -267,61 +267,61 @@ YamlValue launch_cpp::YamlParser::parse_array_element_object(std::istringstream&
 
     // This is a field of our object - parse it
     // Remove the leading whitespace to make it look like a top-level line
-    std::string deindented = lineStr.substr(baseIndent + 2);  // +2 for the "- " we removed
-    std::istringstream fieldStream(deindented);
-    int fieldLine = 0;
+    std::string deindented = line_str.substr(base_indent + 2);  // +2 for the "- " we removed
+    std::istringstream field_stream(deindented);
+    int field_line = 0;
 
     // Temporarily replace stream position to parse just this field
-    auto savedPos = stream.tellg();
+    auto saved_pos = stream.tellg();
 
     // Check if it's a key-value pair
-    size_t colonPos = trimmed.find(':');
-    if (colonPos != std::string::npos && trimmed[0] != '-')
+    size_t colon_pos = trimmed.find(':');
+    if (colon_pos != std::string::npos && trimmed[0] != '-')
     {
-      std::string key = trim(trimmed.substr(0, colonPos));
-      std::string value = trim(trimmed.substr(colonPos + 1));
+      std::string key = trim(trimmed.substr(0, colon_pos));
+      std::string value = trim(trimmed.substr(colon_pos + 1));
 
       if (value.empty())
       {
         // Multi-line value - check if it's array, object, or scalar
-        auto afterKeyPos = stream.tellg();
-        std::string nextLine2;
-        if (std::getline(stream, nextLine2))
+        auto after_key_pos = stream.tellg();
+        std::string next_line2;
+        if (std::getline(stream, next_line2))
         {
           line++;
-          std::string trimmedNext2 = trim(nextLine2);
-          int nextIndent2 = get_indent(nextLine2);
+          std::string trimmed_next2 = trim(next_line2);
+          int next_indent2 = get_indent(next_line2);
 
-          if (nextIndent2 > indent && !trimmedNext2.empty() && trimmedNext2[0] == '-')
+          if (next_indent2 > indent && !trimmed_next2.empty() && trimmed_next2[0] == '-')
           {
             // It's an array
-            stream.seekg(afterKeyPos);
+            stream.seekg(after_key_pos);
             line--;
-            auto arrayResult = parse_array(stream, line, nextIndent2);
-            if (!arrayResult.has_error())
+            auto array_result = parse_array(stream, line, next_indent2);
+            if (!array_result.has_error())
             {
-              objectValue.set_object_field(key, arrayResult.get_value());
+              object_value.set_object_field(key, array_result.get_value());
             }
           } else {
             // It's a nested object or scalar
-            stream.seekg(afterKeyPos);
+            stream.seekg(after_key_pos);
             line--;
-            auto valueResult = parse_value(stream, line);
-            if (!valueResult.has_error())
+            auto value_result = parse_value(stream, line);
+            if (!value_result.has_error())
             {
-              objectValue.set_object_field(key, valueResult.get_value());
+              object_value.set_object_field(key, value_result.get_value());
             }
           }
         } else {
           // No more lines - empty value
-          objectValue.set_object_field(key, YamlValue());
+          object_value.set_object_field(key, YamlValue());
         }
       } else {
         // Inline value
-        auto scalarResult = parse_scalar(value);
-        if (!scalarResult.has_error())
+        auto scalar_result = parse_scalar(value);
+        if (!scalar_result.has_error())
         {
-          objectValue.set_object_field(key, scalarResult.get_value());
+          object_value.set_object_field(key, scalar_result.get_value());
         }
       }
     } else if (trimmed[0] == '-') {
@@ -329,8 +329,8 @@ YamlValue launch_cpp::YamlParser::parse_array_element_object(std::istringstream&
       // Need special handling - back up and parse as array
       stream.seekg(pos);
       line--;
-      auto arrayResult = parse_array(stream, line, indent);
-      if (!arrayResult.has_error())
+      auto array_result = parse_array(stream, line, indent);
+      if (!array_result.has_error())
       {
         // This array becomes the value of the previous key
         // But we don't have the key here... this is getting complex
@@ -343,83 +343,83 @@ YamlValue launch_cpp::YamlParser::parse_array_element_object(std::istringstream&
     pos = stream.tellg();
   }
 
-  return objectValue;
+  return object_value;
 }
 
-Result<YamlValue> YamlParser::parse_object(std::istringstream& stream, int& line, int baseIndent)
+Result<YamlValue> YamlParser::parse_object(std::istringstream& stream, int& line, int base_indent)
 {
   YamlValue result;
-  std::string lineStr;
-  std::string currentKey;
+  std::string line_str;
+  std::string current_key;
 
-  while (std::getline(stream, lineStr))
+  while (std::getline(stream, line_str))
   {
     line++;
 
-    std::string trimmed = trim(lineStr);
+    std::string trimmed = trim(line_str);
     if (trimmed.empty() || trimmed[0] == '#')
     {
       continue;
     }
 
-    int indent = get_indent(lineStr);
-    if (indent < baseIndent && baseIndent > 0)
+    int indent = get_indent(line_str);
+    if (indent < base_indent && base_indent > 0)
     {
       // End of this object
       break;
     }
 
     // Parse key-value pair
-    size_t colonPos = trimmed.find(':');
-    if (colonPos == std::string::npos)
+    size_t colon_pos = trimmed.find(':');
+    if (colon_pos == std::string::npos)
     {
       continue;  // Skip invalid lines
     }
 
-    std::string key = trim(trimmed.substr(0, colonPos));
-    std::string value = trim(trimmed.substr(colonPos + 1));
+    std::string key = trim(trimmed.substr(0, colon_pos));
+    std::string value = trim(trimmed.substr(colon_pos + 1));
 
     if (value.empty())
     {
       // Check next line for value
       auto pos = stream.tellg();
-      std::string nextLine;
-      bool foundNext = false;
+      std::string next_line;
+      bool found_next = false;
 
       // Skip empty lines and comments to find the real next line
-      while (std::getline(stream, nextLine))
+      while (std::getline(stream, next_line))
       {
-        std::string trimmedNext = trim(nextLine);
-        if (!trimmedNext.empty() && trimmedNext[0] != '#')
+        std::string trimmed_next = trim(next_line);
+        if (!trimmed_next.empty() && trimmed_next[0] != '#')
         {
-          foundNext = true;
+          found_next = true;
           break;
         }
       }
 
-      if (foundNext)
+      if (found_next)
       {
-        int nextIndent = get_indent(nextLine);
+        int next_indent = get_indent(next_line);
         stream.seekg(pos);
 
-        if (nextIndent > indent)
+        if (next_indent > indent)
         {
           // Nested object or array
-          if (trim(nextLine)[0] == '-')
+          if (trim(next_line)[0] == '-')
           {
-            auto arrayResult = parse_array(stream, line, nextIndent);
-            if (arrayResult.has_error())
+            auto array_result = parse_array(stream, line, next_indent);
+            if (array_result.has_error())
             {
-              return arrayResult;
+              return array_result;
             }
-            result.set_object_field(key, arrayResult.get_value());
+            result.set_object_field(key, array_result.get_value());
           } else {
-            auto objResult = parse_object(stream, line, nextIndent);
-            if (objResult.has_error())
+            auto obj_result = parse_object(stream, line, next_indent);
+            if (obj_result.has_error())
             {
-              return objResult;
+              return obj_result;
             }
-            result.set_object_field(key, objResult.get_value());
+            result.set_object_field(key, obj_result.get_value());
           }
         } else {
           result.set_object_field(key, YamlValue());
@@ -443,10 +443,10 @@ Result<YamlValue> YamlParser::parse_object(std::istringstream& stream, int& line
         std::string elem = trim(value.substr(start, end - start));
         if (!elem.empty())
         {
-          auto elemResult = parse_scalar(elem);
-          if (elemResult.has_value())
+          auto elem_result = parse_scalar(elem);
+          if (elem_result.has_value())
           {
-            arr.add_array_element(elemResult.get_value());
+            arr.add_array_element(elem_result.get_value());
           }
         }
         start = end + 1;
@@ -454,12 +454,12 @@ Result<YamlValue> YamlParser::parse_object(std::istringstream& stream, int& line
       result.set_object_field(key, arr);
     } else {
       // Simple value
-      auto valResult = parse_scalar(value);
-      if (valResult.has_error())
+      auto val_result = parse_scalar(value);
+      if (val_result.has_error())
       {
-        return valResult;
+        return val_result;
       }
-      result.set_object_field(key, valResult.get_value());
+      result.set_object_field(key, val_result.get_value());
     }
   }
 
@@ -518,82 +518,82 @@ Result<LaunchDescriptionPtr> YamlLaunchBuilder::build(const YamlValue& yaml)
     return Result<LaunchDescriptionPtr>(Error(ErrorCode::K_INVALID_CONFIGURATION, "Missing 'entities' array"));
   }
 
-  for (const auto& entityYaml : entities->second.as_array())
+  for (const auto& entity_yaml : entities->second.as_array())
   {
-    if (!entityYaml.is_object())
+    if (!entity_yaml.is_object())
     {
       continue;
     }
 
-    auto actionResult = build_action(entityYaml);
-    if (actionResult.has_error())
+    auto action_result = build_action(entity_yaml);
+    if (action_result.has_error())
     {
       continue;
     }
 
-    desc->add(actionResult.get_value());
+    desc->add(action_result.get_value());
   }
 
   return Result<LaunchDescriptionPtr>(desc);
 }
 
-Result<ActionPtr> YamlLaunchBuilder::build_action(const YamlValue& actionYaml)
+Result<ActionPtr> YamlLaunchBuilder::build_action(const YamlValue& action_yaml)
 {
-  auto typeIt = actionYaml.as_object().find("type");
-  if (typeIt == actionYaml.as_object().end() || !typeIt->second.is_string())
+  auto type_it = action_yaml.as_object().find("type");
+  if (type_it == action_yaml.as_object().end() || !type_it->second.is_string())
   {
     return Result<ActionPtr>(Error(ErrorCode::K_INVALID_CONFIGURATION, "Action missing 'type' field"));
   }
 
-  std::string type = typeIt->second.as_string();
+  std::string type = type_it->second.as_string();
 
   if (type == "execute_process")
   {
     ExecuteProcess::Options options;
 
     // Parse process name
-    auto nameIt = actionYaml.as_object().find("name");
-    if (nameIt != actionYaml.as_object().end() && nameIt->second.is_string())
+    auto name_it = action_yaml.as_object().find("name");
+    if (name_it != action_yaml.as_object().end() && name_it->second.is_string())
     {
-      options.name = std::make_shared<TextSubstitution>(nameIt->second.as_string());
+      options.name = std::make_shared<TextSubstitution>(name_it->second.as_string());
     }
 
     // Parse command with variable substitution support
-    auto cmdIt = actionYaml.as_object().find("cmd");
-    if (cmdIt != actionYaml.as_object().end() && cmdIt->second.is_array())
+    auto cmd_it = action_yaml.as_object().find("cmd");
+    if (cmd_it != action_yaml.as_object().end() && cmd_it->second.is_array())
     {
-      for (const auto& cmdElem : cmdIt->second.as_array())
+      for (const auto& cmd_elem : cmd_it->second.as_array())
       {
-        if (cmdElem.is_string())
+        if (cmd_elem.is_string())
         {
-          auto substResult = build_substitution(cmdElem.as_string());
-          if (substResult.has_value())
+          auto subst_result = build_substitution(cmd_elem.as_string());
+          if (subst_result.has_value())
           {
-            options.cmd.push_back(substResult.get_value());
+            options.cmd.push_back(subst_result.get_value());
           } else {
             // Fallback to text if substitution building fails
-            options.cmd.push_back(std::make_shared<TextSubstitution>(cmdElem.as_string()));
+            options.cmd.push_back(std::make_shared<TextSubstitution>(cmd_elem.as_string()));
           }
         }
       }
     }
 
     // Parse output
-    auto outputIt = actionYaml.as_object().find("output");
-    if (outputIt != actionYaml.as_object().end() && outputIt->second.is_string())
+    auto output_it = action_yaml.as_object().find("output");
+    if (output_it != action_yaml.as_object().end() && output_it->second.is_string())
     {
-      options.output = outputIt->second.as_string();
+      options.output = output_it->second.as_string();
     }
 
     // Parse dependencies
-    auto dependsIt = actionYaml.as_object().find("depends_on");
-    if (dependsIt != actionYaml.as_object().end() && dependsIt->second.is_array())
+    auto depends_it = action_yaml.as_object().find("depends_on");
+    if (depends_it != action_yaml.as_object().end() && depends_it->second.is_array())
     {
-      for (const auto& depElem : dependsIt->second.as_array())
+      for (const auto& dep_elem : depends_it->second.as_array())
       {
-        if (depElem.is_string())
+        if (dep_elem.is_string())
         {
-          options.depends_on.push_back(depElem.as_string());
+          options.depends_on.push_back(dep_elem.as_string());
         }
       }
     }
@@ -602,22 +602,22 @@ Result<ActionPtr> YamlLaunchBuilder::build_action(const YamlValue& actionYaml)
   } else if (type == "declare_launch_argument") {
     DeclareLaunchArgument::Options options;
 
-    auto nameIt = actionYaml.as_object().find("name");
-    if (nameIt != actionYaml.as_object().end() && nameIt->second.is_string())
+    auto name_it = action_yaml.as_object().find("name");
+    if (name_it != action_yaml.as_object().end() && name_it->second.is_string())
     {
-      options.name = nameIt->second.as_string();
+      options.name = name_it->second.as_string();
     }
 
-    auto defaultIt = actionYaml.as_object().find("default_value");
-    if (defaultIt != actionYaml.as_object().end() && defaultIt->second.is_string())
+    auto default_it = action_yaml.as_object().find("default_value");
+    if (default_it != action_yaml.as_object().end() && default_it->second.is_string())
     {
-      options.defaultValue = std::make_shared<TextSubstitution>(defaultIt->second.as_string());
+      options.defaultValue = std::make_shared<TextSubstitution>(default_it->second.as_string());
     }
 
-    auto descIt = actionYaml.as_object().find("description");
-    if (descIt != actionYaml.as_object().end() && descIt->second.is_string())
+    auto desc_it = action_yaml.as_object().find("description");
+    if (desc_it != action_yaml.as_object().end() && desc_it->second.is_string())
     {
-      options.description = descIt->second.as_string();
+      options.description = desc_it->second.as_string();
     }
 
     return Result<ActionPtr>(std::make_shared<DeclareLaunchArgument>(options));
@@ -681,9 +681,9 @@ Result<SubstitutionPtr> YamlLaunchBuilder::build_substitution(const std::string&
   return Result<SubstitutionPtr>(std::make_shared<TextSubstitution>(value));
 }
 
-Result<ConditionPtr> YamlLaunchBuilder::build_condition(const YamlValue& conditionYaml)
+Result<ConditionPtr> YamlLaunchBuilder::build_condition(const YamlValue& condition_yaml)
 {
-  (void)conditionYaml;
+  (void)condition_yaml;
   // TODO(launch_cpp): Implement condition building
   return Result<ConditionPtr>(Error(ErrorCode::K_NOT_IMPLEMENTED, "Condition building not yet implemented"));
 }

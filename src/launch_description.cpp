@@ -54,16 +54,16 @@ Result<LaunchDescriptionEntityVector> LaunchDescription::visit(LaunchContext& co
       continue;
     }
 
-    Result<LaunchDescriptionEntityVector> visitResult = entity->visit(context);
+    Result<LaunchDescriptionEntityVector> visit_result = entity->visit(context);
 
-    if (visitResult.has_error())
+    if (visit_result.has_error())
     {
-      return visitResult;
+      return visit_result;
     }
 
-    LaunchDescriptionEntityVector& childEntities = visitResult.get_value();
+    LaunchDescriptionEntityVector& child_entities = visit_result.get_value();
 
-    for (LaunchDescriptionEntityPtr& child : childEntities)
+    for (LaunchDescriptionEntityPtr& child : child_entities)
     {
       if (child)
       {
@@ -75,26 +75,26 @@ Result<LaunchDescriptionEntityVector> LaunchDescription::visit(LaunchContext& co
   return Result<LaunchDescriptionEntityVector>(std::move(result));
 }
 
-Result<LaunchDescriptionPtr> LaunchDescription::from_yaml(const std::string& yamlString)
+Result<LaunchDescriptionPtr> LaunchDescription::from_yaml(const std::string& yaml_string)
 {
-  auto yamlResult = YamlParser::parse(yamlString);
-  if (yamlResult.has_error())
+  auto yaml_result = YamlParser::parse(yaml_string);
+  if (yaml_result.has_error())
   {
-    return Result<LaunchDescriptionPtr>(yamlResult.get_error());
+    return Result<LaunchDescriptionPtr>(yaml_result.get_error());
   }
 
-  return YamlLaunchBuilder::build(yamlResult.get_value());
+  return YamlLaunchBuilder::build(yaml_result.get_value());
 }
 
 Result<LaunchDescriptionPtr> LaunchDescription::from_yaml_file(const std::string& file_path)
 {
-  auto yamlResult = YamlParser::parse_file(file_path);
-  if (yamlResult.has_error())
+  auto yaml_result = YamlParser::parse_file(file_path);
+  if (yaml_result.has_error())
   {
-    return Result<LaunchDescriptionPtr>(yamlResult.get_error());
+    return Result<LaunchDescriptionPtr>(yaml_result.get_error());
   }
 
-  return YamlLaunchBuilder::build(yamlResult.get_value());
+  return YamlLaunchBuilder::build(yaml_result.get_value());
 }
 
 }  // namespace launch_cpp

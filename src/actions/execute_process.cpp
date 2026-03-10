@@ -120,7 +120,7 @@ Result<std::vector<std::string>> ExecuteProcess::validate_and_escape_command(
 
   // Use CommandBuilder for validation and escaping
   CommandBuilder builder;
-  std::vector<std::string> validatedCmd;
+  std::vector<std::string> validated_cmd;
 
   // Validate and escape each argument
   for (const auto& arg : cmd)
@@ -132,11 +132,11 @@ Result<std::vector<std::string>> ExecuteProcess::validate_and_escape_command(
     }
 
     // Escape argument if needed
-    std::string escapedArg = builder.escape_argument(arg);
-    validatedCmd.push_back(escapedArg);
+    std::string escaped_arg = builder.escape_argument(arg);
+    validated_cmd.push_back(escaped_arg);
   }
 
-  return Result<std::vector<std::string>>(validatedCmd);
+  return Result<std::vector<std::string>>(validated_cmd);
 }
 
 Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
@@ -146,10 +146,10 @@ Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
   if (options_.enable_safety && resource_monitor_)
   {
     // Estimate memory requirement (simplified: use configured max or 100MB default)
-    std::uint64_t estimatedMemory = options_.max_memory_bytes > 0 ?
+    std::uint64_t estimated_memory = options_.max_memory_bytes > 0 ?
                                     options_.max_memory_bytes : 100 * 1024 * 1024;
 
-    auto result = resource_monitor_->are_resources_available(estimatedMemory);
+    auto result = resource_monitor_->are_resources_available(estimated_memory);
     if (!result.is_success() || !result.get_value())
     {
       return Result<void>(Error(ErrorCode::K_PROCESS_SPAWN_FAILED,
@@ -172,14 +172,14 @@ Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
     }
 
     // Build options
-    launch_cpp::ProcessOptions processOptions;
-    processOptions.startup_timeout = std::chrono::milliseconds(5000);
-    processOptions.shutdown_timeout = std::chrono::seconds(options_.sigterm_timeout);
-    processOptions.capture_stdout = (options_.output != "log");
-    processOptions.capture_stderr = (options_.output != "log");
+    launch_cpp::ProcessOptions process_options;
+    process_options.startup_timeout = std::chrono::milliseconds(5000);
+    process_options.shutdown_timeout = std::chrono::seconds(options_.sigterm_timeout);
+    process_options.capture_stdout = (options_.output != "log");
+    process_options.capture_stderr = (options_.output != "log");
 
     // Execute using safety executor
-    auto result = process_executor_->execute(command, processOptions);
+    auto result = process_executor_->execute(command, process_options);
     if (!result.is_success())
     {
       return Result<void>(Error(ErrorCode::K_PROCESS_SPAWN_FAILED,
@@ -191,15 +191,15 @@ Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
     // Register with watchdog if enabled
     if (watchdog_ && options_.watchdog_timeout_ms > 0)
     {
-      auto regResult = watchdog_->register_node(
+      auto reg_result = watchdog_->register_node(
         static_cast<uint32_t>(process_id_),
         static_cast<uint32_t>(options_.watchdog_timeout_ms),
         nullptr);
 
-      if (!regResult.is_success())
+      if (!reg_result.is_success())
       {
         std::cerr << "Warning: Failed to register process with watchdog: "
-                  << regResult.get_error_message() << std::endl;
+                  << reg_result.get_error_message() << std::endl;
       }
     }
 
@@ -215,14 +215,14 @@ Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
     // For screen output, wait for process to complete
     if (options_.output == "screen")
     {
-      auto waitResult = process_executor_->wait(
+      auto wait_result = process_executor_->wait(
         process_id_,
         std::chrono::milliseconds(-1));  // Wait indefinitely
 
-      if (waitResult.is_success())
+      if (wait_result.is_success())
       {
-        const auto& processResult = waitResult.get_value();
-        (void)processResult;  // Process completed
+        const auto& process_result = wait_result.get_value();
+        (void)process_result;  // Process completed
       }
     }
 
@@ -273,16 +273,16 @@ Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
 Result<void> ExecuteProcess::execute(LaunchContext& context)
 {
   // Resolve command from substitutions
-  std::vector<std::string> rawCmd = resolve_command(context);
+  std::vector<std::string> raw_cmd = resolve_command(context);
 
   // Validate and escape command using CommandBuilder
-  auto validationResult = validate_and_escape_command(rawCmd);
-  if (!validationResult.has_value())
+  auto validation_result = validate_and_escape_command(raw_cmd);
+  if (!validation_result.has_value())
   {
-    return Result<void>(validationResult.get_error());
+    return Result<void>(validation_result.get_error());
   }
 
-  std::vector<std::string> cmd = validationResult.get_value();
+  std::vector<std::string> cmd = validation_result.get_value();
 
   // Execute with retry logic if configured
   if (options_.max_retries > 0)
@@ -298,17 +298,17 @@ Result<void> ExecuteProcess::execute_with_retry(LaunchContext& context,
                                                const std::vector<std::string>& cmd)
 {
   uint32_t attempt = 0;
-  Result<void> lastResult;
+  Result<void> last_result;
 
   while (attempt <= options_.max_retries)
   {
     // Execute single attempt
-    lastResult = execute_single_attempt(context, cmd);
+    last_result = execute_single_attempt(context, cmd);
 
     // Check if successful
-    if (lastResult.has_value())
+    if (last_result.has_value())
     {
-      return lastResult;
+      return last_result;
     }
 
     // Check if we should retry
@@ -319,9 +319,9 @@ Result<void> ExecuteProcess::execute_with_retry(LaunchContext& context,
     }
 
     // Check if error is retryable
-    if (!is_retryable_error(lastResult.get_error().get_code()))
+    if (!is_retryable_error(last_result.get_error().get_code()))
     {
-      return lastResult;
+      return last_result;
     }
 
     // Clean up before retry
@@ -360,22 +360,22 @@ bool ExecuteProcess::is_retryable_error(ErrorCode code) const
   }
 }
 
-std::chrono::milliseconds ExecuteProcess::calculate_retry_delay(uint32_t attemptNumber) const
+std::chrono::milliseconds ExecuteProcess::calculate_retry_delay(uint32_t attempt_number) const
 {
-  if (attemptNumber == 0 || options_.retry_backoff_multiplier <= 0.0)
+  if (attempt_number == 0 || options_.retry_backoff_multiplier <= 0.0)
   {
     return options_.retry_delay;
   }
 
   // Calculate exponential backoff: delay * multiplier^(attempt-1)
   double multiplier = 1.0;
-  for (uint32_t i = 1; i < attemptNumber; ++i)
+  for (uint32_t i = 1; i < attempt_number; ++i)
   {
     multiplier *= options_.retry_backoff_multiplier;
   }
 
-  auto delayMs = static_cast<uint32_t>(options_.retry_delay.count() * multiplier);
-  return std::chrono::milliseconds(delayMs);
+  auto delay_ms = static_cast<uint32_t>(options_.retry_delay.count() * multiplier);
+  return std::chrono::milliseconds(delay_ms);
 }
 
 void ExecuteProcess::cleanup_before_retry()
@@ -548,14 +548,14 @@ void ExecuteProcess::set_watchdog(std::shared_ptr<launch_cpp::Watchdog> wd)
   watchdog_ = wd;
 }
 
-bool ExecuteProcess::check_resources_available(std::uint64_t estimatedMemory) const
+bool ExecuteProcess::check_resources_available(std::uint64_t estimated_memory) const
 {
   if (!resource_monitor_)
   {
     return true;  // No monitor, assume resources available
   }
 
-  auto result = resource_monitor_->are_resources_available(estimatedMemory);
+  auto result = resource_monitor_->are_resources_available(estimated_memory);
   return result.is_success() && result.get_value();
 }
 

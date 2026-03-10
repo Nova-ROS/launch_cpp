@@ -47,9 +47,9 @@ std::int32_t main(std::int32_t argc, char* argv[])
     return 1;
   }
 
-  std::string launchFile = argv[1];
+  std::string launch_file = argv[1];
 
-  if (launchFile == "--help" || launchFile == "-h")
+  if (launch_file == "--help" || launch_file == "-h")
   {
     print_usage(argv[0]);
     return 0;
@@ -75,25 +75,25 @@ std::int32_t main(std::int32_t argc, char* argv[])
   launch_cpp::LaunchService service(options);
 
   // Load launch file
-  launch_cpp::Result<launch_cpp::LaunchDescriptionPtr> loadResult = launch_cpp::LaunchDescription::from_yaml_file(launchFile);
+  launch_cpp::Result<launch_cpp::LaunchDescriptionPtr> load_result = launch_cpp::LaunchDescription::from_yaml_file(launch_file);
 
-  if (loadResult.has_error())
+  if (load_result.has_error())
   {
-    std::cerr << "Error loading launch file: " << loadResult.get_error().get_message() << std::endl;
+    std::cerr << "Error loading launch file: " << load_result.get_error().get_message() << std::endl;
     return 1;
   }
 
   // Include launch description
-  launch_cpp::Error includeError = service.include_launch_description(loadResult.get_value());
+  launch_cpp::Error include_error = service.include_launch_description(load_result.get_value());
 
-  if (includeError.is_error())
+  if (include_error.is_error())
   {
-    std::cerr << "Error including launch description: " << includeError.get_message() << std::endl;
+    std::cerr << "Error including launch description: " << include_error.get_message() << std::endl;
     return 1;
   }
 
   // Run
-  std::int32_t exitCode = service.run();
+  std::int32_t exit_code = service.run();
 
-  return exitCode;
+  return exit_code;
 }

@@ -46,10 +46,10 @@ Result<void> IncludeLaunchDescription::execute(LaunchContext& context)
   file.close();
 
   // Parse the launch file
-  auto descResult = LaunchDescription::from_yaml_file(file_path);
-  if (descResult.has_error())
+  auto desc_result = LaunchDescription::from_yaml_file(file_path);
+  if (desc_result.has_error())
   {
-    return Result<void>(descResult.get_error());
+    return Result<void>(desc_result.get_error());
   }
 
   // Set launch arguments
@@ -63,10 +63,10 @@ Result<void> IncludeLaunchDescription::execute(LaunchContext& context)
   }
 
   // Visit the included launch description
-  auto visitResult = descResult.get_value()->visit(context);
-  if (visitResult.has_error())
+  auto visit_result = desc_result.get_value()->visit(context);
+  if (visit_result.has_error())
   {
-    return Result<void>(visitResult.get_error());
+    return Result<void>(visit_result.get_error());
   }
 
   return Result<void>();

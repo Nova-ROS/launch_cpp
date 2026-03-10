@@ -34,9 +34,9 @@ bool LaunchConfigurationEquals::evaluate(const LaunchContext& context) const
     return false;
   }
 
-  std::string expectedValue = expected_->perform(context);
+  std::string expected_value = expected_->perform(context);
 
-  return actual.get_value() == expectedValue;
+  return actual.get_value() == expected_value;
 }
 
 }  // namespace launch_cpp

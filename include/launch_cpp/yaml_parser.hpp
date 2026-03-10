@@ -101,7 +101,7 @@ class YamlParser
 
   // Helper for parsing object elements in arrays
   static YamlValue parse_array_element_object(std::istringstream& stream, int& line,
-                                           const std::string& firstLine, int baseIndent);
+                                           const std::string& first_line, int base_indent);
 
   static std::string trim(const std::string& str);
   static int get_indent(const std::string& line);
@@ -115,9 +115,9 @@ class YamlLaunchBuilder
   static Result<LaunchDescriptionPtr> build(const YamlValue& yaml);
 
  private:
-  static Result<ActionPtr> build_action(const YamlValue& actionYaml);
+  static Result<ActionPtr> build_action(const YamlValue& action_yaml);
   static Result<SubstitutionPtr> build_substitution(const std::string& value);
-  static Result<ConditionPtr> build_condition(const YamlValue& conditionYaml);
+  static Result<ConditionPtr> build_condition(const YamlValue& condition_yaml);
 };
 
 }  // namespace launch_cpp
