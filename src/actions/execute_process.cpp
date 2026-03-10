@@ -217,12 +217,12 @@ Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
     {
       auto waitResult = process_executor_->wait(
         process_id_,
-        std::chrono::milliseconds(-1)); // Wait indefinitely
+        std::chrono::milliseconds(-1));  // Wait indefinitely
 
       if (waitResult.is_success())
       {
         const auto& processResult = waitResult.get_value();
-        (void)processResult; // Process completed
+        (void)processResult;  // Process completed
       }
     }
 
@@ -230,8 +230,7 @@ Result<void> ExecuteProcess::execute_single_attempt(LaunchContext& context,
     process_ = std::make_unique<Process>(static_cast<pid_t>(process_id_));
 
     return Result<void>();
-  } else
-  {
+  } else {
     // Legacy execution path (original implementation)
     pid_t pid = fork();
 

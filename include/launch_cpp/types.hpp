@@ -91,7 +91,7 @@ inline std::shared_ptr<T> MakeShared(Args&&... args)
 class LaunchService;          ///< Main launch system service
 class LaunchContext;          ///< Context for launch operations
 class LaunchDescription;      ///< Launch description container
-class LaunchDescriptionEntity;///< Base entity in launch description
+class LaunchDescriptionEntity;  ///< Base entity in launch description
 class Action;                 ///< Executable action
 class Event;                  ///< Event notification
 class EventHandler;           ///< Event handler interface

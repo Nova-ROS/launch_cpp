@@ -240,7 +240,6 @@ OsalResult<void> PosixResourceMonitor::Impl::set_resource_limits_internal(
 void PosixResourceMonitor::Impl::register_threshold_callback_internal(
     double threshold,
     std::function<void(const SystemResources&)> callback) {
-
     std::lock_guard<std::mutex> lock(callback_mutex_);
     callbacks_[threshold] = callback;
 
@@ -382,7 +381,6 @@ bool PosixResourceMonitor::Impl::parse_process_stat(
     if (iss >> pid_read >> comm >> state >> ppid >> pgrp >> session >> tty_nr
             >> tpgid >> flags >> minflt >> cminflt >> majflt >> cmajflt
             >> utime >> stime) {
-
         // Calculate CPU usage (simplified - would need previous values for accuracy)
         unsigned long total_time = utime + stime;
         cpu_percent = static_cast<double>(total_time) / 100.0;  // Simplified

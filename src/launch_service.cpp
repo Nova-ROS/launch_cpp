@@ -238,7 +238,7 @@ Error LaunchService::include_launch_description(const LaunchDescriptionPtr& desc
 void LaunchService::emit_event(EventPtr event)
 {
   (void)event;
-  // TODO: Implement event handling
+  // TODO(launch_cpp): Implement event handling
   // Requirements: Future REQ-LAUNCH-SERVICE-005
 }
 
@@ -282,8 +282,8 @@ Error LaunchService::shutdown()
   // Signal shutdown to all components
   shutdown_requested_.store(true, std::memory_order_release);
 
-  // TODO: Wait for components to shut down gracefully
-  // TODO: Timeout handling for unresponsive components
+  // TODO(launch_cpp): Wait for components to shut down gracefully
+  // TODO(launch_cpp): Timeout handling for unresponsive components
 
   // Final state transition
   status_.store(LaunchServiceStatus::kStopped, std::memory_order_release);

@@ -1,0 +1,95 @@
+# ROS 2 Jazzy C++ clang-tidy configuration
+# Based on ament_clang_tidy defaults (Google/default style)
+# Reference: /opt/ros/jazzy/share/ament_clang_tidy/ament_clang_tidy/configuration/.clang-tidy
+#
+# Usage:
+#   Place this file at your workspace/package root, or pass via:
+#   ament_clang_tidy --config /path/to/.clang-tidy build/
+#
+# Requires compile_commands.json:
+#   colcon build --cmake-args -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+---
+Checks: >
+  -*,
+  performance-*,
+  modernize-redundant-void-arg,
+  modernize-use-nullptr,
+  modernize-use-default,
+  modernize-use-override,
+  modernize-use-using,
+  modernize-loop-convert,
+  modernize-make-shared,
+  modernize-make-unique,
+  llvm-namespace-comment,
+  readability-braces-around-statements,
+  readability-identifier-naming,
+  readability-redundant-member-init,
+  readability-redundant-smartptr-get,
+  bugprone-*,
+  -bugprone-easily-swappable-parameters
+
+WarningsAsErrors: ''
+
+HeaderFilterRegex: ''
+
+CheckOptions:
+  # Namespace comments spacing
+  - key: llvm-namespace-comment.SpacesBeforeComments
+    value: '2'
+
+  # readability-braces-around-statements
+  - key: readability-braces-around-statements.ShortStatementLines
+    value: '2'
+
+  # ---- Naming Conventions (ROS 2 style) ----
+
+  # Types: CamelCase
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.StructCase
+    value: CamelCase
+  - key: readability-identifier-naming.EnumCase
+    value: CamelCase
+  - key: readability-identifier-naming.UnionCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypeAliasCase
+    value: CamelCase
+  - key: readability-identifier-naming.TypedefCase
+    value: CamelCase
+
+  # Functions / Methods: camelBack or lower_case (ROS 2 uses lower_case for free functions)
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+  - key: readability-identifier-naming.MethodCase
+    value: lower_case
+
+  # Variables: lower_case
+  - key: readability-identifier-naming.VariableCase
+    value: lower_case
+  - key: readability-identifier-naming.ParameterCase
+    value: lower_case
+  - key: readability-identifier-naming.LocalVariableCase
+    value: lower_case
+
+  # Class members: lower_case with trailing underscore
+  - key: readability-identifier-naming.ClassMemberCase
+    value: lower_case
+  - key: readability-identifier-naming.ClassMemberSuffix
+    value: '_'
+
+  # Constants: UPPER_CASE
+  - key: readability-identifier-naming.EnumConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.StaticConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ClassConstantCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.GlobalVariableCase
+    value: UPPER_CASE
+  - key: readability-identifier-naming.ConstantCase
+    value: UPPER_CASE
+
+  # Template parameters: CamelCase
+  - key: readability-identifier-naming.TemplateParameterCase
+    value: CamelCase
