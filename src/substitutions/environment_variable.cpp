@@ -22,16 +22,14 @@ namespace launch_cpp
 
 std::string EnvironmentVariable::Perform(const LaunchContext& context) const
 {
-  (void)context;  // Not used, but required by interface
+  std::string value = context.GetEnvironmentVariable(name_);
   
-  const char* value = std::getenv(name_.c_str());
-  
-  if (value == nullptr)
+  if (value.empty())
   {
     return defaultValue_;
   }
   
-  return std::string(value);
+  return value;
 }
 
 }  // namespace launch_cpp

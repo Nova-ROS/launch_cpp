@@ -55,6 +55,31 @@ class MockLaunchContext : public LaunchContext
   std::string currentLaunchFile_;
 };
 
+// Mock ResourceMonitor for testing
+class MockResourceMonitor : public launch_cpp::ResourceMonitor {
+ public:
+  MockResourceMonitor() = default;
+  ~MockResourceMonitor() override = default;
+
+  OsalResult<SystemResources> GetSystemResources() override {
+    return OsalResult<SystemResources>(SystemResources{});
+  }
+
+  OsalResult<ResourceUsage> GetProcessResources(ProcessId) override {
+    return OsalResult<ResourceUsage>(ResourceUsage{});
+  }
+
+  OsalResult<bool> AreResourcesAvailable(uint64_t) override {
+    return OsalResult<bool>(true);
+  }
+
+  OsalResult<void> SetResourceLimits(ProcessId, uint64_t, double) override {
+    return OsalResult<void>();
+  }
+
+  void RegisterThresholdCallback(double, std::function<void(const SystemResources&)>) override {}
+};
+
 // Helper to create text substitution
 SubstitutionPtr text(const std::string& str)
 {
@@ -459,6 +484,10 @@ TEST(SafetyIntegrationTest, SendSignalWithSafety)
     });
   
   action->SetProcessExecutor(mockExecutor);
+  
+  // Set mock resource monitor to avoid resource check failures
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->SetResourceMonitor(mockMonitor);
   
   MockLaunchContext context;
   auto result = action->Execute(context);

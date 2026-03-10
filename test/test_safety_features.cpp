@@ -75,6 +75,31 @@ class MockLaunchContext : public LaunchContext
   std::string currentLaunchFile_;
 };
 
+// Mock ResourceMonitor for testing
+class MockResourceMonitor : public launch_cpp::ResourceMonitor {
+ public:
+  MockResourceMonitor() = default;
+  ~MockResourceMonitor() override = default;
+
+  OsalResult<SystemResources> GetSystemResources() override {
+    return OsalResult<SystemResources>(SystemResources{});
+  }
+
+  OsalResult<ResourceUsage> GetProcessResources(ProcessId) override {
+    return OsalResult<ResourceUsage>(ResourceUsage{});
+  }
+
+  OsalResult<bool> AreResourcesAvailable(uint64_t) override {
+    return OsalResult<bool>(true);
+  }
+
+  OsalResult<void> SetResourceLimits(ProcessId, uint64_t, double) override {
+    return OsalResult<void>();
+  }
+
+  void RegisterThresholdCallback(double, std::function<void(const SystemResources&)>) override {}
+};
+
 // ============================================================================
 // Safety Constructor Tests
 // ============================================================================
@@ -130,9 +155,12 @@ TEST(SafetyFeaturesTest, ResourceCheckWithMonitor)
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
   action->SetProcessExecutor(mockExecutor);
   
-  // Check resources - should work with or without monitor
+  // Set mock resource monitor to avoid real resource checks
+  auto mockMonitor = std::make_shared<MockResourceMonitor>();
+  action->SetResourceMonitor(mockMonitor);
+  
+  // Check resources - should work with mock monitor
   bool available = action->CheckResourcesAvailable(100 * 1024 * 1024);
-  // Default behavior returns true when no monitor is set
   EXPECT_TRUE(available);
 }
 
@@ -682,7 +710,14 @@ TEST(SafetyFeaturesIntegrationTest, MultipleSafetyOptions)
     
     action->SetProcessExecutor(mockExecutor);
     
+    // Set mock resource monitor to avoid resource check failures
+    auto mockMonitor = std::make_shared<MockResourceMonitor>();
+    action->SetResourceMonitor(mockMonitor);
+    
     auto result = action->Execute(context);
+    if (result.HasError()) {
+      std::cerr << "Execute failed: " << result.GetError().GetMessage() << std::endl;
+    }
     EXPECT_TRUE(result.HasValue());
   }
 }

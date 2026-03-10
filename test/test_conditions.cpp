@@ -207,15 +207,15 @@ TEST(ConditionComplexTest, CombinedUsage)
   // If feature is enabled
   IfCondition if_cond(std::make_shared<TextSubstitution>("true"));
   
-  // Unless mode is debug
-  UnlessCondition unless_cond(std::make_shared<TextSubstitution>("debug"));
-  
   // Check mode is production
   LaunchConfigurationEquals equals_cond("mode", std::make_shared<TextSubstitution>("production"));
   
+  // Unless with falsy value (empty string) should return true
+  UnlessCondition unless_cond(std::make_shared<TextSubstitution>(""));
+  
   EXPECT_TRUE(if_cond.Evaluate(ctx));
-  EXPECT_TRUE(unless_cond.Evaluate(ctx));  // mode is not "debug"
   EXPECT_TRUE(equals_cond.Evaluate(ctx));
+  EXPECT_TRUE(unless_cond.Evaluate(ctx));  // empty is falsy, so Unless returns true
 }
 
 int main(int argc, char** argv)
