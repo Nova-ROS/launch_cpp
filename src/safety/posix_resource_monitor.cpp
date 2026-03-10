@@ -74,10 +74,10 @@ private:
     bool parse_process_stat(ProcessId pid, double& cpu_percent);
     
     // Get system uptime
-    double GetUptime();
+    double get_uptime();
     
     // Get process uptime
-    double GetProcessUptime(ProcessId pid);
+    double get_process_uptime(ProcessId pid);
 
     std::map<double, std::function<void(const SystemResources&)>> callbacks_;
     std::thread monitor_thread_;
@@ -392,7 +392,7 @@ bool PosixResourceMonitor::Impl::parse_process_stat(
     return false;
 }
 
-double PosixResourceMonitor::Impl::GetUptime() {
+double PosixResourceMonitor::Impl::get_uptime() {
     std::ifstream file("/proc/uptime");
     if (!file.is_open()) {
         return 0.0;
@@ -403,7 +403,7 @@ double PosixResourceMonitor::Impl::GetUptime() {
     return uptime;
 }
 
-double PosixResourceMonitor::Impl::GetProcessUptime(ProcessId pid) {
+double PosixResourceMonitor::Impl::get_process_uptime(ProcessId pid) {
     std::string path = "/proc/" + std::to_string(pid) + "/stat";
     std::ifstream file(path);
     if (!file.is_open()) {
@@ -429,7 +429,7 @@ double PosixResourceMonitor::Impl::GetProcessUptime(ProcessId pid) {
     
     // Convert to seconds
     long ticks_per_sec = sysconf(_SC_CLK_TCK);
-    double sys_uptime = GetUptime();
+    double sys_uptime = get_uptime();
     
     return sys_uptime - (static_cast<double>(starttime) / ticks_per_sec);
 }

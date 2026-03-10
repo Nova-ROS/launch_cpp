@@ -46,23 +46,23 @@ public:
     Impl() = default;
     ~Impl() = default;
 
-    OsalResult<ProcessId> ExecuteInternal(
+    OsalResult<ProcessId> execute_internal(
         const CommandLine& command,
         const ProcessOptions& options);
 
-    OsalResult<ProcessResult> WaitInternal(
+    OsalResult<ProcessResult> wait_internal(
         ProcessId pid,
         std::chrono::milliseconds timeout);
 
-    OsalResult<bool> IsRunningInternal(ProcessId pid);
-    OsalResult<void> TerminateInternal(ProcessId pid, std::chrono::milliseconds timeout);
-    OsalResult<void> KillInternal(ProcessId pid);
-    OsalResult<void> SendSignalInternal(ProcessId pid, int32_t signal);
-    OsalResult<ProcessState> GetStateInternal(ProcessId pid);
+    OsalResult<bool> is_running_internal(ProcessId pid);
+    OsalResult<void> terminate_internal(ProcessId pid, std::chrono::milliseconds timeout);
+    OsalResult<void> kill_internal(ProcessId pid);
+    OsalResult<void> send_signal_internal(ProcessId pid, int32_t signal);
+    OsalResult<ProcessState> get_state_internal(ProcessId pid);
 
 private:
     // Convert CommandLine to argv array
-    std::vector<char*> BuildArgv(const std::vector<std::string>& args);
+    std::vector<char*> build_argv(const std::vector<std::string>& args);
     
     // Get program path (check ROS2_PATH env var)
     std::string resolve_program_path(const std::string& program);
@@ -83,42 +83,42 @@ PosixProcessExecutor::~PosixProcessExecutor() = default;
 OsalResult<ProcessId> PosixProcessExecutor::execute(
     const CommandLine& command,
     const ProcessOptions& options) {
-    return impl_->ExecuteInternal(command, options);
+    return impl_->execute_internal(command, options);
 }
 
 OsalResult<ProcessResult> PosixProcessExecutor::wait(
     ProcessId pid,
     std::chrono::milliseconds timeout) {
-    return impl_->WaitInternal(pid, timeout);
+    return impl_->wait_internal(pid, timeout);
 }
 
 OsalResult<bool> PosixProcessExecutor::is_running(ProcessId pid) {
-    return impl_->IsRunningInternal(pid);
+    return impl_->is_running_internal(pid);
 }
 
 OsalResult<void> PosixProcessExecutor::terminate(
     ProcessId pid,
     std::chrono::milliseconds timeout) {
-    return impl_->TerminateInternal(pid, timeout);
+    return impl_->terminate_internal(pid, timeout);
 }
 
 OsalResult<void> PosixProcessExecutor::kill(ProcessId pid) {
-    return impl_->KillInternal(pid);
+    return impl_->kill_internal(pid);
 }
 
 OsalResult<void> PosixProcessExecutor::send_signal(ProcessId pid, int32_t signal) {
-    return impl_->SendSignalInternal(pid, signal);
+    return impl_->send_signal_internal(pid, signal);
 }
 
 OsalResult<ProcessState> PosixProcessExecutor::get_state(ProcessId pid) {
-    return impl_->GetStateInternal(pid);
+    return impl_->get_state_internal(pid);
 }
 
 // ============================================================================
 // Implementation Details
 // ============================================================================
 
-OsalResult<ProcessId> PosixProcessExecutor::Impl::ExecuteInternal(
+OsalResult<ProcessId> PosixProcessExecutor::Impl::execute_internal(
     const CommandLine& command,
     const ProcessOptions& options) {
 
@@ -135,7 +135,7 @@ OsalResult<ProcessId> PosixProcessExecutor::Impl::ExecuteInternal(
     // Build argument list
     std::vector<std::string> all_args = {program_path};
     all_args.insert(all_args.end(), command.arguments.begin(), command.arguments.end());
-    std::vector<char*> argv = BuildArgv(all_args);
+    std::vector<char*> argv = build_argv(all_args);
 
     // Fork child process
     pid_t pid = fork();
@@ -190,7 +190,7 @@ OsalResult<ProcessId> PosixProcessExecutor::Impl::ExecuteInternal(
     return OsalResult<ProcessId>(static_cast<ProcessId>(pid));
 }
 
-OsalResult<ProcessResult> PosixProcessExecutor::Impl::WaitInternal(
+OsalResult<ProcessResult> PosixProcessExecutor::Impl::wait_internal(
     ProcessId pid,
     std::chrono::milliseconds timeout) {
 
@@ -255,7 +255,7 @@ OsalResult<ProcessResult> PosixProcessExecutor::Impl::WaitInternal(
     return OsalResult<ProcessResult>(proc_result);
 }
 
-OsalResult<bool> PosixProcessExecutor::Impl::IsRunningInternal(ProcessId pid) {
+OsalResult<bool> PosixProcessExecutor::Impl::is_running_internal(ProcessId pid) {
     // Use kill with signal 0 to check if process exists
     int result = ::kill(static_cast<pid_t>(pid), 0);
     
@@ -276,7 +276,7 @@ OsalResult<bool> PosixProcessExecutor::Impl::IsRunningInternal(ProcessId pid) {
     }
 }
 
-OsalResult<void> PosixProcessExecutor::Impl::TerminateInternal(
+OsalResult<void> PosixProcessExecutor::Impl::terminate_internal(
     ProcessId pid,
     std::chrono::milliseconds timeout) {
 
@@ -322,7 +322,7 @@ OsalResult<void> PosixProcessExecutor::Impl::TerminateInternal(
     return OsalResult<void>();
 }
 
-OsalResult<void> PosixProcessExecutor::Impl::KillInternal(ProcessId pid) {
+OsalResult<void> PosixProcessExecutor::Impl::kill_internal(ProcessId pid) {
     int result = ::kill(static_cast<pid_t>(pid), SIGKILL);
     
     if (result < 0) {
@@ -342,7 +342,7 @@ OsalResult<void> PosixProcessExecutor::Impl::KillInternal(ProcessId pid) {
     return OsalResult<void>();
 }
 
-OsalResult<void> PosixProcessExecutor::Impl::SendSignalInternal(
+OsalResult<void> PosixProcessExecutor::Impl::send_signal_internal(
     ProcessId pid, 
     int32_t signal) {
 
@@ -357,8 +357,8 @@ OsalResult<void> PosixProcessExecutor::Impl::SendSignalInternal(
     return OsalResult<void>();
 }
 
-OsalResult<ProcessState> PosixProcessExecutor::Impl::GetStateInternal(ProcessId pid) {
-    auto running_result = IsRunningInternal(pid);
+OsalResult<ProcessState> PosixProcessExecutor::Impl::get_state_internal(ProcessId pid) {
+    auto running_result = is_running_internal(pid);
     if (running_result.has_error()) {
         return OsalResult<ProcessState>(
             running_result.get_status(),
@@ -376,7 +376,7 @@ OsalResult<ProcessState> PosixProcessExecutor::Impl::GetStateInternal(ProcessId 
 // Helper Methods
 // ============================================================================
 
-std::vector<char*> PosixProcessExecutor::Impl::BuildArgv(
+std::vector<char*> PosixProcessExecutor::Impl::build_argv(
     const std::vector<std::string>& args) {
     
     std::vector<char*> argv;

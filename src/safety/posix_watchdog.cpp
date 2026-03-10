@@ -55,7 +55,7 @@ struct WatchdogNode {
 class PosixWatchdog::Impl {
 public:
     Impl() : running_(false) {}
-    ~Impl() { StopInternal(); }
+    ~Impl() { stop_internal(); }
 
     OsalResult<void> register_nodeInternal(
         uint32_t node_id,
@@ -66,8 +66,8 @@ public:
     OsalResult<void> submit_heartbeatInternal(const HeartbeatMessage& message);
     OsalResult<bool> is_responsiveInternal(uint32_t node_id);
     void set_timeout_callback_internal(std::function<void(uint32_t)> callback);
-    OsalResult<void> StartInternal();
-    OsalResult<void> StopInternal();
+    OsalResult<void> start_internal();
+    OsalResult<void> stop_internal();
 
 private:
     void watchdog_thread();
@@ -115,11 +115,11 @@ void PosixWatchdog::set_timeout_callback(std::function<void(uint32_t)> callback)
 }
 
 OsalResult<void> PosixWatchdog::start() {
-    return impl_->StartInternal();
+    return impl_->start_internal();
 }
 
 OsalResult<void> PosixWatchdog::stop() {
-    return impl_->StopInternal();
+    return impl_->stop_internal();
 }
 
 // ============================================================================
@@ -233,7 +233,7 @@ void PosixWatchdog::Impl::set_timeout_callback_internal(
     timeout_callback_ = callback;
 }
 
-OsalResult<void> PosixWatchdog::Impl::StartInternal() {
+OsalResult<void> PosixWatchdog::Impl::start_internal() {
     if (running_.exchange(true)) {
         return OsalResult<void>(
             OsalStatus::kError,
@@ -246,7 +246,7 @@ OsalResult<void> PosixWatchdog::Impl::StartInternal() {
     return OsalResult<void>();
 }
 
-OsalResult<void> PosixWatchdog::Impl::StopInternal() {
+OsalResult<void> PosixWatchdog::Impl::stop_internal() {
     if (!running_.exchange(false)) {
         return OsalResult<void>();  // Already stopped
     }

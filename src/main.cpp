@@ -27,7 +27,7 @@
 
 using namespace launch_cpp;
 
-void PrintUsage(const char* program)
+void print_usage(const char* program)
 {
   std::cout << "Usage: " << program << " <launch_file.yaml> [args...]" << std::endl;
   std::cout << "       " << program << " --help" << std::endl;
@@ -45,7 +45,7 @@ std::int32_t main(std::int32_t argc, char* argv[])
 {
   if (argc < 2)
   {
-    PrintUsage(argv[0]);
+    print_usage(argv[0]);
     return 1;
   }
   
@@ -53,7 +53,7 @@ std::int32_t main(std::int32_t argc, char* argv[])
   
   if (launchFile == "--help" || launchFile == "-h")
   {
-    PrintUsage(argv[0]);
+    print_usage(argv[0]);
     return 0;
   }
   

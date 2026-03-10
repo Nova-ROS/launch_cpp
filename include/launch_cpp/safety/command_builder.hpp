@@ -139,13 +139,13 @@ public:
      * @param context Launch context for substitution evaluation
      * @return BuildResult containing CommandLine or error
      *
-     * @pre options must be valid (check with ValidateOptions)
+     * @pre options must be valid (check with validate_options)
      * @post On success, returns valid CommandLine
      * @post On failure, returns error status and message
      *
      * @thread_safety Thread-safe (const method)
      */
-    BuildResult<launch_cpp::CommandLine> Build(
+    BuildResult<launch_cpp::CommandLine> build(
         const NodeActionOptions& options,
         const LaunchContext& context) const;
 
@@ -156,7 +156,7 @@ public:
      *
      * @requirement TSR-001: Configuration validation
      */
-    BuildResult<void> ValidateOptions(const NodeActionOptions& options) const;
+    BuildResult<void> validate_options(const NodeActionOptions& options) const;
 
     /**
      * @brief Build just the program path (ros2 run)
@@ -171,7 +171,7 @@ public:
      * @param options Node options
      * @return Arguments for package and executable
      */
-    std::vector<std::string> BuildNodeIdentification(
+    std::vector<std::string> build_node_identification(
         const NodeActionOptions& options) const;
 
     /**
@@ -179,7 +179,7 @@ public:
      * @param options Node options
      * @return Arguments for __node and __ns remappings
      */
-    std::vector<std::string> BuildNameAndNamespace(
+    std::vector<std::string> build_name_and_namespace(
         const NodeActionOptions& options) const;
 
     /**
@@ -190,7 +190,7 @@ public:
      *
      * @requirement TSR-001.5: Parameter type validation
      */
-    BuildResult<std::vector<std::string>> BuildParameters(
+    BuildResult<std::vector<std::string>> build_parameters(
         const std::map<std::string, std::shared_ptr<Substitution>>& parameters,
         const LaunchContext& context) const;
 
@@ -199,7 +199,7 @@ public:
      * @param remappings Remapping map
      * @return Arguments for -r remappings
      */
-    std::vector<std::string> BuildRemappings(
+    std::vector<std::string> build_remappings(
         const std::map<std::string, std::string>& remappings) const;
 
     /**
@@ -207,7 +207,7 @@ public:
      * @param arguments Extra argument list
      * @return Arguments vector
      */
-    std::vector<std::string> BuildExtraArguments(
+    std::vector<std::string> build_extra_arguments(
         const std::vector<std::string>& arguments) const;
 
     /**
@@ -380,7 +380,7 @@ inline std::string CommandBuilder::escape_argument(const std::string& arg) const
 // Non-Inline Implementations
 // ============================================================================
 
-inline BuildResult<void> CommandBuilder::ValidateOptions(
+inline BuildResult<void> CommandBuilder::validate_options(
     const NodeActionOptions& options) const {
 
     if (!is_valid_package_name(options.package)) {
@@ -404,7 +404,7 @@ inline BuildResult<void> CommandBuilder::ValidateOptions(
     return BuildResult<void>();
 }
 
-inline std::vector<std::string> CommandBuilder::BuildNodeIdentification(
+inline std::vector<std::string> CommandBuilder::build_node_identification(
     const NodeActionOptions& options) const {
 
     std::vector<std::string> args;
@@ -414,7 +414,7 @@ inline std::vector<std::string> CommandBuilder::BuildNodeIdentification(
     return args;
 }
 
-inline std::vector<std::string> CommandBuilder::BuildNameAndNamespace(
+inline std::vector<std::string> CommandBuilder::build_name_and_namespace(
     const NodeActionOptions& options) const {
 
     std::vector<std::string> args;
