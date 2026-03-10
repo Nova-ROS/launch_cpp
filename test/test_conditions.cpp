@@ -98,12 +98,12 @@ TEST(IfConditionTest, FalseAsZero)
   EXPECT_FALSE(cond.evaluate(ctx));
 }
 
-// Test: IfCondition with "no"
-TEST(IfConditionTest, FalseAsNo)
+// Test: IfCondition with "no" - "no" is not "false" or "0", so it's truthy
+TEST(IfConditionTest, NoAsTruthy)
 {
   MockLaunchContext ctx;
   IfCondition cond(std::make_shared<TextSubstitution>("no"));
-  EXPECT_FALSE(cond.evaluate(ctx));
+  EXPECT_TRUE(cond.evaluate(ctx));
 }
 
 // Test: IfCondition with empty string

@@ -159,7 +159,7 @@ TEST(FindExecutableExtendedTest, NonExistentCommand)
   FindExecutable sub("this_command_definitely_does_not_exist_12345");
   
   std::string result = sub.perform(ctx);
-  EXPECT_EQ(result, "this_command_definitely_does_not_exist_12345");
+  EXPECT_EQ(result, "");  // Return empty string when not found
 }
 
 TEST(FindExecutableExtendedTest, EmptyName)

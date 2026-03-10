@@ -155,9 +155,6 @@ TEST(SafetyFeaturesTest, ResourceCheckWithMonitor)
   auto mockExecutor = std::make_shared<MockProcessExecutor>();
   action->set_process_executor(mockExecutor);
   
-  // Set mock resource monitor to avoid real resource checks
-  auto mockMonitor = std::make_shared<MockResourceMonitor>();
-  action->set_resource_monitor(mockMonitor);
   
   // Check resources - should work with mock monitor
   bool available = action->check_resources_available(100 * 1024 * 1024);
@@ -461,7 +458,7 @@ TEST(SafetyFeaturesTest, DestructorWithWatchdog)
       });
     
     action->set_process_executor(mockExecutor);
-    
+  
     auto result = action->execute(context);
     EXPECT_TRUE(result.has_value());
     
@@ -709,7 +706,7 @@ TEST(SafetyFeaturesIntegrationTest, MultipleSafetyOptions)
       });
     
     action->set_process_executor(mockExecutor);
-    
+  
     // Set mock resource monitor to avoid resource check failures
     auto mockMonitor = std::make_shared<MockResourceMonitor>();
     action->set_resource_monitor(mockMonitor);
