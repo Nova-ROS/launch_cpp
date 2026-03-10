@@ -56,7 +56,7 @@ class LaunchDescription final : public LaunchDescriptionEntity
   template<typename T, typename... Args>
   void emplace(Args&&... args)
   {
-    add(MakeShared<T>(std::forward<Args>(args)...));
+    add(make_shared<T>(std::forward<Args>(args)...));
   }
 
   // AUTOSAR C++14: M0-1-9 - Override Visit

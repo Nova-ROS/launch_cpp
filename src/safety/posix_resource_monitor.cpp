@@ -132,7 +132,7 @@ OsalResult<SystemResources> PosixResourceMonitor::Impl::get_system_resources_int
     uint64_t total_mem, available_mem;
     if (!parse_mem_info(total_mem, available_mem)) {
         return OsalResult<SystemResources>(
-            OsalStatus::kError,
+            OsalStatus::K_ERROR,
             "Failed to parse /proc/meminfo");
     }
     resources.total_memory_bytes = total_mem;
@@ -168,7 +168,7 @@ OsalResult<ResourceUsage> PosixResourceMonitor::Impl::get_process_resources_inte
     uint64_t vm_rss, vm_size;
     if (!parse_process_status(static_cast<pid_t>(pid), vm_rss, vm_size)) {
         return OsalResult<ResourceUsage>(
-            OsalStatus::kNotFound,
+            OsalStatus::K_NOT_FOUND,
             "Failed to read process status");
     }
     usage.memory_bytes = vm_rss;
@@ -227,7 +227,7 @@ OsalResult<void> PosixResourceMonitor::Impl::set_resource_limits_internal(
     // In production, would need to set before exec() or use cgroups
     if (setrlimit(RLIMIT_AS, &rlim) != 0) {
         return OsalResult<void>(
-            OsalStatus::kError,
+            OsalStatus::K_ERROR,
             "Failed to set memory limit");
     }
 

@@ -143,7 +143,7 @@ OsalResult<ProcessId> PosixProcessExecutor::Impl::execute_internal(
     if (pid < 0) {
         // Fork failed
         return OsalResult<ProcessId>(
-            OsalStatus::kError,
+            OsalStatus::K_ERROR,
             std::string("Fork failed: ") + std::strerror(errno));
     }
 
@@ -220,7 +220,7 @@ OsalResult<ProcessResult> PosixProcessExecutor::Impl::wait_internal(
             } else {
                 // Error
                 return OsalResult<ProcessResult>(
-                    OsalStatus::kError,
+                    OsalStatus::K_ERROR,
                     std::string("Wait failed: ") + std::strerror(errno));
             }
         }
@@ -229,7 +229,7 @@ OsalResult<ProcessResult> PosixProcessExecutor::Impl::wait_internal(
         result = waitpid(static_cast<pid_t>(pid), &status, 0);
         if (result < 0) {
             return OsalResult<ProcessResult>(
-                OsalStatus::kError,
+                OsalStatus::K_ERROR,
                 std::string("Wait failed: ") + std::strerror(errno));
         }
     }
@@ -243,13 +243,13 @@ OsalResult<ProcessResult> PosixProcessExecutor::Impl::wait_internal(
         proc_result.exit_code = WEXITSTATUS(status);
         proc_result.final_state = (proc_result.exit_code == 0)
             ? ProcessState::K_STOPPED
-            : ProcessState::kCrashed;
+            : ProcessState::K_CRASHED;
     } else if (WIFSIGNALED(status)) {
         proc_result.exit_code = -WTERMSIG(status);
-        proc_result.final_state = ProcessState::kCrashed;
+        proc_result.final_state = ProcessState::K_CRASHED;
     } else {
         proc_result.exit_code = -1;
-        proc_result.final_state = ProcessState::kUnknown;
+        proc_result.final_state = ProcessState::K_UNKNOWN;
     }
 
     return OsalResult<ProcessResult>(proc_result);
@@ -270,7 +270,7 @@ OsalResult<bool> PosixProcessExecutor::Impl::is_running_internal(ProcessId pid) 
             return OsalResult<bool>(true);
         } else {
             return OsalResult<bool>(
-                OsalStatus::kError,
+                OsalStatus::K_ERROR,
                 std::string("Check failed: ") + std::strerror(errno));
         }
     }
@@ -288,7 +288,7 @@ OsalResult<void> PosixProcessExecutor::Impl::terminate_internal(
             return OsalResult<void>();
         }
         return OsalResult<void>(
-            OsalStatus::kError,
+            OsalStatus::K_ERROR,
             std::string("SIGTERM failed: ") + std::strerror(errno));
     }
 
@@ -331,7 +331,7 @@ OsalResult<void> PosixProcessExecutor::Impl::kill_internal(ProcessId pid) {
             return OsalResult<void>();
         }
         return OsalResult<void>(
-            OsalStatus::kError,
+            OsalStatus::K_ERROR,
             std::string("SIGKILL failed: ") + std::strerror(errno));
     }
 
@@ -350,7 +350,7 @@ OsalResult<void> PosixProcessExecutor::Impl::send_signal_internal(
 
     if (result < 0) {
         return OsalResult<void>(
-            OsalStatus::kError,
+            OsalStatus::K_ERROR,
             std::string("Send signal failed: ") + std::strerror(errno));
     }
 

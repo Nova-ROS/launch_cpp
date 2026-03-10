@@ -203,7 +203,7 @@ TEST(SafetyIntegrationTest, ExecuteWithMockExecutorFailure)
   mockExecutor->set_execute_callback(
     [](const CommandLine&, const ProcessOptions&) -> OsalResult<ProcessId> {
       return OsalResult<ProcessId>(
-        OsalStatus::kError,
+        OsalStatus::K_ERROR,
         "Mock execution failed");
     });
   

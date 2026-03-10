@@ -45,7 +45,7 @@ struct WatchdogNode {
     std::chrono::steady_clock::time_point registration_time;
     uint32_t sequence{0};
     bool responsive{true};
-    ProcessState last_state{ProcessState::kUnknown};
+    ProcessState last_state{ProcessState::K_UNKNOWN};
 };
 
 // ============================================================================
@@ -142,7 +142,7 @@ OsalResult<void> PosixWatchdog::Impl::register_node_internal(
     // Check if node already registered
     if (nodes_.find(node_id) != nodes_.end()) {
         return OsalResult<void>(
-            OsalStatus::kError,
+            OsalStatus::K_ERROR,
             "Node already registered");
     }
 
@@ -154,7 +154,7 @@ OsalResult<void> PosixWatchdog::Impl::register_node_internal(
     node.registration_time = node.last_heartbeat;
     node.sequence = 0;
     node.responsive = true;
-    node.last_state = ProcessState::kStarting;
+    node.last_state = ProcessState::K_STARTING;
 
     nodes_[node_id] = node;
 
@@ -167,7 +167,7 @@ OsalResult<void> PosixWatchdog::Impl::unregister_node_internal(uint32_t node_id)
     auto it = nodes_.find(node_id);
     if (it == nodes_.end()) {
         return OsalResult<void>(
-            OsalStatus::kNotFound,
+            OsalStatus::K_NOT_FOUND,
             "Node not found");
     }
 
@@ -190,7 +190,7 @@ OsalResult<void> PosixWatchdog::Impl::submit_heartbeat_internal(
     auto it = nodes_.find(message.node_id);
     if (it == nodes_.end()) {
         return OsalResult<void>(
-            OsalStatus::kNotFound,
+            OsalStatus::K_NOT_FOUND,
             "Node not registered");
     }
 
@@ -221,7 +221,7 @@ OsalResult<bool> PosixWatchdog::Impl::is_responsive_internal(uint32_t node_id) {
     auto it = nodes_.find(node_id);
     if (it == nodes_.end()) {
         return OsalResult<bool>(
-            OsalStatus::kNotFound,
+            OsalStatus::K_NOT_FOUND,
             "Node not found");
     }
 
@@ -236,7 +236,7 @@ void PosixWatchdog::Impl::set_timeout_callback_internal(
 OsalResult<void> PosixWatchdog::Impl::start_internal() {
     if (running_.exchange(true)) {
         return OsalResult<void>(
-            OsalStatus::kError,
+            OsalStatus::K_ERROR,
             "Watchdog already running");
     }
 

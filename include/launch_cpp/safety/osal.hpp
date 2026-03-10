@@ -67,13 +67,13 @@ class ErrorHandler;
  * @requirements REQ-LAUNCH-OSAL-001
  */
 enum class OsalStatus {
-    kSuccess,           ///< Operation completed successfully
-    kError,             ///< General error occurred
-    kTimeout,           ///< Operation timed out
-    kResourceExhausted, ///< System resources exhausted
-    kPermissionDenied,  ///< Insufficient permissions
-    kNotFound,          ///< Resource not found
-    kInvalidArgument    ///< Invalid parameter
+    K_SUCCESS,           ///< Operation completed successfully
+    K_ERROR,             ///< General error occurred
+    K_TIMEOUT,           ///< Operation timed out
+    K_RESOURCE_EXHAUSTED, ///< System resources exhausted
+    K_PERMISSION_DENIED,  ///< Insufficient permissions
+    K_NOT_FOUND,          ///< Resource not found
+    K_INVALID_ARGUMENT    ///< Invalid parameter
 };
 
 /**
@@ -95,13 +95,13 @@ public:
     /**
      * @brief Default constructor (success)
      */
-    OsalResult() : status_(OsalStatus::kSuccess) {}
+    OsalResult() : status_(OsalStatus::K_SUCCESS) {}
 
     /**
      * @brief Construct from value
      * @param value Value to store
      */
-    explicit OsalResult(T value) : status_(OsalStatus::kSuccess), value_(std::move(value)) {}
+    explicit OsalResult(T value) : status_(OsalStatus::K_SUCCESS), value_(std::move(value)) {}
 
     /**
      * @brief Construct from status
@@ -119,15 +119,15 @@ public:
 
     /**
      * @brief Check if operation succeeded
-     * @return true if status is kSuccess
+     * @return true if status is K_SUCCESS
      */
-    bool is_success() const { return status_ == OsalStatus::kSuccess; }
+    bool is_success() const { return status_ == OsalStatus::K_SUCCESS; }
 
     /**
      * @brief Check if operation failed
-     * @return true if status is not kSuccess
+     * @return true if status is not K_SUCCESS
      */
-    bool has_error() const { return status_ != OsalStatus::kSuccess; }
+    bool has_error() const { return status_ != OsalStatus::K_SUCCESS; }
 
     /**
      * @brief Get the status code
@@ -172,7 +172,7 @@ public:
     /**
      * @brief Default constructor (success)
      */
-    OsalResult() : status_(OsalStatus::kSuccess) {}
+    OsalResult() : status_(OsalStatus::K_SUCCESS) {}
 
     /**
      * @brief Construct from status
@@ -190,15 +190,15 @@ public:
 
     /**
      * @brief Check if operation succeeded
-     * @return true if status is kSuccess
+     * @return true if status is K_SUCCESS
      */
-    bool is_success() const { return status_ == OsalStatus::kSuccess; }
+    bool is_success() const { return status_ == OsalStatus::K_SUCCESS; }
 
     /**
      * @brief Check if operation failed
-     * @return true if status is not kSuccess
+     * @return true if status is not K_SUCCESS
      */
-    bool has_error() const { return status_ != OsalStatus::kSuccess; }
+    bool has_error() const { return status_ != OsalStatus::K_SUCCESS; }
 
     /**
      * @brief Get the status code
@@ -233,13 +233,13 @@ using ProcessId = int32_t;
  * @requirements REQ-LAUNCH-OSAL-001
  */
 enum class ProcessState {
-    kNotStarted,      ///< Process has not been started
-    kStarting,        ///< Process is starting
-    kRunning,         ///< Process is running
-    kStopping,        ///< Process is being stopped
-    kStopped,         ///< Process has stopped
-    kCrashed,         ///< Process crashed
-    kUnknown          ///< State unknown
+    K_NOT_STARTED,      ///< Process has not been started
+    K_STARTING,        ///< Process is starting
+    K_RUNNING,         ///< Process is running
+    K_STOPPING,        ///< Process is being stopped
+    K_STOPPED,         ///< Process has stopped
+    K_CRASHED,         ///< Process crashed
+    K_UNKNOWN          ///< State unknown
 };
 
 /**
@@ -665,7 +665,7 @@ struct HeartbeatMessage {
     uint32_t node_id{0};                    ///< Node identifier
     uint32_t sequence{0};                   ///< Sequence number
     uint64_t timestamp_us{0};               ///< Timestamp in microseconds
-    ProcessState state{ProcessState::kUnknown}; ///< Current state
+    ProcessState state{ProcessState::K_UNKNOWN}; ///< Current state
     uint32_t checksum{0};                   ///< Message checksum
 
     /**
@@ -802,7 +802,7 @@ private:
 enum class ErrorSeverity {
     kInfo,       ///< Informational
     kWarning,    ///< Warning
-    kError,      ///< Error (recoverable)
+    K_ERROR,      ///< Error (recoverable)
     kCritical,   ///< Critical (system impact)
     kFatal       ///< Fatal (safety impact)
 };

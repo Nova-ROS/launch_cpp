@@ -32,13 +32,13 @@ TEST(ThreadPoolTest, Creation)
     ThreadPool pool(1);
     EXPECT_EQ(pool.get_thread_count(), 1U);
   }
-  
+
   // Test with 4 threads
   {
     ThreadPool pool(4);
     EXPECT_EQ(pool.get_thread_count(), 4U);
   }
-  
+
   // Test with 8 threads
   {
     ThreadPool pool(8);
@@ -51,10 +51,10 @@ TEST(ThreadPoolTest, SingleTask)
 {
   ThreadPool pool(2);
   std::atomic<int> counter(0);
-  
+
   Error err = pool.submit([&counter]() { counter++; });
   EXPECT_TRUE(err.is_success());
-  
+
   pool.shutdown();
   EXPECT_EQ(counter.load(), 1);
 }
@@ -65,14 +65,14 @@ TEST(ThreadPoolTest, MultipleTasks)
   ThreadPool pool(4);
   std::atomic<int> counter(0);
   const int num_tasks = 100;
-  
+
   for (int i = 0; i < num_tasks; ++i) {
     Error err = pool.submit([&counter]() {
       counter++;
     });
     EXPECT_TRUE(err.is_success());
   }
-  
+
   pool.shutdown();
   EXPECT_EQ(counter.load(), num_tasks);
 }
@@ -84,22 +84,22 @@ TEST(ThreadPoolTest, ConcurrentExecution)
   std::atomic<int> concurrent_count(0);
   std::atomic<int> max_concurrent(0);
   const int num_tasks = 20;
-  
+
   for (int i = 0; i < num_tasks; ++i) {
     pool.submit([&concurrent_count, &max_concurrent]() {
       int current = ++concurrent_count;
       int prev_max = max_concurrent.load();
       while (current > prev_max && !max_concurrent.compare_exchange_weak(prev_max, current)) {}
-      
+
       // Simulate some work
       std::this_thread::sleep_for(std::chrono::milliseconds(10));
-      
+
       concurrent_count--;
     });
   }
-  
+
   pool.shutdown();
-  
+
   // Should have had some concurrent execution
   EXPECT_GT(max_concurrent.load(), 1);
   EXPECT_LE(max_concurrent.load(), 4);  // Limited by thread count
@@ -111,23 +111,23 @@ TEST(ThreadPoolTest, TaskWithResult)
   ThreadPool pool(2);
   std::atomic<int> sum(0);
   const int num_tasks = 10;
-  
+
   // Use promise/future pattern with shared ownership
   std::vector<std::shared_ptr<std::promise<int>>> promises;
   std::vector<std::future<int>> futures;
-  
+
   for (int i = 0; i < num_tasks; ++i) {
     auto promise = std::make_shared<std::promise<int>>();
     promises.push_back(promise);
     futures.push_back(promise->get_future());
-    
+
     pool.submit([promise, i]() {
       promise->set_value(i * i);
     });
   }
-  
+
   pool.shutdown();
-  
+
   // Verify results
   for (int i = 0; i < num_tasks; ++i) {
     EXPECT_EQ(futures[i].get(), i * i);
@@ -139,14 +139,14 @@ TEST(ThreadPoolTest, Shutdown)
 {
   ThreadPool pool(2);
   std::atomic<bool> task_completed(false);
-  
+
   pool.submit([&task_completed]() {
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
     task_completed = true;
   });
-  
+
   pool.shutdown();
-  
+
   EXPECT_TRUE(task_completed.load());
 }
 
@@ -155,7 +155,7 @@ TEST(ThreadPoolTest, SubmitAfterShutdown)
 {
   ThreadPool pool(2);
   pool.shutdown();
-  
+
   Error err = pool.submit([]() {});
   EXPECT_TRUE(err.is_error());
 }
@@ -164,7 +164,7 @@ TEST(ThreadPoolTest, SubmitAfterShutdown)
 TEST(ThreadPoolTest, MultipleShutdowns)
 {
   ThreadPool pool(2);
-  
+
   // Should not crash or throw
   pool.shutdown();
   pool.shutdown();
@@ -177,7 +177,7 @@ TEST(ThreadPoolTest, TaskErrorHandling)
   ThreadPool pool(2);
   std::atomic<int> counter(0);
   std::atomic<int> error_count(0);
-  
+
   // Submit tasks - some succeed, some "fail" (but don't throw)
   for (int i = 0; i < 10; ++i) {
     pool.submit([&counter, &error_count, i]() {
@@ -189,9 +189,9 @@ TEST(ThreadPoolTest, TaskErrorHandling)
       }
     });
   }
-  
+
   pool.shutdown();
-  
+
   // All tasks should complete
   EXPECT_EQ(error_count.load(), 4);  // 4 "error" tasks (0, 3, 6, 9)
   EXPECT_EQ(counter.load(), 6);  // 6 successful tasks (10 - 4)
@@ -203,13 +203,13 @@ TEST(ThreadPoolTest, HighLoadStress)
   ThreadPool pool(4);
   std::atomic<int> counter(0);
   const int num_tasks = 1000;
-  
+
   for (int i = 0; i < num_tasks; ++i) {
     pool.submit([&counter]() {
       counter++;
     });
   }
-  
+
   pool.shutdown();
   EXPECT_EQ(counter.load(), num_tasks);
 }
@@ -220,7 +220,7 @@ TEST(ThreadPoolTest, NoOrderGuarantee)
   ThreadPool pool(4);
   std::vector<int> order;
   std::mutex order_mutex;
-  
+
   for (int i = 0; i < 10; ++i) {
     pool.submit([i, &order, &order_mutex]() {
       std::this_thread::sleep_for(std::chrono::microseconds(100));
@@ -228,9 +228,9 @@ TEST(ThreadPoolTest, NoOrderGuarantee)
       order.push_back(i);
     });
   }
-  
+
   pool.shutdown();
-  
+
   EXPECT_EQ(order.size(), 10U);
   // Order is not guaranteed to be 0,1,2,...
   bool sequential = true;
@@ -250,13 +250,13 @@ TEST(ThreadPoolTest, SingleThreadPool)
   ThreadPool pool(1);
   std::atomic<int> counter(0);
   const int num_tasks = 10;
-  
+
   for (int i = 0; i < num_tasks; ++i) {
     pool.submit([&counter]() {
       counter++;
     });
   }
-  
+
   pool.shutdown();
   EXPECT_EQ(counter.load(), num_tasks);
 }
@@ -267,13 +267,13 @@ TEST(ThreadPoolTest, LargeThreadPool)
   ThreadPool pool(16);
   std::atomic<int> counter(0);
   const int num_tasks = 32;
-  
+
   for (int i = 0; i < num_tasks; ++i) {
     pool.submit([&counter]() {
       counter++;
     });
   }
-  
+
   pool.shutdown();
   EXPECT_EQ(counter.load(), num_tasks);
 }
@@ -285,9 +285,9 @@ TEST(ThreadPoolTest, MultiThreadedSubmit)
   std::atomic<int> counter(0);
   const int num_threads = 4;
   const int tasks_per_thread = 25;
-  
+
   std::vector<std::thread> threads;
-  
+
   for (int t = 0; t < num_threads; ++t) {
     threads.emplace_back([&pool, &counter]() {
       for (int i = 0; i < tasks_per_thread; ++i) {
@@ -297,11 +297,11 @@ TEST(ThreadPoolTest, MultiThreadedSubmit)
       }
     });
   }
-  
+
   for (auto& t : threads) {
     t.join();
   }
-  
+
   pool.shutdown();
   EXPECT_EQ(counter.load(), num_threads * tasks_per_thread);
 }
@@ -312,7 +312,7 @@ TEST(ThreadPoolTest, RecursiveSubmit)
   ThreadPool pool(4);
   std::atomic<int> counter(0);
   const int depth = 3;
-  
+
   std::function<void(int)> recursive_task = [&](int remaining) {
     counter++;
     if (remaining > 0) {
@@ -324,16 +324,16 @@ TEST(ThreadPoolTest, RecursiveSubmit)
       });
     }
   };
-  
+
   pool.submit([&recursive_task]() {
     recursive_task(depth);
   });
-  
+
   // Wait a bit for recursive tasks to complete
   std::this_thread::sleep_for(std::chrono::milliseconds(200));
-  
+
   pool.shutdown();
-  
+
   // With depth 3: 1 + 2 + 4 + 8 = 15
   EXPECT_EQ(counter.load(), 15);
 }

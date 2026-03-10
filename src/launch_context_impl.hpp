@@ -74,7 +74,7 @@ class LaunchContextImpl final : public LaunchContext
     auto it = configurations_.find(key);
     if (it == configurations_.end())
     {
-      return Result<std::string>(Error(ErrorCode::kInvalidArgument, "Configuration not found"));
+      return Result<std::string>(Error(ErrorCode::K_INVALID_ARGUMENT, "Configuration not found"));
     }
 
     return Result<std::string>(it->second);

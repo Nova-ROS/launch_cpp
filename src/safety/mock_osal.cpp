@@ -127,7 +127,7 @@ OsalResult<ProcessState> MockProcessExecutor::get_state(ProcessId pid) {
     if (get_state_cb_) {
         return get_state_cb_(pid);
     }
-    return OsalResult<ProcessState>(ProcessState::kUnknown);
+    return OsalResult<ProcessState>(ProcessState::K_UNKNOWN);
 }
 
 }  // namespace launch_cpp
