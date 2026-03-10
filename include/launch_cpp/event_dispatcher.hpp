@@ -46,14 +46,14 @@ class EventDispatcher
   // Register an event handler
   void register_handler(const EventHandlerPtr& handler)
   {
-    std::lock_guard<std::mutex> lock(handlersMutex_);
+    std::lock_guard<std::mutex> lock(handlers_mutex_);
     handlers_.push_back(handler);
   }
 
   // Unregister an event handler
   void unregister_handler(const EventHandler* handler)
   {
-    std::lock_guard<std::mutex> lock(handlersMutex_);
+    std::lock_guard<std::mutex> lock(handlers_mutex_);
     for (auto it = handlers_.begin(); it != handlers_.end(); ++it)
     {
       if (it->get() == handler)
@@ -67,7 +67,7 @@ class EventDispatcher
   // Dispatch event to matching handlers
   Result<LaunchDescriptionEntityVector> dispatch(const Event& event, LaunchContext& context)
   {
-    std::lock_guard<std::mutex> lock(handlersMutex_);
+    std::lock_guard<std::mutex> lock(handlers_mutex_);
     LaunchDescriptionEntityVector all_entities;
 
     for (const auto& handler : handlers_)
@@ -92,19 +92,19 @@ class EventDispatcher
   // Get number of registered handlers
   std::size_t get_handler_count() const
   {
-    std::lock_guard<std::mutex> lock(handlersMutex_);
+    std::lock_guard<std::mutex> lock(handlers_mutex_);
     return handlers_.size();
   }
 
   // Clear all handlers
   void clear_handlers()
   {
-    std::lock_guard<std::mutex> lock(handlersMutex_);
+    std::lock_guard<std::mutex> lock(handlers_mutex_);
     handlers_.clear();
   }
 
  private:
-  mutable std::mutex handlersMutex_;
+  mutable std::mutex handlers_mutex_;
   std::vector<EventHandlerPtr> handlers_;
 };
 

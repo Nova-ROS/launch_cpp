@@ -26,7 +26,7 @@ std::string EnvironmentVariable::perform(const LaunchContext& context) const
   
   if (value.empty())
   {
-    return defaultValue_;
+    return default_value_;
   }
   
   return value;

@@ -200,7 +200,7 @@ class ProcessExitedEvent final : public Event
    * @post Event initialized with process exit info
    */
   ProcessExitedEvent(std::int32_t pid, std::int32_t returnCode, const std::string& name)
-    : pid_(pid), returnCode_(returnCode), name_(name) {}
+    : pid_(pid), return_code_(returnCode), name_(name) {}
   
   /**
    * @brief Get event type
@@ -218,7 +218,7 @@ class ProcessExitedEvent final : public Event
    * @brief Get the exit code
    * @return Exit code (0 = success, non-zero = error)
    */
-  std::int32_t get_return_code() const noexcept { return returnCode_; }
+  std::int32_t get_return_code() const noexcept { return return_code_; }
 
   /**
    * @brief Get the process name
@@ -228,7 +228,7 @@ class ProcessExitedEvent final : public Event
   
  private:
   std::int32_t pid_;          ///< Process identifier
-  std::int32_t returnCode_;   ///< Exit status code
+  std::int32_t return_code_;   ///< Exit status code
   std::string name_;          ///< Process name
 };
 

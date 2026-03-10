@@ -51,9 +51,9 @@ class YamlValue
 {
  public:
   YamlValue() : type_(YamlType::kNull) {}
-  explicit YamlValue(const std::string& value) : type_(YamlType::kString), stringValue_(value) {}
-  explicit YamlValue(double value) : type_(YamlType::kNumber), numberValue_(value) {}
-  explicit YamlValue(bool value) : type_(YamlType::kBoolean), boolValue_(value) {}
+  explicit YamlValue(const std::string& value) : type_(YamlType::kString), string_value_(value) {}
+  explicit YamlValue(double value) : type_(YamlType::kNumber), number_value_(value) {}
+  explicit YamlValue(bool value) : type_(YamlType::kBoolean), bool_value_(value) {}
   
   YamlType get_type() const { return type_; }
   
@@ -64,26 +64,26 @@ class YamlValue
   bool is_array() const { return type_ == YamlType::kArray; }
   bool is_object() const { return type_ == YamlType::kObject; }
   
-  const std::string& as_string() const { return stringValue_; }
-  double as_number() const { return numberValue_; }
-  bool as_boolean() const { return boolValue_; }
+  const std::string& as_string() const { return string_value_; }
+  double as_number() const { return number_value_; }
+  bool as_boolean() const { return bool_value_; }
   
-  const std::vector<YamlValue>& as_array() const { return arrayValue_; }
-  std::vector<YamlValue>& as_array() { return arrayValue_; }
+  const std::vector<YamlValue>& as_array() const { return array_value_; }
+  std::vector<YamlValue>& as_array() { return array_value_; }
   
-  const std::map<std::string, YamlValue>& as_object() const { return objectValue_; }
-  std::map<std::string, YamlValue>& as_object() { return objectValue_; }
+  const std::map<std::string, YamlValue>& as_object() const { return object_value_; }
+  std::map<std::string, YamlValue>& as_object() { return object_value_; }
   
-  void add_array_element(const YamlValue& value) { type_ = YamlType::kArray; arrayValue_.push_back(value); }
-  void set_object_field(const std::string& key, const YamlValue& value) { type_ = YamlType::kObject; objectValue_[key] = value; }
+  void add_array_element(const YamlValue& value) { type_ = YamlType::kArray; array_value_.push_back(value); }
+  void set_object_field(const std::string& key, const YamlValue& value) { type_ = YamlType::kObject; object_value_[key] = value; }
   
  private:
   YamlType type_;
-  std::string stringValue_;
-  double numberValue_ = 0.0;
-  bool boolValue_ = false;
-  std::vector<YamlValue> arrayValue_;
-  std::map<std::string, YamlValue> objectValue_;
+  std::string string_value_;
+  double number_value_ = 0.0;
+  bool bool_value_ = false;
+  std::vector<YamlValue> array_value_;
+  std::map<std::string, YamlValue> object_value_;
 };
 
 // YAML parser

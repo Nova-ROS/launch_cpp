@@ -26,18 +26,18 @@ class EnvironmentVariable final : public Substitution
 {
  public:
   EnvironmentVariable(const std::string& name, const std::string& defaultValue = "")
-    : name_(name), defaultValue_(defaultValue) {}
+    : name_(name), default_value_(defaultValue) {}
   
   ~EnvironmentVariable() override = default;
   
   std::string perform(const LaunchContext& context) const override;
   
   const std::string& get_name() const noexcept { return name_; }
-  const std::string& get_default_value() const noexcept { return defaultValue_; }
+  const std::string& get_default_value() const noexcept { return default_value_; }
   
  private:
   std::string name_;
-  std::string defaultValue_;
+  std::string default_value_;
 };
 
 }  // namespace launch_cpp
