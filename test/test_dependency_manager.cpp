@@ -34,19 +34,19 @@ using namespace launch_cpp;
 class MockLaunchContext : public LaunchContext
 {
  public:
-  void RegisterEventHandler(const EventHandlerPtr&) override {}
-  void UnregisterEventHandler(const EventHandler*) override {}
-  const EventHandlerVector& GetEventHandlers() const override { return handlers_; }
-  void SetLaunchConfiguration(const std::string&, const std::string&) override {}
-  Result<std::string> GetLaunchConfiguration(const std::string&) const override {
+  void register_event_handler(const EventHandlerPtr&) override {}
+  void unregister_event_handler(const EventHandler*) override {}
+  const EventHandlerVector& get_event_handlers() const override { return handlers_; }
+  void set_launch_configuration(const std::string&, const std::string&) override {}
+  Result<std::string> get_launch_configuration(const std::string&) const override {
     return Result<std::string>("");
   }
-  bool HasLaunchConfiguration(const std::string&) const override { return false; }
-  std::string GetEnvironmentVariable(const std::string&) const override { return ""; }
-  void SetEnvironmentVariable(const std::string&, const std::string&) override {}
-  void EmitEvent(EventPtr) override {}
-  void SetCurrentLaunchFile(const std::string&) override {}
-  std::string GetCurrentLaunchFile() const override { return ""; }
+  bool has_launch_configuration(const std::string&) const override { return false; }
+  std::string get_environment_variable(const std::string&) const override { return ""; }
+  void set_environment_variable(const std::string&, const std::string&) override {}
+  void emit_event(EventPtr) override {}
+  void set_current_launch_file(const std::string&) override {}
+  std::string get_current_launch_file() const override { return ""; }
 
  private:
   EventHandlerVector handlers_;
@@ -71,7 +71,7 @@ TEST(DependencyResolverTest, ResolveLinearDependencies)
   };
   
   DependencyResolver resolver;
-  auto result = resolver.Resolve(nodes);
+  auto result = resolver.resolve(nodes);
   
   EXPECT_TRUE(result.success);
   EXPECT_EQ(result.order.size(), 3);
@@ -90,7 +90,7 @@ TEST(DependencyResolverTest, ResolveDiamondDependencies)
   };
   
   DependencyResolver resolver;
-  auto result = resolver.Resolve(nodes);
+  auto result = resolver.resolve(nodes);
   
   EXPECT_TRUE(result.success);
   EXPECT_EQ(result.order.size(), 4);
@@ -110,10 +110,10 @@ TEST(DependencyResolverTest, DetectCircularDependency)
   };
   
   DependencyResolver resolver;
-  auto result = resolver.Resolve(nodes);
+  auto result = resolver.resolve(nodes);
   
   EXPECT_FALSE(result.success);
-  EXPECT_TRUE(resolver.HasCircularDependency(nodes));
+  EXPECT_TRUE(resolver.has_circular_dependency(nodes));
 }
 
 TEST(DependencyResolverTest, DetectMissingDependency)
@@ -124,7 +124,7 @@ TEST(DependencyResolverTest, DetectMissingDependency)
   };
   
   DependencyResolver resolver;
-  auto result = resolver.Resolve(nodes);
+  auto result = resolver.resolve(nodes);
   
   EXPECT_FALSE(result.success);
   EXPECT_NE(result.error_message.find("Missing"), std::string::npos);

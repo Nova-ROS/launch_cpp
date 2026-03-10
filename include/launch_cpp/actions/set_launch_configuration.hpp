@@ -38,7 +38,7 @@ class SetLaunchConfiguration final : public Action
 
   Result<void> execute(LaunchContext& context) override;
 
-  const std::string& GetName() const noexcept { return options_.name; }
+  const std::string& get_name() const noexcept { return options_.name; }
   const SubstitutionPtr& get_value() const noexcept { return options_.value; }
 
  private:

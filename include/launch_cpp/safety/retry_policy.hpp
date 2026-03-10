@@ -61,7 +61,7 @@ struct RetryConfig {
     /**
      * @brief Check if an error code is retryable
      */
-    bool IsRetryable(ErrorCode code) const {
+    bool is_retryable(ErrorCode code) const {
         return retryable_errors.find(code) != retryable_errors.end();
     }
 };
@@ -80,7 +80,7 @@ public:
 
     bool is_success() const { return success_; }
     bool has_error() const { return !success_; }
-    ErrorCode GetErrorCode() const { return error_code_; }
+    ErrorCode get_error_code() const { return error_code_; }
     const std::string& get_error_message() const { return error_message_; }
 
     T& get_value() { return value_; }
@@ -154,7 +154,7 @@ public:
             }
 
             // Check if error is retryable
-            if (!ShouldRetry(last_result.GetErrorCode())) {
+            if (!should_retry(last_result.get_error_code())) {
                 return last_result;
             }
 
@@ -168,7 +168,7 @@ public:
 
             // Calculate and apply delay
             auto delay = CalculateDelay(attempt);
-            Sleep(delay);
+            sleep(delay);
         }
 
         // Max retries exceeded
@@ -183,8 +183,8 @@ public:
      * @param error_code Error code to check
      * @return true if error is retryable
      */
-    bool ShouldRetry(ErrorCode error_code) const {
-        return config_.IsRetryable(error_code);
+    bool should_retry(ErrorCode error_code) const {
+        return config_.is_retryable(error_code);
     }
 
     /**
@@ -219,17 +219,17 @@ public:
     /**
      * @brief Get current configuration
      */
-    const RetryConfig& GetConfig() const { return config_; }
+    const RetryConfig& get_config() const { return config_; }
 
     /**
      * @brief Get max attempts
      */
-    uint32_t GetMaxAttempts() const { return config_.max_attempts; }
+    uint32_t get_max_attempts() const { return config_.max_attempts; }
 
     /**
      * @brief Get initial delay
      */
-    std::chrono::milliseconds GetInitialDelay() const {
+    std::chrono::milliseconds get_initial_delay() const {
         return config_.initial_delay;
     }
 
@@ -243,7 +243,7 @@ private:
      * @note Uses std::this_thread::sleep_for
      * @note Can be mocked in tests
      */
-    void Sleep(std::chrono::milliseconds duration) const {
+    void sleep(std::chrono::milliseconds duration) const {
         std::this_thread::sleep_for(duration);
     }
 };
@@ -262,7 +262,7 @@ public:
         return operation();
     }
 
-    bool ShouldRetry(ErrorCode) const { return false; }
+    bool should_retry(ErrorCode) const { return false; }
 
     std::chrono::milliseconds CalculateDelay(uint32_t) const {
         return std::chrono::milliseconds(0);
@@ -299,7 +299,7 @@ public:
         return last_result;
     }
 
-    bool ShouldRetry(ErrorCode) const { return true; }
+    bool should_retry(ErrorCode) const { return true; }
 
     std::chrono::milliseconds CalculateDelay(uint32_t) const { return delay_; }
 
@@ -318,11 +318,11 @@ private:
  */
 class RetryPolicyTestFixture {
 public:
-    RetryPolicy CreateDefaultPolicy() const {
+    RetryPolicy create_default_policy() const {
         return RetryPolicy();
     }
 
-    RetryPolicy CreateExponentialBackoffPolicy() const {
+    RetryPolicy create_exponential_backoff_policy() const {
         RetryConfig config;
         config.max_attempts = 5;
         config.initial_delay = std::chrono::milliseconds(100);
@@ -330,7 +330,7 @@ public:
         return RetryPolicy(config);
     }
 
-    RetryPolicy CreateLinearPolicy() const {
+    RetryPolicy create_linear_policy() const {
         RetryConfig config;
         config.max_attempts = 3;
         config.initial_delay = std::chrono::milliseconds(1000);
@@ -338,7 +338,7 @@ public:
         return RetryPolicy(config);
     }
 
-    RetryPolicy CreateNoRetryPolicy() const {
+    RetryPolicy create_no_retry_policy() const {
         RetryConfig config;
         config.max_attempts = 1;
         return RetryPolicy(config);

@@ -41,10 +41,10 @@ class DeclareLaunchArgument final : public Action
   
   Result<void> execute(LaunchContext& context) override;
   
-  const std::string& GetName() const noexcept { return options_.name; }
-  const SubstitutionPtr& GetDefaultValue() const noexcept { return options_.defaultValue; }
-  const std::string& GetDescription() const noexcept { return options_.description; }
-  const std::vector<std::string>& GetChoices() const noexcept { return options_.choices; }
+  const std::string& get_name() const noexcept { return options_.name; }
+  const SubstitutionPtr& get_default_value() const noexcept { return options_.defaultValue; }
+  const std::string& get_description() const noexcept { return options_.description; }
+  const std::vector<std::string>& get_choices() const noexcept { return options_.choices; }
   
  private:
   Options options_;

@@ -34,14 +34,14 @@ using namespace launch_cpp;
 class MockLaunchContext : public LaunchContext
 {
  public:
-  void RegisterEventHandler(const EventHandlerPtr&) override {}
-  void UnregisterEventHandler(const EventHandler*) override {}
-  const EventHandlerVector& GetEventHandlers() const override { return handlers_; }
-  void SetLaunchConfiguration(const std::string& key, const std::string& value) override
+  void register_event_handler(const EventHandlerPtr&) override {}
+  void unregister_event_handler(const EventHandler*) override {}
+  const EventHandlerVector& get_event_handlers() const override { return handlers_; }
+  void set_launch_configuration(const std::string& key, const std::string& value) override
   {
     configs_[key] = value;
   }
-  Result<std::string> GetLaunchConfiguration(const std::string& key) const override
+  Result<std::string> get_launch_configuration(const std::string& key) const override
   {
     auto it = configs_.find(key);
     if (it == configs_.end()) {
@@ -49,15 +49,15 @@ class MockLaunchContext : public LaunchContext
     }
     return Result<std::string>(it->second);
   }
-  bool HasLaunchConfiguration(const std::string& key) const override
+  bool has_launch_configuration(const std::string& key) const override
   {
     return configs_.find(key) != configs_.end();
   }
-  std::string GetEnvironmentVariable(const std::string&) const override { return ""; }
-  void SetEnvironmentVariable(const std::string&, const std::string&) override {}
-  void EmitEvent(EventPtr) override {}
-  void SetCurrentLaunchFile(const std::string& path) override { currentLaunchFile_ = path; }
-  std::string GetCurrentLaunchFile() const override { return currentLaunchFile_; }
+  std::string get_environment_variable(const std::string&) const override { return ""; }
+  void set_environment_variable(const std::string&, const std::string&) override {}
+  void emit_event(EventPtr) override {}
+  void set_current_launch_file(const std::string& path) override { currentLaunchFile_ = path; }
+  std::string get_current_launch_file() const override { return currentLaunchFile_; }
 
  private:
   EventHandlerVector handlers_;
@@ -107,8 +107,8 @@ TEST(DeclareLaunchArgumentTest, BasicCreation)
   options.description = "Test argument description";
   
   auto action = std::make_shared<DeclareLaunchArgument>(options);
-  EXPECT_EQ(action->GetName(), "test_arg");
-  EXPECT_NE(action->GetDefaultValue(), nullptr);
+  EXPECT_EQ(action->get_name(), "test_arg");
+  EXPECT_NE(action->get_default_value(), nullptr);
 }
 
 // Test: DeclareLaunchArgument execute
@@ -123,9 +123,9 @@ TEST(DeclareLaunchArgumentTest, Execute)
   auto result = action->execute(ctx);
   
   EXPECT_TRUE(result.has_value());
-  EXPECT_TRUE(ctx.HasLaunchConfiguration("my_arg"));
+  EXPECT_TRUE(ctx.has_launch_configuration("my_arg"));
   
-  auto val_result = ctx.GetLaunchConfiguration("my_arg");
+  auto val_result = ctx.get_launch_configuration("my_arg");
   EXPECT_TRUE(val_result.has_value());
   EXPECT_EQ(val_result.get_value(), "default_val");
 }
@@ -138,7 +138,7 @@ TEST(SetLaunchConfigurationTest, BasicCreation)
   options.value = std::make_shared<TextSubstitution>("config_value");
   
   auto action = std::make_shared<SetLaunchConfiguration>(options);
-  EXPECT_EQ(action->GetName(), "config_key");
+  EXPECT_EQ(action->get_name(), "config_key");
 }
 
 // Test: SetLaunchConfiguration execute
@@ -153,9 +153,9 @@ TEST(SetLaunchConfigurationTest, Execute)
   auto result = action->execute(ctx);
   
   EXPECT_TRUE(result.has_value());
-  EXPECT_TRUE(ctx.HasLaunchConfiguration("my_config"));
+  EXPECT_TRUE(ctx.has_launch_configuration("my_config"));
   
-  auto val_result = ctx.GetLaunchConfiguration("my_config");
+  auto val_result = ctx.get_launch_configuration("my_config");
   EXPECT_TRUE(val_result.has_value());
   EXPECT_EQ(val_result.get_value(), "my_value");
 }
@@ -172,9 +172,9 @@ TEST(SetLaunchConfigurationTest, ExecuteWithNullSubstitution)
   auto result = action->execute(ctx);
   
   EXPECT_TRUE(result.has_value());
-  EXPECT_TRUE(ctx.HasLaunchConfiguration("empty_config"));
+  EXPECT_TRUE(ctx.has_launch_configuration("empty_config"));
   
-  auto val_result = ctx.GetLaunchConfiguration("empty_config");
+  auto val_result = ctx.get_launch_configuration("empty_config");
   EXPECT_TRUE(val_result.has_value());
   EXPECT_EQ(val_result.get_value(), "");
 }
@@ -186,8 +186,8 @@ TEST(TimerActionTest, BasicCreation)
   options.period = std::chrono::milliseconds(100);
   
   auto action = std::make_shared<TimerAction>(options);
-  EXPECT_EQ(action->GetPeriod(), std::chrono::milliseconds(100));
-  EXPECT_EQ(action->GetActions().size(), 0U);
+  EXPECT_EQ(action->get_period(), std::chrono::milliseconds(100));
+  EXPECT_EQ(action->get_actions().size(), 0U);
 }
 
 // Test: TimerAction with nested actions
@@ -203,7 +203,7 @@ TEST(TimerActionTest, WithNestedActions)
   options.actions.push_back(std::make_shared<SetLaunchConfiguration>(set_opts));
   
   auto action = std::make_shared<TimerAction>(options);
-  EXPECT_EQ(action->GetActions().size(), 1U);
+  EXPECT_EQ(action->get_actions().size(), 1U);
 }
 
 // Test: TimerAction execute (timing test)
@@ -231,7 +231,7 @@ TEST(GroupActionTest, BasicCreation)
   GroupAction::Options options;
   
   auto action = std::make_shared<GroupAction>(options);
-  EXPECT_EQ(action->GetActions().size(), 0U);
+  EXPECT_EQ(action->get_actions().size(), 0U);
   EXPECT_EQ(action->get_condition(), nullptr);
 }
 
@@ -252,7 +252,7 @@ TEST(GroupActionTest, WithNestedActions)
   options.actions.push_back(std::make_shared<SetLaunchConfiguration>(set_opts2));
   
   auto action = std::make_shared<GroupAction>(options);
-  EXPECT_EQ(action->GetActions().size(), 2U);
+  EXPECT_EQ(action->get_actions().size(), 2U);
 }
 
 // Test: GroupAction execute without condition
@@ -271,7 +271,7 @@ TEST(GroupActionTest, ExecuteWithoutCondition)
   auto result = action->execute(ctx);
   
   EXPECT_TRUE(result.has_value());
-  EXPECT_TRUE(ctx.HasLaunchConfiguration("group_config"));
+  EXPECT_TRUE(ctx.has_launch_configuration("group_config"));
 }
 
 // Test: GroupAction execute with condition
@@ -293,7 +293,7 @@ TEST(GroupActionTest, ExecuteWithCondition)
   auto result = action->execute(ctx);
   
   EXPECT_TRUE(result.has_value());
-  EXPECT_TRUE(ctx.HasLaunchConfiguration("conditional_config"));
+  EXPECT_TRUE(ctx.has_launch_configuration("conditional_config"));
 }
 
 // Test: GroupAction execute with failing condition
@@ -315,7 +315,7 @@ TEST(GroupActionTest, ExecuteWithFailingCondition)
   auto result = action->execute(ctx);
   
   EXPECT_TRUE(result.has_value());
-  EXPECT_FALSE(ctx.HasLaunchConfiguration("should_not_exist"));
+  EXPECT_FALSE(ctx.has_launch_configuration("should_not_exist"));
 }
 
 // Test: IncludeLaunchDescription basic creation

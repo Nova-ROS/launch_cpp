@@ -36,13 +36,13 @@ class LaunchContextImpl final : public LaunchContext
   
   ~LaunchContextImpl() override = default;
   
-  void RegisterEventHandler(const EventHandlerPtr& handler) override
+  void register_event_handler(const EventHandlerPtr& handler) override
   {
     std::lock_guard<std::mutex> lock(handlersMutex_);
     handlers_.push_back(handler);
   }
   
-  void UnregisterEventHandler(const EventHandler* handler) override
+  void unregister_event_handler(const EventHandler* handler) override
   {
     std::lock_guard<std::mutex> lock(handlersMutex_);
     
@@ -56,18 +56,18 @@ class LaunchContextImpl final : public LaunchContext
     }
   }
   
-  const EventHandlerVector& GetEventHandlers() const override
+  const EventHandlerVector& get_event_handlers() const override
   {
     return handlers_;
   }
   
-  void SetLaunchConfiguration(const std::string& key, const std::string& value) override
+  void set_launch_configuration(const std::string& key, const std::string& value) override
   {
     std::lock_guard<std::mutex> lock(configMutex_);
     configurations_[key] = value;
   }
   
-  Result<std::string> GetLaunchConfiguration(const std::string& key) const override
+  Result<std::string> get_launch_configuration(const std::string& key) const override
   {
     std::lock_guard<std::mutex> lock(configMutex_);
     
@@ -80,36 +80,36 @@ class LaunchContextImpl final : public LaunchContext
     return Result<std::string>(it->second);
   }
   
-  bool HasLaunchConfiguration(const std::string& key) const override
+  bool has_launch_configuration(const std::string& key) const override
   {
     std::lock_guard<std::mutex> lock(configMutex_);
     return configurations_.find(key) != configurations_.end();
   }
   
-  std::string GetEnvironmentVariable(const std::string& name) const override
+  std::string get_environment_variable(const std::string& name) const override
   {
     const char* value = std::getenv(name.c_str());
     return value ? std::string(value) : std::string();
   }
   
-  void SetEnvironmentVariable(const std::string& name, const std::string& value) override
+  void set_environment_variable(const std::string& name, const std::string& value) override
   {
     setenv(name.c_str(), value.c_str(), 1);
   }
   
-  void EmitEvent(EventPtr event) override
+  void emit_event(EventPtr event) override
   {
     // TODO: Implement event queue
     (void)event;
   }
   
-  void SetCurrentLaunchFile(const std::string& path) override
+  void set_current_launch_file(const std::string& path) override
   {
     std::lock_guard<std::mutex> lock(launchFileMutex_);
     currentLaunchFile_ = path;
   }
   
-  std::string GetCurrentLaunchFile() const override
+  std::string get_current_launch_file() const override
   {
     std::lock_guard<std::mutex> lock(launchFileMutex_);
     return currentLaunchFile_;

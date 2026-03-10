@@ -57,21 +57,21 @@ public:
         double threshold,
         std::function<void(const SystemResources&)> callback);
     
-    void MonitorThread();
-    void StopMonitoring();
+    void monitor_thread();
+    void stop_monitoring();
 
 private:
     // Parse /proc/meminfo
-    bool ParseMemInfo(uint64_t& total_memory, uint64_t& available_memory);
+    bool parse_mem_info(uint64_t& total_memory, uint64_t& available_memory);
     
     // Parse /proc/stat for CPU load
-    bool ParseCpuStat(double& load1, double& load5, double& load15);
+    bool parse_cpu_stat(double& load1, double& load5, double& load15);
     
     // Parse /proc/[pid]/status for process memory
-    bool ParseProcessStatus(ProcessId pid, uint64_t& vm_rss, uint64_t& vm_size);
+    bool parse_process_status(ProcessId pid, uint64_t& vm_rss, uint64_t& vm_size);
     
     // Parse /proc/[pid]/stat for CPU usage
-    bool ParseProcessStat(ProcessId pid, double& cpu_percent);
+    bool parse_process_stat(ProcessId pid, double& cpu_percent);
     
     // Get system uptime
     double GetUptime();
@@ -93,7 +93,7 @@ PosixResourceMonitor::PosixResourceMonitor()
     : impl_(std::make_unique<Impl>()) {}
 
 PosixResourceMonitor::~PosixResourceMonitor() {
-    impl_->StopMonitoring();
+    impl_->stop_monitoring();
 }
 
 OsalResult<SystemResources> PosixResourceMonitor::get_system_resources() {
@@ -130,7 +130,7 @@ OsalResult<SystemResources> PosixResourceMonitor::Impl::get_system_resources_int
     
     // Get memory information
     uint64_t total_mem, available_mem;
-    if (!ParseMemInfo(total_mem, available_mem)) {
+    if (!parse_mem_info(total_mem, available_mem)) {
         return OsalResult<SystemResources>(
             OsalStatus::kError,
             "Failed to parse /proc/meminfo");
@@ -140,7 +140,7 @@ OsalResult<SystemResources> PosixResourceMonitor::Impl::get_system_resources_int
     
     // Get CPU load
     double load1, load5, load15;
-    if (!ParseCpuStat(load1, load5, load15)) {
+    if (!parse_cpu_stat(load1, load5, load15)) {
         // Not critical, set to 0
         load1 = load5 = load15 = 0.0;
     }
@@ -166,7 +166,7 @@ OsalResult<ResourceUsage> PosixResourceMonitor::Impl::get_process_resources_inte
     
     // Get memory usage
     uint64_t vm_rss, vm_size;
-    if (!ParseProcessStatus(static_cast<pid_t>(pid), vm_rss, vm_size)) {
+    if (!parse_process_status(static_cast<pid_t>(pid), vm_rss, vm_size)) {
         return OsalResult<ResourceUsage>(
             OsalStatus::kNotFound,
             "Failed to read process status");
@@ -176,7 +176,7 @@ OsalResult<ResourceUsage> PosixResourceMonitor::Impl::get_process_resources_inte
     
     // Get CPU usage
     double cpu_percent;
-    if (ParseProcessStat(static_cast<pid_t>(pid), cpu_percent)) {
+    if (parse_process_stat(static_cast<pid_t>(pid), cpu_percent)) {
         usage.cpu_percent = cpu_percent;
     }
     
@@ -247,11 +247,11 @@ void PosixResourceMonitor::Impl::register_threshold_callback_internal(
     // Start monitoring thread if not already running
     if (!monitoring_) {
         monitoring_ = true;
-        monitor_thread_ = std::thread(&Impl::MonitorThread, this);
+        monitor_thread_ = std::thread(&Impl::monitor_thread, this);
     }
 }
 
-void PosixResourceMonitor::Impl::MonitorThread() {
+void PosixResourceMonitor::Impl::monitor_thread() {
     while (monitoring_) {
         auto result = get_system_resources_internal();
         if (!result.has_error()) {
@@ -273,7 +273,7 @@ void PosixResourceMonitor::Impl::MonitorThread() {
     }
 }
 
-void PosixResourceMonitor::Impl::StopMonitoring() {
+void PosixResourceMonitor::Impl::stop_monitoring() {
     monitoring_ = false;
     if (monitor_thread_.joinable()) {
         monitor_thread_.join();
@@ -284,7 +284,7 @@ void PosixResourceMonitor::Impl::StopMonitoring() {
 // Helper Methods
 // ============================================================================
 
-bool PosixResourceMonitor::Impl::ParseMemInfo(
+bool PosixResourceMonitor::Impl::parse_mem_info(
     uint64_t& total_memory, 
     uint64_t& available_memory) {
     
@@ -315,7 +315,7 @@ bool PosixResourceMonitor::Impl::ParseMemInfo(
     return (total_memory > 0);
 }
 
-bool PosixResourceMonitor::Impl::ParseCpuStat(
+bool PosixResourceMonitor::Impl::parse_cpu_stat(
     double& load1, double& load5, double& load15) {
     
     std::ifstream file("/proc/loadavg");
@@ -327,7 +327,7 @@ bool PosixResourceMonitor::Impl::ParseCpuStat(
     return !file.fail();
 }
 
-bool PosixResourceMonitor::Impl::ParseProcessStatus(
+bool PosixResourceMonitor::Impl::parse_process_status(
     ProcessId pid, uint64_t& vm_rss, uint64_t& vm_size) {
     
     std::string path = "/proc/" + std::to_string(pid) + "/status";
@@ -358,7 +358,7 @@ bool PosixResourceMonitor::Impl::ParseProcessStatus(
     return true;
 }
 
-bool PosixResourceMonitor::Impl::ParseProcessStat(
+bool PosixResourceMonitor::Impl::parse_process_stat(
     ProcessId pid, double& cpu_percent) {
     
     std::string path = "/proc/" + std::to_string(pid) + "/stat";

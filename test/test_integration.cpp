@@ -34,20 +34,20 @@ TEST(LaunchContextTest, ConfigurationManagement)
   LaunchContextImpl context;
   
   // Test setting configuration
-  context.SetLaunchConfiguration("test_key", "test_value");
+  context.set_launch_configuration("test_key", "test_value");
   
   // Test getting configuration
-  Result<std::string> result = context.GetLaunchConfiguration("test_key");
+  Result<std::string> result = context.get_launch_configuration("test_key");
   EXPECT_TRUE(result.has_value());
   EXPECT_EQ(result.get_value(), "test_value");
   
   // Test non-existent key
-  Result<std::string> missing = context.GetLaunchConfiguration("missing_key");
+  Result<std::string> missing = context.get_launch_configuration("missing_key");
   EXPECT_TRUE(missing.has_error());
   
   // Test HasLaunchConfiguration
-  EXPECT_TRUE(context.HasLaunchConfiguration("test_key"));
-  EXPECT_FALSE(context.HasLaunchConfiguration("missing_key"));
+  EXPECT_TRUE(context.has_launch_configuration("test_key"));
+  EXPECT_FALSE(context.has_launch_configuration("missing_key"));
 }
 
 TEST(LaunchContextTest, EnvironmentVariables)
@@ -55,14 +55,14 @@ TEST(LaunchContextTest, EnvironmentVariables)
   LaunchContextImpl context;
   
   // Set an environment variable
-  context.SetEnvironmentVariable("CPP_LAUNCH_TEST_VAR", "test_value");
+  context.set_environment_variable("CPP_LAUNCH_TEST_VAR", "test_value");
   
   // Get it back
-  std::string value = context.GetEnvironmentVariable("CPP_LAUNCH_TEST_VAR");
+  std::string value = context.get_environment_variable("CPP_LAUNCH_TEST_VAR");
   EXPECT_EQ(value, "test_value");
   
   // Get non-existent
-  std::string missing = context.GetEnvironmentVariable("NON_EXISTENT_VAR_12345");
+  std::string missing = context.get_environment_variable("NON_EXISTENT_VAR_12345");
   EXPECT_TRUE(missing.empty());
 }
 

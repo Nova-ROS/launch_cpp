@@ -32,14 +32,14 @@ using namespace launch_cpp;
 class MockLaunchContext : public LaunchContext
 {
  public:
-  void RegisterEventHandler(const EventHandlerPtr&) override {}
-  void UnregisterEventHandler(const EventHandler*) override {}
-  const EventHandlerVector& GetEventHandlers() const override { return handlers_; }
-  void SetLaunchConfiguration(const std::string& key, const std::string& value) override
+  void register_event_handler(const EventHandlerPtr&) override {}
+  void unregister_event_handler(const EventHandler*) override {}
+  const EventHandlerVector& get_event_handlers() const override { return handlers_; }
+  void set_launch_configuration(const std::string& key, const std::string& value) override
   {
     configs_[key] = value;
   }
-  Result<std::string> GetLaunchConfiguration(const std::string& key) const override
+  Result<std::string> get_launch_configuration(const std::string& key) const override
   {
     auto it = configs_.find(key);
     if (it == configs_.end()) {
@@ -47,11 +47,11 @@ class MockLaunchContext : public LaunchContext
     }
     return Result<std::string>(it->second);
   }
-  bool HasLaunchConfiguration(const std::string& key) const override
+  bool has_launch_configuration(const std::string& key) const override
   {
     return configs_.find(key) != configs_.end();
   }
-  std::string GetEnvironmentVariable(const std::string& name) const override
+  std::string get_environment_variable(const std::string& name) const override
   {
     auto it = env_vars_.find(name);
     if (it != env_vars_.end()) {
@@ -59,13 +59,13 @@ class MockLaunchContext : public LaunchContext
     }
     return "";
   }
-  void SetEnvironmentVariable(const std::string& name, const std::string& value) override
+  void set_environment_variable(const std::string& name, const std::string& value) override
   {
     env_vars_[name] = value;
   }
-  void EmitEvent(EventPtr) override {}
-  void SetCurrentLaunchFile(const std::string& path) override { currentLaunchFile_ = path; }
-  std::string GetCurrentLaunchFile() const override { return currentLaunchFile_; }
+  void emit_event(EventPtr) override {}
+  void set_current_launch_file(const std::string& path) override { currentLaunchFile_ = path; }
+  std::string get_current_launch_file() const override { return currentLaunchFile_; }
 
  private:
   EventHandlerVector handlers_;
@@ -178,7 +178,7 @@ TEST(FindExecutableExtendedTest, EmptyName)
 TEST(EnvironmentVariableExtendedTest, ExistingVar)
 {
   MockLaunchContext ctx;
-  ctx.SetEnvironmentVariable("TEST_VAR", "test_value");
+  ctx.set_environment_variable("TEST_VAR", "test_value");
   
   EnvironmentVariable sub("TEST_VAR");
   // Note: MockLaunchContext stores in internal map, but substitution reads from actual env
@@ -212,7 +212,7 @@ TEST(EnvironmentVariableExtendedTest, EmptyVarName)
 TEST(ThisLaunchFileExtendedTest, Basic)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("/path/to/test.launch");
+  ctx.set_current_launch_file("/path/to/test.launch");
   
   ThisLaunchFile sub;
   EXPECT_EQ(sub.perform(ctx), "/path/to/test.launch");
@@ -221,7 +221,7 @@ TEST(ThisLaunchFileExtendedTest, Basic)
 TEST(ThisLaunchFileExtendedTest, RelativePath)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("relative/path.launch");
+  ctx.set_current_launch_file("relative/path.launch");
   
   ThisLaunchFile sub;
   EXPECT_EQ(sub.perform(ctx), "relative/path.launch");
@@ -230,7 +230,7 @@ TEST(ThisLaunchFileExtendedTest, RelativePath)
 TEST(ThisLaunchFileExtendedTest, EmptyPath)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("");
+  ctx.set_current_launch_file("");
   
   ThisLaunchFile sub;
   EXPECT_EQ(sub.perform(ctx), "");
@@ -243,7 +243,7 @@ TEST(ThisLaunchFileExtendedTest, EmptyPath)
 TEST(ThisLaunchFileDirExtendedTest, Basic)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("/path/to/test.launch");
+  ctx.set_current_launch_file("/path/to/test.launch");
   
   ThisLaunchFileDir sub;
   EXPECT_EQ(sub.perform(ctx), "/path/to");
@@ -252,7 +252,7 @@ TEST(ThisLaunchFileDirExtendedTest, Basic)
 TEST(ThisLaunchFileDirExtendedTest, RelativePath)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("relative/path.launch");
+  ctx.set_current_launch_file("relative/path.launch");
   
   ThisLaunchFileDir sub;
   EXPECT_EQ(sub.perform(ctx), "relative");
@@ -261,7 +261,7 @@ TEST(ThisLaunchFileDirExtendedTest, RelativePath)
 TEST(ThisLaunchFileDirExtendedTest, NoDirectory)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("test.launch");
+  ctx.set_current_launch_file("test.launch");
   
   ThisLaunchFileDir sub;
   std::string result = sub.perform(ctx);
@@ -272,7 +272,7 @@ TEST(ThisLaunchFileDirExtendedTest, NoDirectory)
 TEST(ThisLaunchFileDirExtendedTest, EmptyPath)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("");
+  ctx.set_current_launch_file("");
   
   ThisLaunchFileDir sub;
   EXPECT_EQ(sub.perform(ctx), "");
@@ -285,7 +285,7 @@ TEST(ThisLaunchFileDirExtendedTest, EmptyPath)
 TEST(LaunchConfigurationExtendedTest, ExistingConfig)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("my_key", "my_value");
+  ctx.set_launch_configuration("my_key", "my_value");
   
   LaunchConfiguration sub("my_key");
   EXPECT_EQ(sub.perform(ctx), "my_value");
@@ -310,9 +310,9 @@ TEST(LaunchConfigurationExtendedTest, EmptyKey)
 TEST(LaunchConfigurationExtendedTest, MultipleConfigs)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("key1", "value1");
-  ctx.SetLaunchConfiguration("key2", "value2");
-  ctx.SetLaunchConfiguration("key3", "value3");
+  ctx.set_launch_configuration("key1", "value1");
+  ctx.set_launch_configuration("key2", "value2");
+  ctx.set_launch_configuration("key3", "value3");
   
   LaunchConfiguration sub1("key1");
   LaunchConfiguration sub2("key2");
@@ -330,9 +330,9 @@ TEST(LaunchConfigurationExtendedTest, MultipleConfigs)
 TEST(SubstitutionIntegrationTest, FullWorkflow)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("/workspace/test.launch");
-  ctx.SetLaunchConfiguration("name", "world");
-  ctx.SetEnvironmentVariable("GREETING", "hello");
+  ctx.set_current_launch_file("/workspace/test.launch");
+  ctx.set_launch_configuration("name", "world");
+  ctx.set_environment_variable("GREETING", "hello");
   
   ThisLaunchFileDir dir_sub;
   LaunchConfiguration name_sub("name");

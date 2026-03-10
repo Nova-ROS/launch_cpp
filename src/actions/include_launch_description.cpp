@@ -58,7 +58,7 @@ Result<void> IncludeLaunchDescription::execute(LaunchContext& context)
     if (arg.second)
     {
       std::string value = arg.second->perform(context);
-      context.SetLaunchConfiguration(arg.first, value);
+      context.set_launch_configuration(arg.first, value);
     }
   }
   

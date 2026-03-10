@@ -164,7 +164,7 @@ public:
      *
      * @note Checks ROS2_PATH environment variable
      */
-    std::string BuildProgramPath() const;
+    std::string build_program_path() const;
 
     /**
      * @brief Build node identification arguments
@@ -445,11 +445,11 @@ inline std::vector<std::string> CommandBuilder::BuildNameAndNamespace(
  */
 class CommandBuilderTestFixture {
 public:
-    CommandBuilder CreateBuilder() const {
+    CommandBuilder create_builder() const {
         return CommandBuilder();
     }
 
-    NodeActionOptions CreateValidOptions() const {
+    NodeActionOptions create_valid_options() const {
         NodeActionOptions options;
         options.package = "demo_nodes_cpp";
         options.executable = "talker";
@@ -458,7 +458,7 @@ public:
         return options;
     }
 
-    NodeActionOptions CreateInvalidOptions() const {
+    NodeActionOptions create_invalid_options() const {
         NodeActionOptions options;
         options.package = "";  // Invalid: empty
         options.executable = "talker";

@@ -77,24 +77,24 @@ Result<LaunchDescriptionEntityVector> LaunchDescription::visit(LaunchContext& co
 
 Result<LaunchDescriptionPtr> LaunchDescription::from_yaml(const std::string& yamlString)
 {
-  auto yamlResult = YamlParser::Parse(yamlString);
+  auto yamlResult = YamlParser::parse(yamlString);
   if (yamlResult.has_error())
   {
     return Result<LaunchDescriptionPtr>(yamlResult.get_error());
   }
   
-  return YamlLaunchBuilder::Build(yamlResult.get_value());
+  return YamlLaunchBuilder::build(yamlResult.get_value());
 }
 
 Result<LaunchDescriptionPtr> LaunchDescription::from_yaml_file(const std::string& filePath)
 {
-  auto yamlResult = YamlParser::ParseFile(filePath);
+  auto yamlResult = YamlParser::parse_file(filePath);
   if (yamlResult.has_error())
   {
     return Result<LaunchDescriptionPtr>(yamlResult.get_error());
   }
   
-  return YamlLaunchBuilder::Build(yamlResult.get_value());
+  return YamlLaunchBuilder::build(yamlResult.get_value());
 }
 
 }  // namespace launch_cpp

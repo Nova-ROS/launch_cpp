@@ -142,28 +142,28 @@ public:
     /**
      * @brief Get node name
      */
-    const std::string& GetName() const { return options_.name; }
+    const std::string& get_name() const { return options_.name; }
 
     /**
      * @brief Get package name
      */
-    const std::string& GetPackage() const { return options_.package; }
+    const std::string& get_package() const { return options_.package; }
 
     /**
      * @brief Get executable name
      */
-    const std::string& GetExecutable() const { return options_.executable; }
+    const std::string& get_executable() const { return options_.executable; }
 
     /**
      * @brief Get process ID (if running)
      * @return Process ID or -1 if not running
      */
-    launch_cpp::ProcessId GetProcessId() const { return current_pid_.load(); }
+    launch_cpp::ProcessId get_process_id() const { return current_pid_.load(); }
 
     /**
      * @brief Get node statistics
      */
-    NodeStatistics GetStatistics() const { return stats_; }
+    NodeStatistics get_statistics() const { return stats_; }
 
     /**
      * @brief Check if node is running
@@ -178,7 +178,7 @@ public:
      *
      * Called by watchdog when heartbeat received.
      */
-    void OnHeartbeat(const launch_cpp::HeartbeatMessage& message);
+    void on_heartbeat(const launch_cpp::HeartbeatMessage& message);
 
     /**
      * @brief Handle heartbeat timeout
@@ -186,7 +186,7 @@ public:
      * Called by watchdog when heartbeat timeout occurs.
      * Implements recovery logic per TSR-009.
      */
-    void OnHeartbeatTimeout();
+    void on_heartbeat_timeout();
 
     /**
      * @brief Handle process exit
@@ -195,7 +195,7 @@ public:
      *
      * Called when process exits (normally or abnormally).
      */
-    void OnProcessExit(int32_t exit_code, launch_cpp::ProcessState state);
+    void on_process_exit(int32_t exit_code, launch_cpp::ProcessState state);
 
 private:
     // Configuration
@@ -240,12 +240,12 @@ private:
     /**
      * @brief Unregister node from watchdog
      */
-    void UnregisterFromWatchdog();
+    void unregister_from_watchdog();
 
     /**
      * @brief Update node state
      */
-    void UpdateState(NodeState new_state);
+    void update_state(NodeState new_state);
 
     /**
      * @brief Report error through error handler
@@ -255,39 +255,39 @@ private:
     /**
      * @brief Calculate startup timeout
      */
-    std::chrono::milliseconds GetStartupTimeout() const;
+    std::chrono::milliseconds get_startup_timeout() const;
 
     /**
      * @brief Calculate shutdown timeout
      */
-    std::chrono::milliseconds GetShutdownTimeout() const;
+    std::chrono::milliseconds get_shutdown_timeout() const;
 
     /**
      * @brief Check if restart is allowed
      */
-    bool IsRestartAllowed() const;
+    bool is_restart_allowed() const;
 
     /**
      * @brief Increment restart count
      */
-    void IncrementRestartCount();
+    void increment_restart_count();
 
     /**
      * @brief Reset restart count
      */
-    void ResetRestartCount();
+    void reset_restart_count();
 
     /**
      * @brief Update runtime statistics
      */
-    void UpdateRuntimeStats();
+    void update_runtime_stats();
 };
 
 // ============================================================================
 // Inline Implementation - Simple Methods
 // ============================================================================
 
-inline void NodeActionRefactored::UpdateState(NodeState new_state) {
+inline void NodeActionRefactored::update_state(NodeState new_state) {
     NodeState old_state = state_.exchange(new_state);
 
     // Log state transition
@@ -314,17 +314,17 @@ inline void NodeActionRefactored::report_error(ErrorCode code,
     }
 }
 
-inline std::chrono::milliseconds NodeActionRefactored::GetStartupTimeout() const {
+inline std::chrono::milliseconds NodeActionRefactored::get_startup_timeout() const {
     // Could be configurable per node
     return kDefaultStartupTimeout;
 }
 
-inline std::chrono::milliseconds NodeActionRefactored::GetShutdownTimeout() const {
+inline std::chrono::milliseconds NodeActionRefactored::get_shutdown_timeout() const {
     // Could be configurable per node
     return kDefaultShutdownTimeout;
 }
 
-inline bool NodeActionRefactored::IsRestartAllowed() const {
+inline bool NodeActionRefactored::is_restart_allowed() const {
     if (!retry_policy_) {
         return false;
     }
@@ -332,17 +332,17 @@ inline bool NodeActionRefactored::IsRestartAllowed() const {
     return stats_.restart_count < retry_policy_->GetMaxAttempts();
 }
 
-inline void NodeActionRefactored::IncrementRestartCount() {
+inline void NodeActionRefactored::increment_restart_count() {
     std::lock_guard<std::mutex> lock(stats_mutex_);
     stats_.restart_count++;
 }
 
-inline void NodeActionRefactored::ResetRestartCount() {
+inline void NodeActionRefactored::reset_restart_count() {
     std::lock_guard<std::mutex> lock(stats_mutex_);
     stats_.restart_count = 0;
 }
 
-inline void NodeActionRefactored::UpdateRuntimeStats() {
+inline void NodeActionRefactored::update_runtime_stats() {
     std::lock_guard<std::mutex> lock(stats_mutex_);
 
     if (stats_.start_time.time_since_epoch().count() > 0) {
@@ -371,7 +371,7 @@ public:
         std::shared_ptr<RetryPolicy> retry_policy;
     };
 
-    MockDependencies CreateMockDependencies() const {
+    MockDependencies create_mock_dependencies() const {
         MockDependencies deps;
         // In real implementation, these would be Google Mock objects
         // deps.executor = std::make_shared<MockProcessExecutor>();
@@ -380,7 +380,7 @@ public:
         return deps;
     }
 
-    NodeActionOptions CreateValidOptions() const {
+    NodeActionOptions create_valid_options() const {
         NodeActionOptions options;
         options.package = "demo_nodes_cpp";
         options.executable = "talker";

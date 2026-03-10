@@ -22,7 +22,7 @@ namespace launch_cpp
 
 std::string ThisLaunchFileDir::perform(const LaunchContext& context) const
 {
-  std::string launch_file = context.GetCurrentLaunchFile();
+  std::string launch_file = context.get_current_launch_file();
   if (launch_file.empty())
   {
     return "";

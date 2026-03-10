@@ -31,14 +31,14 @@ using namespace launch_cpp;
 class MockLaunchContext : public LaunchContext
 {
  public:
-  void RegisterEventHandler(const EventHandlerPtr&) override {}
-  void UnregisterEventHandler(const EventHandler*) override {}
-  const EventHandlerVector& GetEventHandlers() const override { return handlers_; }
-  void SetLaunchConfiguration(const std::string& key, const std::string& value) override
+  void register_event_handler(const EventHandlerPtr&) override {}
+  void unregister_event_handler(const EventHandler*) override {}
+  const EventHandlerVector& get_event_handlers() const override { return handlers_; }
+  void set_launch_configuration(const std::string& key, const std::string& value) override
   {
     configs_[key] = value;
   }
-  Result<std::string> GetLaunchConfiguration(const std::string& key) const override
+  Result<std::string> get_launch_configuration(const std::string& key) const override
   {
     auto it = configs_.find(key);
     if (it == configs_.end()) {
@@ -46,15 +46,15 @@ class MockLaunchContext : public LaunchContext
     }
     return Result<std::string>(it->second);
   }
-  bool HasLaunchConfiguration(const std::string& key) const override
+  bool has_launch_configuration(const std::string& key) const override
   {
     return configs_.find(key) != configs_.end();
   }
-  std::string GetEnvironmentVariable(const std::string&) const override { return ""; }
-  void SetEnvironmentVariable(const std::string&, const std::string&) override {}
-  void EmitEvent(EventPtr) override {}
-  void SetCurrentLaunchFile(const std::string& path) override { currentLaunchFile_ = path; }
-  std::string GetCurrentLaunchFile() const override { return currentLaunchFile_; }
+  std::string get_environment_variable(const std::string&) const override { return ""; }
+  void set_environment_variable(const std::string&, const std::string&) override {}
+  void emit_event(EventPtr) override {}
+  void set_current_launch_file(const std::string& path) override { currentLaunchFile_ = path; }
+  std::string get_current_launch_file() const override { return currentLaunchFile_; }
 
  private:
   EventHandlerVector handlers_;

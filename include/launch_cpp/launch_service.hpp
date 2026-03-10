@@ -264,7 +264,7 @@ class LaunchService final
    *
    * @thread_safety Thread-safe
    */
-  LaunchServiceStatus GetStatus() const noexcept
+  LaunchServiceStatus get_status() const noexcept
   {
     return status_.load(std::memory_order_acquire);
   }

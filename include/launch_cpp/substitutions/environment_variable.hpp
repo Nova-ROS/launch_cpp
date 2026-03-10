@@ -32,8 +32,8 @@ class EnvironmentVariable final : public Substitution
   
   std::string perform(const LaunchContext& context) const override;
   
-  const std::string& GetName() const noexcept { return name_; }
-  const std::string& GetDefaultValue() const noexcept { return defaultValue_; }
+  const std::string& get_name() const noexcept { return name_; }
+  const std::string& get_default_value() const noexcept { return defaultValue_; }
   
  private:
   std::string name_;

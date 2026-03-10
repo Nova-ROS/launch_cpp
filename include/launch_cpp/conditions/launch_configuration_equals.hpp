@@ -33,8 +33,8 @@ class LaunchConfigurationEquals final : public Condition
   
   bool evaluate(const LaunchContext& context) const override;
   
-  const std::string& GetName() const noexcept { return name_; }
-  const SubstitutionPtr& GetExpected() const noexcept { return expected_; }
+  const std::string& get_name() const noexcept { return name_; }
+  const SubstitutionPtr& get_expected() const noexcept { return expected_; }
   
  private:
   std::string name_;

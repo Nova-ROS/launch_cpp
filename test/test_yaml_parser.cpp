@@ -25,7 +25,7 @@ using namespace launch_cpp;
 TEST(YamlParserTest, ParseEmpty)
 {
   std::string yaml = "";
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   
   ASSERT_TRUE(result.has_value());
   // Empty content returns null YamlValue (not an object)
@@ -36,11 +36,11 @@ TEST(YamlParserTest, ParseEmpty)
 TEST(YamlParserTest, ParseNull)
 {
   std::string yaml = "key: null";
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
-  EXPECT_EQ(result.get_value().AsObject().size(), 1U);
+  EXPECT_TRUE(result.get_value().is_object());
+  EXPECT_EQ(result.get_value().as_object().size(), 1U);
 }
 
 // Test: Parse boolean values
@@ -49,25 +49,25 @@ TEST(YamlParserTest, ParseBoolean)
   // Test true values
   for (const auto& val : {"true", "yes", "on"}) {
     std::string yaml = std::string("key: ") + val;
-    auto result = YamlParser::Parse(yaml);
+    auto result = YamlParser::parse(yaml);
     ASSERT_TRUE(result.has_value()) << "Failed to parse: " << val;
-    EXPECT_TRUE(result.get_value().IsObject());
-    auto it = result.get_value().AsObject().find("key");
-    ASSERT_NE(it, result.get_value().AsObject().end());
-    EXPECT_TRUE(it->second.IsBoolean());
-    EXPECT_TRUE(it->second.AsBoolean());
+    EXPECT_TRUE(result.get_value().is_object());
+    auto it = result.get_value().as_object().find("key");
+    ASSERT_NE(it, result.get_value().as_object().end());
+    EXPECT_TRUE(it->second.is_boolean());
+    EXPECT_TRUE(it->second.as_boolean());
   }
   
   // Test false values
   for (const auto& val : {"false", "no", "off"}) {
     std::string yaml = std::string("key: ") + val;
-    auto result = YamlParser::Parse(yaml);
+    auto result = YamlParser::parse(yaml);
     ASSERT_TRUE(result.has_value()) << "Failed to parse: " << val;
-    EXPECT_TRUE(result.get_value().IsObject());
-    auto it = result.get_value().AsObject().find("key");
-    ASSERT_NE(it, result.get_value().AsObject().end());
-    EXPECT_TRUE(it->second.IsBoolean());
-    EXPECT_FALSE(it->second.AsBoolean());
+    EXPECT_TRUE(result.get_value().is_object());
+    auto it = result.get_value().as_object().find("key");
+    ASSERT_NE(it, result.get_value().as_object().end());
+    EXPECT_TRUE(it->second.is_boolean());
+    EXPECT_FALSE(it->second.as_boolean());
   }
 }
 
@@ -75,13 +75,13 @@ TEST(YamlParserTest, ParseBoolean)
 TEST(YamlParserTest, ParseInteger)
 {
   std::string yaml = "key: 42";
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
-  auto it = result.get_value().AsObject().find("key");
-  ASSERT_NE(it, result.get_value().AsObject().end());
-  EXPECT_TRUE(it->second.IsNumber());
-  EXPECT_DOUBLE_EQ(it->second.AsNumber(), 42.0);
+  EXPECT_TRUE(result.get_value().is_object());
+  auto it = result.get_value().as_object().find("key");
+  ASSERT_NE(it, result.get_value().as_object().end());
+  EXPECT_TRUE(it->second.is_number());
+  EXPECT_DOUBLE_EQ(it->second.as_number(), 42.0);
 }
 
 // Test: Parse floating point values
@@ -91,12 +91,12 @@ TEST(YamlParserTest, ParseFloat)
   
   for (const auto& val : floats) {
     std::string yaml = std::string("key: ") + val;
-    auto result = YamlParser::Parse(yaml);
+    auto result = YamlParser::parse(yaml);
     ASSERT_TRUE(result.has_value()) << "Failed to parse: " << val;
-    EXPECT_TRUE(result.get_value().IsObject());
-    auto it = result.get_value().AsObject().find("key");
-    ASSERT_NE(it, result.get_value().AsObject().end());
-    EXPECT_TRUE(it->second.IsNumber());
+    EXPECT_TRUE(result.get_value().is_object());
+    auto it = result.get_value().as_object().find("key");
+    ASSERT_NE(it, result.get_value().as_object().end());
+    EXPECT_TRUE(it->second.is_number());
   }
 }
 
@@ -104,11 +104,11 @@ TEST(YamlParserTest, ParseFloat)
 TEST(YamlParserTest, ParseString)
 {
   std::string yaml = "key: hello";
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
-  auto it = result.get_value().AsObject().find("key");
-  ASSERT_NE(it, result.get_value().AsObject().end());
+  EXPECT_TRUE(result.get_value().is_object());
+  auto it = result.get_value().as_object().find("key");
+  ASSERT_NE(it, result.get_value().as_object().end());
   EXPECT_TRUE(it->second.is_string());
   EXPECT_EQ(it->second.as_string(), "hello");
 }
@@ -117,11 +117,11 @@ TEST(YamlParserTest, ParseString)
 TEST(YamlParserTest, ParseQuotedString)
 {
   std::string yaml = "key: \"hello world\"";
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
-  auto it = result.get_value().AsObject().find("key");
-  ASSERT_NE(it, result.get_value().AsObject().end());
+  EXPECT_TRUE(result.get_value().is_object());
+  auto it = result.get_value().as_object().find("key");
+  ASSERT_NE(it, result.get_value().as_object().end());
   EXPECT_TRUE(it->second.is_string());
   EXPECT_EQ(it->second.as_string(), "hello world");
 }
@@ -130,11 +130,11 @@ TEST(YamlParserTest, ParseQuotedString)
 TEST(YamlParserTest, ParseEmptyString)
 {
   std::string yaml = "key: \"\"";
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
-  auto it = result.get_value().AsObject().find("key");
-  ASSERT_NE(it, result.get_value().AsObject().end());
+  EXPECT_TRUE(result.get_value().is_object());
+  auto it = result.get_value().as_object().find("key");
+  ASSERT_NE(it, result.get_value().as_object().end());
   EXPECT_TRUE(it->second.is_string());
   EXPECT_EQ(it->second.as_string(), "");
 }
@@ -147,15 +147,15 @@ TEST(YamlParserTest, ParseSimpleArray)
   - item2
   - item3)";
   
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
+  EXPECT_TRUE(result.get_value().is_object());
   
-  auto it = result.get_value().AsObject().find("items");
-  ASSERT_NE(it, result.get_value().AsObject().end());
-  EXPECT_TRUE(it->second.IsArray());
+  auto it = result.get_value().as_object().find("items");
+  ASSERT_NE(it, result.get_value().as_object().end());
+  EXPECT_TRUE(it->second.is_array());
   
-  const auto& arr = it->second.AsArray();
+  const auto& arr = it->second.as_array();
   EXPECT_EQ(arr.size(), 3U);
   EXPECT_EQ(arr[0].as_string(), "item1");
   EXPECT_EQ(arr[1].as_string(), "item2");
@@ -171,21 +171,21 @@ TEST(YamlParserTest, ParseMixedArray)
   - 3.14
   - true)";
   
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
+  EXPECT_TRUE(result.get_value().is_object());
   
-  auto it = result.get_value().AsObject().find("items");
-  ASSERT_NE(it, result.get_value().AsObject().end());
-  EXPECT_TRUE(it->second.IsArray());
+  auto it = result.get_value().as_object().find("items");
+  ASSERT_NE(it, result.get_value().as_object().end());
+  EXPECT_TRUE(it->second.is_array());
   
-  const auto& arr = it->second.AsArray();
+  const auto& arr = it->second.as_array();
   EXPECT_EQ(arr.size(), 4U);
   EXPECT_TRUE(arr[0].is_string());
-  EXPECT_TRUE(arr[1].IsNumber());
-  EXPECT_DOUBLE_EQ(arr[1].AsNumber(), 42.0);
-  EXPECT_TRUE(arr[2].IsNumber());
-  EXPECT_TRUE(arr[3].IsBoolean());
+  EXPECT_TRUE(arr[1].is_number());
+  EXPECT_DOUBLE_EQ(arr[1].as_number(), 42.0);
+  EXPECT_TRUE(arr[2].is_number());
+  EXPECT_TRUE(arr[3].is_boolean());
 }
 
 // Test: Parse array with simple items only
@@ -198,15 +198,15 @@ TEST(YamlParserTest, ParseNestedArray)
   - item2
   - item3)";
   
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
+  EXPECT_TRUE(result.get_value().is_object());
   
-  auto it = result.get_value().AsObject().find("items");
-  ASSERT_NE(it, result.get_value().AsObject().end());
-  EXPECT_TRUE(it->second.IsArray());
+  auto it = result.get_value().as_object().find("items");
+  ASSERT_NE(it, result.get_value().as_object().end());
+  EXPECT_TRUE(it->second.is_array());
   
-  const auto& arr = it->second.AsArray();
+  const auto& arr = it->second.as_array();
   EXPECT_EQ(arr.size(), 3U);
   EXPECT_TRUE(arr[0].is_string());
   EXPECT_TRUE(arr[1].is_string());
@@ -219,11 +219,11 @@ TEST(YamlParserTest, ParseSimpleObject)
   std::string yaml = R"(name: test
 value: 42)";
   
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
+  EXPECT_TRUE(result.get_value().is_object());
   
-  const auto& obj = result.get_value().AsObject();
+  const auto& obj = result.get_value().as_object();
   EXPECT_EQ(obj.size(), 2U);
   
   auto nameIt = obj.find("name");
@@ -232,7 +232,7 @@ value: 42)";
   
   auto valueIt = obj.find("value");
   ASSERT_NE(valueIt, obj.end());
-  EXPECT_EQ(valueIt->second.AsNumber(), 42.0);
+  EXPECT_EQ(valueIt->second.as_number(), 42.0);
 }
 
 // Test: Parse nested objects
@@ -242,15 +242,15 @@ TEST(YamlParserTest, ParseNestedObject)
   name: test
   value: 42)";
   
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
+  EXPECT_TRUE(result.get_value().is_object());
   
-  auto configIt = result.get_value().AsObject().find("config");
-  ASSERT_NE(configIt, result.get_value().AsObject().end());
-  EXPECT_TRUE(configIt->second.IsObject());
+  auto configIt = result.get_value().as_object().find("config");
+  ASSERT_NE(configIt, result.get_value().as_object().end());
+  EXPECT_TRUE(configIt->second.is_object());
   
-  const auto& nested = configIt->second.AsObject();
+  const auto& nested = configIt->second.as_object();
   EXPECT_EQ(nested.size(), 2U);
   
   auto nameIt = nested.find("name");
@@ -266,21 +266,21 @@ TEST(YamlParserTest, ParseDeepNesting)
     level3:
       value: deep)";
   
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
+  EXPECT_TRUE(result.get_value().is_object());
   
-  auto l1 = result.get_value().AsObject().find("level1");
-  ASSERT_NE(l1, result.get_value().AsObject().end());
-  EXPECT_TRUE(l1->second.IsObject());
+  auto l1 = result.get_value().as_object().find("level1");
+  ASSERT_NE(l1, result.get_value().as_object().end());
+  EXPECT_TRUE(l1->second.is_object());
   
-  auto l2 = l1->second.AsObject().find("level2");
-  ASSERT_NE(l2, l1->second.AsObject().end());
-  EXPECT_TRUE(l2->second.IsObject());
+  auto l2 = l1->second.as_object().find("level2");
+  ASSERT_NE(l2, l1->second.as_object().end());
+  EXPECT_TRUE(l2->second.is_object());
   
-  auto l3 = l2->second.AsObject().find("level3");
-  ASSERT_NE(l3, l2->second.AsObject().end());
-  EXPECT_TRUE(l3->second.IsObject());
+  auto l3 = l2->second.as_object().find("level3");
+  ASSERT_NE(l3, l2->second.as_object().end());
+  EXPECT_TRUE(l3->second.is_object());
 }
 
 // Test: Parse inline array
@@ -288,15 +288,15 @@ TEST(YamlParserTest, ParseInlineArray)
 {
   std::string yaml = "items: [1, 2, 3]";
   
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
+  EXPECT_TRUE(result.get_value().is_object());
   
-  auto it = result.get_value().AsObject().find("items");
-  ASSERT_NE(it, result.get_value().AsObject().end());
-  EXPECT_TRUE(it->second.IsArray());
+  auto it = result.get_value().as_object().find("items");
+  ASSERT_NE(it, result.get_value().as_object().end());
+  EXPECT_TRUE(it->second.is_array());
   
-  const auto& arr = it->second.AsArray();
+  const auto& arr = it->second.as_array();
   EXPECT_EQ(arr.size(), 3U);
 }
 
@@ -312,11 +312,11 @@ TEST(YamlParserTest, ParseFile)
     file.close();
   }
   
-  auto result = YamlParser::ParseFile(tempFile);
+  auto result = YamlParser::parse_file(tempFile);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
+  EXPECT_TRUE(result.get_value().is_object());
   
-  const auto& obj = result.get_value().AsObject();
+  const auto& obj = result.get_value().as_object();
   EXPECT_EQ(obj.size(), 2U);
   
   std::remove(tempFile);
@@ -325,7 +325,7 @@ TEST(YamlParserTest, ParseFile)
 // Test: Parse non-existent file
 TEST(YamlParserTest, ParseNonExistentFile)
 {
-  auto result = YamlParser::ParseFile("/nonexistent/file.yaml");
+  auto result = YamlParser::parse_file("/nonexistent/file.yaml");
   ASSERT_TRUE(result.has_error());
 }
 
@@ -337,11 +337,11 @@ key: value
 # Another comment
 number: 42)";
   
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
+  EXPECT_TRUE(result.get_value().is_object());
   
-  const auto& obj = result.get_value().AsObject();
+  const auto& obj = result.get_value().as_object();
   EXPECT_EQ(obj.size(), 2U);
 }
 
@@ -354,11 +354,11 @@ number: 42
 
 string: test)";
   
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
+  EXPECT_TRUE(result.get_value().is_object());
   
-  const auto& obj = result.get_value().AsObject();
+  const auto& obj = result.get_value().as_object();
   EXPECT_EQ(obj.size(), 3U);
 }
 
@@ -376,9 +376,9 @@ TEST(YamlParserTest, ParseLaunchFile)
       name: arg1
       default_value: default)";
   
-  auto result = YamlParser::Parse(yaml);
+  auto result = YamlParser::parse(yaml);
   ASSERT_TRUE(result.has_value());
-  EXPECT_TRUE(result.get_value().IsObject());
+  EXPECT_TRUE(result.get_value().is_object());
 }
 
 // Test: YamlValue type checking
@@ -387,10 +387,10 @@ TEST(YamlValueTest, TypeChecking)
   YamlValue nullVal;
   EXPECT_TRUE(nullVal.is_null());
   EXPECT_FALSE(nullVal.is_string());
-  EXPECT_FALSE(nullVal.IsNumber());
-  EXPECT_FALSE(nullVal.IsBoolean());
-  EXPECT_FALSE(nullVal.IsArray());
-  EXPECT_FALSE(nullVal.IsObject());
+  EXPECT_FALSE(nullVal.is_number());
+  EXPECT_FALSE(nullVal.is_boolean());
+  EXPECT_FALSE(nullVal.is_array());
+  EXPECT_FALSE(nullVal.is_object());
   
   // Note: explicit constructors require explicit type
   YamlValue strVal(std::string("test"));
@@ -399,40 +399,40 @@ TEST(YamlValueTest, TypeChecking)
   EXPECT_EQ(strVal.as_string(), "test");
   
   YamlValue numVal(static_cast<double>(42.0));
-  EXPECT_TRUE(numVal.IsNumber());
-  EXPECT_DOUBLE_EQ(numVal.AsNumber(), 42.0);
+  EXPECT_TRUE(numVal.is_number());
+  EXPECT_DOUBLE_EQ(numVal.as_number(), 42.0);
   
   YamlValue boolVal(static_cast<bool>(true));
-  EXPECT_TRUE(boolVal.IsBoolean());
-  EXPECT_TRUE(boolVal.AsBoolean());
+  EXPECT_TRUE(boolVal.is_boolean());
+  EXPECT_TRUE(boolVal.as_boolean());
 }
 
 // Test: YamlValue array operations
 TEST(YamlValueTest, ArrayOperations)
 {
   YamlValue arr;
-  arr.AddArrayElement(YamlValue(std::string("item1")));
-  arr.AddArrayElement(YamlValue(static_cast<double>(42.0)));
-  arr.AddArrayElement(YamlValue(static_cast<bool>(true)));
+  arr.add_array_element(YamlValue(std::string("item1")));
+  arr.add_array_element(YamlValue(static_cast<double>(42.0)));
+  arr.add_array_element(YamlValue(static_cast<bool>(true)));
   
-  EXPECT_TRUE(arr.IsArray());
-  EXPECT_EQ(arr.AsArray().size(), 3U);
-  EXPECT_EQ(arr.AsArray()[0].as_string(), "item1");
-  EXPECT_DOUBLE_EQ(arr.AsArray()[1].AsNumber(), 42.0);
-  EXPECT_TRUE(arr.AsArray()[2].AsBoolean());
+  EXPECT_TRUE(arr.is_array());
+  EXPECT_EQ(arr.as_array().size(), 3U);
+  EXPECT_EQ(arr.as_array()[0].as_string(), "item1");
+  EXPECT_DOUBLE_EQ(arr.as_array()[1].as_number(), 42.0);
+  EXPECT_TRUE(arr.as_array()[2].as_boolean());
 }
 
 // Test: YamlValue object operations
 TEST(YamlValueTest, ObjectOperations)
 {
   YamlValue obj;
-  obj.SetObjectField("key1", YamlValue(std::string("value1")));
-  obj.SetObjectField("key2", YamlValue(static_cast<double>(42.0)));
+  obj.set_object_field("key1", YamlValue(std::string("value1")));
+  obj.set_object_field("key2", YamlValue(static_cast<double>(42.0)));
   
-  EXPECT_TRUE(obj.IsObject());
-  EXPECT_EQ(obj.AsObject().size(), 2U);
-  EXPECT_EQ(obj.AsObject().at("key1").as_string(), "value1");
-  EXPECT_DOUBLE_EQ(obj.AsObject().at("key2").AsNumber(), 42.0);
+  EXPECT_TRUE(obj.is_object());
+  EXPECT_EQ(obj.as_object().size(), 2U);
+  EXPECT_EQ(obj.as_object().at("key1").as_string(), "value1");
+  EXPECT_DOUBLE_EQ(obj.as_object().at("key2").as_number(), 42.0);
 }
 
 // Test: YamlLaunchBuilder with valid entities
@@ -448,10 +448,10 @@ TEST(YamlLaunchBuilderTest, BuildLaunchDescription)
     name: test_arg
     default_value: default)";
   
-  auto parseResult = YamlParser::Parse(yaml);
+  auto parseResult = YamlParser::parse(yaml);
   ASSERT_TRUE(parseResult.has_value());
   
-  auto buildResult = YamlLaunchBuilder::Build(parseResult.get_value());
+  auto buildResult = YamlLaunchBuilder::build(parseResult.get_value());
   ASSERT_TRUE(buildResult.has_value());
   EXPECT_NE(buildResult.get_value(), nullptr);
 }
@@ -461,10 +461,10 @@ TEST(YamlLaunchBuilderTest, BuildWithoutEntities)
 {
   std::string yaml = "name: test";
   
-  auto parseResult = YamlParser::Parse(yaml);
+  auto parseResult = YamlParser::parse(yaml);
   ASSERT_TRUE(parseResult.has_value());
   
-  auto buildResult = YamlLaunchBuilder::Build(parseResult.get_value());
+  auto buildResult = YamlLaunchBuilder::build(parseResult.get_value());
   ASSERT_TRUE(buildResult.has_error());
 }
 
@@ -475,10 +475,10 @@ TEST(YamlLaunchBuilderTest, BuildWithInvalidRoot)
   - 1
   - 2)";
   
-  auto parseResult = YamlParser::Parse(yaml);
+  auto parseResult = YamlParser::parse(yaml);
   ASSERT_TRUE(parseResult.has_value());
   
-  auto buildResult = YamlLaunchBuilder::Build(parseResult.get_value());
+  auto buildResult = YamlLaunchBuilder::build(parseResult.get_value());
   ASSERT_TRUE(buildResult.has_error());
 }
 

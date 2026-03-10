@@ -30,14 +30,14 @@ using namespace launch_cpp;
 class MockLaunchContext : public LaunchContext
 {
  public:
-  void RegisterEventHandler(const EventHandlerPtr&) override {}
-  void UnregisterEventHandler(const EventHandler*) override {}
-  const EventHandlerVector& GetEventHandlers() const override { return handlers_; }
-  void SetLaunchConfiguration(const std::string& key, const std::string& value) override
+  void register_event_handler(const EventHandlerPtr&) override {}
+  void unregister_event_handler(const EventHandler*) override {}
+  const EventHandlerVector& get_event_handlers() const override { return handlers_; }
+  void set_launch_configuration(const std::string& key, const std::string& value) override
   {
     configs_[key] = value;
   }
-  Result<std::string> GetLaunchConfiguration(const std::string& key) const override
+  Result<std::string> get_launch_configuration(const std::string& key) const override
   {
     auto it = configs_.find(key);
     if (it == configs_.end()) {
@@ -45,15 +45,15 @@ class MockLaunchContext : public LaunchContext
     }
     return Result<std::string>(it->second);
   }
-  bool HasLaunchConfiguration(const std::string& key) const override
+  bool has_launch_configuration(const std::string& key) const override
   {
     return configs_.find(key) != configs_.end();
   }
-  std::string GetEnvironmentVariable(const std::string&) const override { return ""; }
-  void SetEnvironmentVariable(const std::string&, const std::string&) override {}
-  void EmitEvent(EventPtr) override {}
-  void SetCurrentLaunchFile(const std::string&) override {}
-  std::string GetCurrentLaunchFile() const override { return ""; }
+  std::string get_environment_variable(const std::string&) const override { return ""; }
+  void set_environment_variable(const std::string&, const std::string&) override {}
+  void emit_event(EventPtr) override {}
+  void set_current_launch_file(const std::string&) override {}
+  std::string get_current_launch_file() const override { return ""; }
 
  private:
   EventHandlerVector handlers_;
@@ -67,7 +67,7 @@ class MockLaunchContext : public LaunchContext
 TEST(VariableSubstitutionTest, BasicSubstitution)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("my_var", "my_value");
+  ctx.set_launch_configuration("my_var", "my_value");
   
   VariableSubstitution var("my_var");
   EXPECT_EQ(var.perform(ctx), "my_value");
@@ -94,21 +94,21 @@ TEST(VariableSubstitutionTest, EmptyDefault)
 TEST(VariableSubstitutionTest, GetVariableName)
 {
   VariableSubstitution var("test_var", "default");
-  EXPECT_EQ(var.GetVariableName(), "test_var");
+  EXPECT_EQ(var.get_variable_name(), "test_var");
 }
 
 TEST(VariableSubstitutionTest, GetDefaultValue)
 {
   VariableSubstitution var("test_var", "default");
-  EXPECT_EQ(var.GetDefaultValue(), "default");
+  EXPECT_EQ(var.get_default_value(), "default");
 }
 
 TEST(VariableSubstitutionTest, MultipleVariables)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("var1", "value1");
-  ctx.SetLaunchConfiguration("var2", "value2");
-  ctx.SetLaunchConfiguration("var3", "value3");
+  ctx.set_launch_configuration("var1", "value1");
+  ctx.set_launch_configuration("var2", "value2");
+  ctx.set_launch_configuration("var3", "value3");
   
   VariableSubstitution sub1("var1");
   VariableSubstitution sub2("var2");
@@ -122,13 +122,13 @@ TEST(VariableSubstitutionTest, MultipleVariables)
 TEST(VariableSubstitutionTest, OverrideValue)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("my_var", "original");
+  ctx.set_launch_configuration("my_var", "original");
   
   VariableSubstitution var("my_var", "default");
   EXPECT_EQ(var.perform(ctx), "original");
   
   // Override
-  ctx.SetLaunchConfiguration("my_var", "new_value");
+  ctx.set_launch_configuration("my_var", "new_value");
   EXPECT_EQ(var.perform(ctx), "new_value");
 }
 

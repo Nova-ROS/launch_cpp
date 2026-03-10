@@ -23,18 +23,18 @@ using namespace launch_cpp;
 class MockLaunchContext : public LaunchContext
 {
  public:
-  void RegisterEventHandler(const EventHandlerPtr&) override {}
-  void UnregisterEventHandler(const EventHandler*) override {}
-  const EventHandlerVector& GetEventHandlers() const override { return handlers_; }
-  void SetLaunchConfiguration(const std::string&, const std::string&) override {}
-  Result<std::string> GetLaunchConfiguration(const std::string&) const override
+  void register_event_handler(const EventHandlerPtr&) override {}
+  void unregister_event_handler(const EventHandler*) override {}
+  const EventHandlerVector& get_event_handlers() const override { return handlers_; }
+  void set_launch_configuration(const std::string&, const std::string&) override {}
+  Result<std::string> get_launch_configuration(const std::string&) const override
   {
     return Result<std::string>("test_value");
   }
-  bool HasLaunchConfiguration(const std::string&) const override { return true; }
-  std::string GetEnvironmentVariable(const std::string&) const override { return ""; }
-  void SetEnvironmentVariable(const std::string&, const std::string&) override {}
-  void EmitEvent(EventPtr) override {}
+  bool has_launch_configuration(const std::string&) const override { return true; }
+  std::string get_environment_variable(const std::string&) const override { return ""; }
+  void set_environment_variable(const std::string&, const std::string&) override {}
+  void emit_event(EventPtr) override {}
   
  private:
   EventHandlerVector handlers_;

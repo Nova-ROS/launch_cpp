@@ -90,11 +90,11 @@ public:
      *     {"B", {"A"}},        // Depends on A
      *     {"C", {"A", "B"}}    // Depends on A and B
      * };
-     * auto result = resolver.Resolve(nodes);
+     * auto result = resolver.resolve(nodes);
      * // result.order = {"A", "B", "C"}
      * @endcode
      */
-    ResolutionResult Resolve(const std::vector<NodeConfig>& nodes);
+    ResolutionResult resolve(const std::vector<NodeConfig>& nodes);
 
     /**
      * @brief Check if dependency graph has circular dependencies
@@ -103,14 +103,14 @@ public:
      *
      * @requirement TSR-001.3: Dependency validation
      */
-    bool HasCircularDependency(const std::vector<NodeConfig>& nodes);
+    bool has_circular_dependency(const std::vector<NodeConfig>& nodes);
 
     /**
      * @brief Get the circular path if one exists
      * @param nodes Vector of node configurations
      * @return Vector showing the circular path, empty if no cycle
      */
-    std::vector<std::string> GetCircularPath(const std::vector<NodeConfig>& nodes);
+    std::vector<std::string> get_circular_path(const std::vector<NodeConfig>& nodes);
 
     /**
      * @brief Validate that all dependencies exist
@@ -119,14 +119,14 @@ public:
      *
      * Checks that every dependency references an existing node.
      */
-    bool ValidateDependencies(const std::vector<NodeConfig>& nodes);
+    bool validate_dependencies(const std::vector<NodeConfig>& nodes);
 
     /**
      * @brief Get list of missing dependencies
      * @param nodes Vector of node configurations
      * @return Vector of missing dependency names
      */
-    std::vector<std::string> GetMissingDependencies(const std::vector<NodeConfig>& nodes);
+    std::vector<std::string> get_missing_dependencies(const std::vector<NodeConfig>& nodes);
 
     /**
      * @brief Check if a node can be started (all dependencies satisfied)
@@ -135,7 +135,7 @@ public:
      * @param all_nodes Map of all node configurations
      * @return true if node can be started
      */
-    bool CanStartNode(
+    bool can_start_node(
         const std::string& node_name,
         const std::set<std::string>& started_nodes,
         const std::map<std::string, NodeConfig>& all_nodes) const;
@@ -158,26 +158,26 @@ private:
     /**
      * @brief Build adjacency list from node configurations
      */
-    std::map<std::string, std::vector<std::string>> BuildAdjacencyList(
+    std::map<std::string, std::vector<std::string>> build_adjacency_list(
         const std::vector<NodeConfig>& nodes) const;
 
     /**
      * @brief Build in-degree map from node configurations
      */
-    std::map<std::string, int> BuildInDegreeMap(
+    std::map<std::string, int> build_in_degree_map(
         const std::vector<NodeConfig>& nodes) const;
 
     /**
      * @brief Detect cycle using DFS
      * @return Cycle path if found, empty otherwise
      */
-    std::vector<std::string> DetectCycleDFS(
+    std::vector<std::string> detect_cycle_dfs(
         const std::map<std::string, std::vector<std::string>>& graph) const;
 
     /**
      * @brief DFS helper for cycle detection
      */
-    bool DFSvisit(
+    bool dfs_visit(
         const std::string& node,
         const std::map<std::string, std::vector<std::string>>& graph,
         std::map<std::string, int>& color,
@@ -195,12 +195,12 @@ private:
 // Inline Implementation
 // ============================================================================
 
-inline bool DependencyResolver::ValidateDependencies(
+inline bool DependencyResolver::validate_dependencies(
     const std::vector<NodeConfig>& nodes) {
-    return GetMissingDependencies(nodes).empty();
+    return get_missing_dependencies(nodes).empty();
 }
 
-inline std::vector<std::string> DependencyResolver::GetMissingDependencies(
+inline std::vector<std::string> DependencyResolver::get_missing_dependencies(
     const std::vector<NodeConfig>& nodes) {
     std::set<std::string> all_node_names;
     std::vector<std::string> missing;
@@ -231,7 +231,7 @@ inline std::map<std::string, NodeConfig> DependencyResolver::BuildNodeMap(
     return node_map;
 }
 
-inline bool DependencyResolver::CanStartNode(
+inline bool DependencyResolver::can_start_node(
     const std::string& node_name,
     const std::set<std::string>& started_nodes,
     const std::map<std::string, NodeConfig>& all_nodes) const {
@@ -259,7 +259,7 @@ inline std::vector<std::string> DependencyResolver::GetReadyNodes(
     std::vector<std::string> ready;
 
     for (const auto& node_name : remaining_nodes) {
-        if (CanStartNode(node_name, started_nodes, all_nodes)) {
+        if (can_start_node(node_name, started_nodes, all_nodes)) {
             ready.push_back(node_name);
         }
     }
@@ -271,13 +271,13 @@ inline std::vector<std::string> DependencyResolver::GetReadyNodes(
 // Full Implementation
 // ============================================================================
 
-inline ResolutionResult DependencyResolver::Resolve(
+inline ResolutionResult DependencyResolver::resolve(
     const std::vector<NodeConfig>& nodes) {
 
     ResolutionResult result;
 
     // Step 1: Validate all dependencies exist
-    auto missing = GetMissingDependencies(nodes);
+    auto missing = get_missing_dependencies(nodes);
     if (!missing.empty()) {
         result.success = false;
         result.error_message = "Missing dependencies: ";
@@ -289,16 +289,16 @@ inline ResolutionResult DependencyResolver::Resolve(
     }
 
     // Step 2: Check for circular dependencies
-    if (HasCircularDependency(nodes)) {
+    if (has_circular_dependency(nodes)) {
         result.success = false;
         result.error_message = "Circular dependency detected";
-        result.circular_path = GetCircularPath(nodes);
+        result.circular_path = get_circular_path(nodes);
         return result;
     }
 
     // Step 3: Build adjacency list and in-degree map
-    auto graph = BuildAdjacencyList(nodes);
-    auto in_degree = BuildInDegreeMap(nodes);
+    auto graph = build_adjacency_list(nodes);
+    auto in_degree = build_in_degree_map(nodes);
 
     // Step 4: Initialize queue with nodes having no dependencies
     std::queue<std::string> queue;
@@ -335,19 +335,19 @@ inline ResolutionResult DependencyResolver::Resolve(
     return result;
 }
 
-inline bool DependencyResolver::HasCircularDependency(
+inline bool DependencyResolver::has_circular_dependency(
     const std::vector<NodeConfig>& nodes) {
-    return !GetCircularPath(nodes).empty();
+    return !get_circular_path(nodes).empty();
 }
 
-inline std::vector<std::string> DependencyResolver::GetCircularPath(
+inline std::vector<std::string> DependencyResolver::get_circular_path(
     const std::vector<NodeConfig>& nodes) {
-    auto graph = BuildAdjacencyList(nodes);
-    return DetectCycleDFS(graph);
+    auto graph = build_adjacency_list(nodes);
+    return detect_cycle_dfs(graph);
 }
 
 inline std::map<std::string, std::vector<std::string>>
-DependencyResolver::BuildAdjacencyList(const std::vector<NodeConfig>& nodes) const {
+DependencyResolver::build_adjacency_list(const std::vector<NodeConfig>& nodes) const {
     std::map<std::string, std::vector<std::string>> graph;
 
     for (const auto& node : nodes) {
@@ -357,7 +357,7 @@ DependencyResolver::BuildAdjacencyList(const std::vector<NodeConfig>& nodes) con
     return graph;
 }
 
-inline std::map<std::string, int> DependencyResolver::BuildInDegreeMap(
+inline std::map<std::string, int> DependencyResolver::build_in_degree_map(
     const std::vector<NodeConfig>& nodes) const {
     std::map<std::string, int> in_degree;
 
@@ -376,7 +376,7 @@ inline std::map<std::string, int> DependencyResolver::BuildInDegreeMap(
     return in_degree;
 }
 
-inline std::vector<std::string> DependencyResolver::DetectCycleDFS(
+inline std::vector<std::string> DependencyResolver::detect_cycle_dfs(
     const std::map<std::string, std::vector<std::string>>& graph) const {
 
     std::map<std::string, int> color;  // 0 = white, 1 = gray, 2 = black
@@ -391,7 +391,7 @@ inline std::vector<std::string> DependencyResolver::DetectCycleDFS(
     // DFS from each unvisited node
     for (const auto& [node, _] : graph) {
         if (color[node] == 0) {
-            if (DFSvisit(node, graph, color, path, cycle)) {
+            if (dfs_visit(node, graph, color, path, cycle)) {
                 return cycle;
             }
         }
@@ -400,7 +400,7 @@ inline std::vector<std::string> DependencyResolver::DetectCycleDFS(
     return cycle;  // Empty if no cycle
 }
 
-inline bool DependencyResolver::DFSvisit(
+inline bool DependencyResolver::dfs_visit(
     const std::string& node,
     const std::map<std::string, std::vector<std::string>>& graph,
     std::map<std::string, int>& color,
@@ -425,7 +425,7 @@ inline bool DependencyResolver::DFSvisit(
             }
 
             if (color[neighbor] == 0) {
-                if (DFSvisit(neighbor, graph, color, path, cycle)) {
+                if (dfs_visit(neighbor, graph, color, path, cycle)) {
                     return true;
                 }
             }
@@ -447,7 +447,7 @@ inline bool DependencyResolver::DFSvisit(
  */
 class DependencyResolverTestFixture {
 public:
-    DependencyResolver CreateResolver() const {
+    DependencyResolver create_resolver() const {
         return DependencyResolver();
     }
 

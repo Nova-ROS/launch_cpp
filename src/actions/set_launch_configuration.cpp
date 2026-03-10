@@ -30,11 +30,11 @@ Result<void> SetLaunchConfiguration::execute(LaunchContext& context)
   if (options_.value)
   {
     std::string value = options_.value->perform(context);
-    context.SetLaunchConfiguration(options_.name, value);
+    context.set_launch_configuration(options_.name, value);
   }
   else
   {
-    context.SetLaunchConfiguration(options_.name, "");
+    context.set_launch_configuration(options_.name, "");
   }
 
   return Result<void>();

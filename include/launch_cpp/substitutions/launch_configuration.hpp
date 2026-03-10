@@ -33,7 +33,7 @@ class LaunchConfiguration final : public Substitution
   
   std::string perform(const LaunchContext& context) const override;
   
-  const std::string& GetName() const noexcept { return name_; }
+  const std::string& get_name() const noexcept { return name_; }
   
  private:
   std::string name_;

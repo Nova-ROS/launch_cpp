@@ -127,7 +127,7 @@ class LaunchContext
    *
    * @requirements REQ-LAUNCH-CONTEXT-002
    */
-  virtual void RegisterEventHandler(const EventHandlerPtr& handler) = 0;
+  virtual void register_event_handler(const EventHandlerPtr& handler) = 0;
   
   /**
    * @brief Unregister an event handler
@@ -144,7 +144,7 @@ class LaunchContext
    *
    * @requirements REQ-LAUNCH-CONTEXT-002
    */
-  virtual void UnregisterEventHandler(const EventHandler* handler) = 0;
+  virtual void unregister_event_handler(const EventHandler* handler) = 0;
   
   /**
    * @brief Get all registered event handlers
@@ -161,7 +161,7 @@ class LaunchContext
    *
    * @requirements REQ-LAUNCH-CONTEXT-002
    */
-  virtual const EventHandlerVector& GetEventHandlers() const = 0;
+  virtual const EventHandlerVector& get_event_handlers() const = 0;
   
   /**
    * @brief Set a launch configuration value
@@ -179,7 +179,7 @@ class LaunchContext
    *
    * @requirements REQ-LAUNCH-CONTEXT-001
    */
-  virtual void SetLaunchConfiguration(const std::string& key, const std::string& value) = 0;
+  virtual void set_launch_configuration(const std::string& key, const std::string& value) = 0;
   
   /**
    * @brief Get a launch configuration value
@@ -197,7 +197,7 @@ class LaunchContext
    *
    * @requirements REQ-LAUNCH-CONTEXT-001
    */
-  virtual Result<std::string> GetLaunchConfiguration(const std::string& key) const = 0;
+  virtual Result<std::string> get_launch_configuration(const std::string& key) const = 0;
   
   /**
    * @brief Check if a configuration key exists
@@ -212,7 +212,7 @@ class LaunchContext
    *
    * @requirements REQ-LAUNCH-CONTEXT-001
    */
-  virtual bool HasLaunchConfiguration(const std::string& key) const = 0;
+  virtual bool has_launch_configuration(const std::string& key) const = 0;
   
   /**
    * @brief Set the current launch file path
@@ -228,7 +228,7 @@ class LaunchContext
    *
    * @requirements REQ-LAUNCH-CONTEXT-004
    */
-  virtual void SetCurrentLaunchFile(const std::string& path) = 0;
+  virtual void set_current_launch_file(const std::string& path) = 0;
   
   /**
    * @brief Get the current launch file path
@@ -242,7 +242,7 @@ class LaunchContext
    *
    * @requirements REQ-LAUNCH-CONTEXT-004
    */
-  virtual std::string GetCurrentLaunchFile() const = 0;
+  virtual std::string get_current_launch_file() const = 0;
   
   /**
    * @brief Get an environment variable
@@ -260,7 +260,7 @@ class LaunchContext
    *
    * @requirements REQ-LAUNCH-CONTEXT-003
    */
-  virtual std::string GetEnvironmentVariable(const std::string& name) const = 0;
+  virtual std::string get_environment_variable(const std::string& name) const = 0;
   
   /**
    * @brief Set an environment variable
@@ -278,7 +278,7 @@ class LaunchContext
    *
    * @requirements REQ-LAUNCH-CONTEXT-003
    */
-  virtual void SetEnvironmentVariable(const std::string& name, const std::string& value) = 0;
+  virtual void set_environment_variable(const std::string& name, const std::string& value) = 0;
   
   /**
    * @brief Emit an event to all registered handlers
@@ -295,7 +295,7 @@ class LaunchContext
    *
    * @requirements REQ-LAUNCH-CONTEXT-002
    */
-  virtual void EmitEvent(EventPtr event) = 0;
+  virtual void emit_event(EventPtr event) = 0;
 };
 
 }  // namespace launch_cpp

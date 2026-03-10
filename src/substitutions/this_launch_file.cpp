@@ -21,7 +21,7 @@ namespace launch_cpp
 
 std::string ThisLaunchFile::perform(const LaunchContext& context) const
 {
-  return context.GetCurrentLaunchFile();
+  return context.get_current_launch_file();
 }
 
 }  // namespace launch_cpp

@@ -65,10 +65,10 @@ private:
     std::vector<char*> BuildArgv(const std::vector<std::string>& args);
     
     // Get program path (check ROS2_PATH env var)
-    std::string ResolveProgramPath(const std::string& program);
+    std::string resolve_program_path(const std::string& program);
     
     // Setup child process environment
-    void SetupChildEnvironment(const std::vector<std::pair<std::string, std::string>>& env);
+    void setup_child_environment(const std::vector<std::pair<std::string, std::string>>& env);
 };
 
 // ============================================================================
@@ -130,7 +130,7 @@ OsalResult<ProcessId> PosixProcessExecutor::Impl::ExecuteInternal(
     }
 
     // Resolve program path
-    std::string program_path = ResolveProgramPath(command.program);
+    std::string program_path = resolve_program_path(command.program);
 
     // Build argument list
     std::vector<std::string> all_args = {program_path};
@@ -159,7 +159,7 @@ OsalResult<ProcessId> PosixProcessExecutor::Impl::ExecuteInternal(
         }
 
         // Setup environment variables
-        SetupChildEnvironment(command.environment);
+        setup_child_environment(command.environment);
 
         // Redirect output if needed
         if (!options.capture_stdout) {
@@ -387,7 +387,7 @@ std::vector<char*> PosixProcessExecutor::Impl::BuildArgv(
     return argv;
 }
 
-std::string PosixProcessExecutor::Impl::ResolveProgramPath(
+std::string PosixProcessExecutor::Impl::resolve_program_path(
     const std::string& program) {
     
     // If program is already an absolute path, use it
@@ -407,7 +407,7 @@ std::string PosixProcessExecutor::Impl::ResolveProgramPath(
     return program;
 }
 
-void PosixProcessExecutor::Impl::SetupChildEnvironment(
+void PosixProcessExecutor::Impl::setup_child_environment(
     const std::vector<std::pair<std::string, std::string>>& env) {
     
     for (const auto& [key, value] : env) {

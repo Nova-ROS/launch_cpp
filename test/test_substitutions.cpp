@@ -31,14 +31,14 @@ using namespace launch_cpp;
 class MockLaunchContext : public LaunchContext
 {
  public:
-  void RegisterEventHandler(const EventHandlerPtr&) override {}
-  void UnregisterEventHandler(const EventHandler*) override {}
-  const EventHandlerVector& GetEventHandlers() const override { return handlers_; }
-  void SetLaunchConfiguration(const std::string& key, const std::string& value) override
+  void register_event_handler(const EventHandlerPtr&) override {}
+  void unregister_event_handler(const EventHandler*) override {}
+  const EventHandlerVector& get_event_handlers() const override { return handlers_; }
+  void set_launch_configuration(const std::string& key, const std::string& value) override
   {
     configs_[key] = value;
   }
-  Result<std::string> GetLaunchConfiguration(const std::string& key) const override
+  Result<std::string> get_launch_configuration(const std::string& key) const override
   {
     auto it = configs_.find(key);
     if (it == configs_.end()) {
@@ -46,11 +46,11 @@ class MockLaunchContext : public LaunchContext
     }
     return Result<std::string>(it->second);
   }
-  bool HasLaunchConfiguration(const std::string& key) const override
+  bool has_launch_configuration(const std::string& key) const override
   {
     return configs_.find(key) != configs_.end();
   }
-  std::string GetEnvironmentVariable(const std::string& name) const override
+  std::string get_environment_variable(const std::string& name) const override
   {
     auto it = env_vars_.find(name);
     if (it != env_vars_.end()) {
@@ -58,13 +58,13 @@ class MockLaunchContext : public LaunchContext
     }
     return "";
   }
-  void SetEnvironmentVariable(const std::string& name, const std::string& value) override
+  void set_environment_variable(const std::string& name, const std::string& value) override
   {
     env_vars_[name] = value;
   }
-  void EmitEvent(EventPtr) override {}
-  void SetCurrentLaunchFile(const std::string& path) override { currentLaunchFile_ = path; }
-  std::string GetCurrentLaunchFile() const override { return currentLaunchFile_; }
+  void emit_event(EventPtr) override {}
+  void set_current_launch_file(const std::string& path) override { currentLaunchFile_ = path; }
+  std::string get_current_launch_file() const override { return currentLaunchFile_; }
   
   void SetMockEnvVar(const std::string& name, const std::string& value)
   {
@@ -109,7 +109,7 @@ TEST(TextSubstitutionTest, SpecialCharacters)
 TEST(LaunchConfigurationTest, ExistingConfig)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("my_key", "my_value");
+  ctx.set_launch_configuration("my_key", "my_value");
   
   LaunchConfiguration sub("my_key");
   EXPECT_EQ(sub.perform(ctx), "my_value");
@@ -128,7 +128,7 @@ TEST(LaunchConfigurationTest, NonExistingConfig)
 TEST(LaunchConfigurationTest, SpecialKey)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("key/with/slashes", "value");
+  ctx.set_launch_configuration("key/with/slashes", "value");
   
   LaunchConfiguration sub("key/with/slashes");
   EXPECT_EQ(sub.perform(ctx), "value");
@@ -209,7 +209,7 @@ TEST(FindExecutableTest, NonExisting)
 TEST(ThisLaunchFileTest, Basic)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("/path/to/launch.yaml");
+  ctx.set_current_launch_file("/path/to/launch.yaml");
   
   ThisLaunchFile sub;
   EXPECT_EQ(sub.perform(ctx), "/path/to/launch.yaml");
@@ -229,7 +229,7 @@ TEST(ThisLaunchFileTest, Empty)
 TEST(ThisLaunchFileTest, ComplexPath)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("/very/long/path/to/the/launch/file.yaml");
+  ctx.set_current_launch_file("/very/long/path/to/the/launch/file.yaml");
   
   ThisLaunchFile sub;
   EXPECT_EQ(sub.perform(ctx), "/very/long/path/to/the/launch/file.yaml");
@@ -239,7 +239,7 @@ TEST(ThisLaunchFileTest, ComplexPath)
 TEST(ThisLaunchFileDirTest, Basic)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("/path/to/launch.yaml");
+  ctx.set_current_launch_file("/path/to/launch.yaml");
   
   ThisLaunchFileDir sub;
   EXPECT_EQ(sub.perform(ctx), "/path/to");
@@ -259,7 +259,7 @@ TEST(ThisLaunchFileDirTest, EmptyFile)
 TEST(ThisLaunchFileDirTest, RootFile)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("launch.yaml");  // No directory
+  ctx.set_current_launch_file("launch.yaml");  // No directory
   
   ThisLaunchFileDir sub;
   EXPECT_EQ(sub.perform(ctx), ".");
@@ -269,7 +269,7 @@ TEST(ThisLaunchFileDirTest, RootFile)
 TEST(ThisLaunchFileDirTest, NestedPath)
 {
   MockLaunchContext ctx;
-  ctx.SetCurrentLaunchFile("/a/b/c/d/e/f/launch.yaml");
+  ctx.set_current_launch_file("/a/b/c/d/e/f/launch.yaml");
   
   ThisLaunchFileDir sub;
   EXPECT_EQ(sub.perform(ctx), "/a/b/c/d/e/f");
@@ -296,9 +296,9 @@ TEST(SubstitutionBaseTest, Polymorphism)
 TEST(SubstitutionBaseTest, InterfaceImplementation)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("test", "value");
+  ctx.set_launch_configuration("test", "value");
   ctx.SetMockEnvVar("TEST", "env_value");
-  ctx.SetCurrentLaunchFile("/test/launch.yaml");
+  ctx.set_current_launch_file("/test/launch.yaml");
   
   // Test all substitution types
   TextSubstitution text("hello");

@@ -32,7 +32,7 @@ class IfCondition final : public Condition
   
   bool evaluate(const LaunchContext& context) const override;
   
-  const SubstitutionPtr& GetExpression() const noexcept { return expression_; }
+  const SubstitutionPtr& get_expression() const noexcept { return expression_; }
   
  private:
   SubstitutionPtr expression_;

@@ -59,7 +59,7 @@ ResolutionResult DependencyManager::resolve_dependencies() const
   }
 
   DependencyResolver resolver;
-  return resolver.Resolve(nodes);
+  return resolver.resolve(nodes);
 }
 
 Error DependencyManager::execute_all(LaunchContext& context)

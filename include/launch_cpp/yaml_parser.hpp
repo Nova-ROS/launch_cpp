@@ -59,23 +59,23 @@ class YamlValue
   
   bool is_null() const { return type_ == YamlType::kNull; }
   bool is_string() const { return type_ == YamlType::kString; }
-  bool IsNumber() const { return type_ == YamlType::kNumber; }
-  bool IsBoolean() const { return type_ == YamlType::kBoolean; }
-  bool IsArray() const { return type_ == YamlType::kArray; }
-  bool IsObject() const { return type_ == YamlType::kObject; }
+  bool is_number() const { return type_ == YamlType::kNumber; }
+  bool is_boolean() const { return type_ == YamlType::kBoolean; }
+  bool is_array() const { return type_ == YamlType::kArray; }
+  bool is_object() const { return type_ == YamlType::kObject; }
   
   const std::string& as_string() const { return stringValue_; }
-  double AsNumber() const { return numberValue_; }
-  bool AsBoolean() const { return boolValue_; }
+  double as_number() const { return numberValue_; }
+  bool as_boolean() const { return boolValue_; }
   
-  const std::vector<YamlValue>& AsArray() const { return arrayValue_; }
-  std::vector<YamlValue>& AsArray() { return arrayValue_; }
+  const std::vector<YamlValue>& as_array() const { return arrayValue_; }
+  std::vector<YamlValue>& as_array() { return arrayValue_; }
   
-  const std::map<std::string, YamlValue>& AsObject() const { return objectValue_; }
-  std::map<std::string, YamlValue>& AsObject() { return objectValue_; }
+  const std::map<std::string, YamlValue>& as_object() const { return objectValue_; }
+  std::map<std::string, YamlValue>& as_object() { return objectValue_; }
   
-  void AddArrayElement(const YamlValue& value) { type_ = YamlType::kArray; arrayValue_.push_back(value); }
-  void SetObjectField(const std::string& key, const YamlValue& value) { type_ = YamlType::kObject; objectValue_[key] = value; }
+  void add_array_element(const YamlValue& value) { type_ = YamlType::kArray; arrayValue_.push_back(value); }
+  void set_object_field(const std::string& key, const YamlValue& value) { type_ = YamlType::kObject; objectValue_[key] = value; }
   
  private:
   YamlType type_;
@@ -90,34 +90,34 @@ class YamlValue
 class YamlParser
 {
  public:
-  static Result<YamlValue> Parse(const std::string& content);
-  static Result<YamlValue> ParseFile(const std::string& filePath);
+  static Result<YamlValue> parse(const std::string& content);
+  static Result<YamlValue> parse_file(const std::string& filePath);
   
  private:
-  static Result<YamlValue> ParseValue(std::istringstream& stream, int& line);
-  static Result<YamlValue> ParseScalar(const std::string& value);
-  static Result<YamlValue> ParseArray(std::istringstream& stream, int& line, int indent);
-  static Result<YamlValue> ParseObject(std::istringstream& stream, int& line, int indent);
+  static Result<YamlValue> parse_value(std::istringstream& stream, int& line);
+  static Result<YamlValue> parse_scalar(const std::string& value);
+  static Result<YamlValue> parse_array(std::istringstream& stream, int& line, int indent);
+  static Result<YamlValue> parse_object(std::istringstream& stream, int& line, int indent);
   
   // Helper for parsing object elements in arrays
-  static YamlValue ParseArrayElementObject(std::istringstream& stream, int& line, 
+  static YamlValue parse_array_element_object(std::istringstream& stream, int& line, 
                                            const std::string& firstLine, int baseIndent);
   
-  static std::string Trim(const std::string& str);
-  static int GetIndent(const std::string& line);
-  static std::string Unquote(const std::string& str);
+  static std::string trim(const std::string& str);
+  static int get_indent(const std::string& line);
+  static std::string unquote(const std::string& str);
 };
 
 // Launch description builder from YAML
 class YamlLaunchBuilder
 {
  public:
-  static Result<LaunchDescriptionPtr> Build(const YamlValue& yaml);
+  static Result<LaunchDescriptionPtr> build(const YamlValue& yaml);
   
  private:
-  static Result<ActionPtr> BuildAction(const YamlValue& actionYaml);
-  static Result<SubstitutionPtr> BuildSubstitution(const std::string& value);
-  static Result<ConditionPtr> BuildCondition(const YamlValue& conditionYaml);
+  static Result<ActionPtr> build_action(const YamlValue& actionYaml);
+  static Result<SubstitutionPtr> build_substitution(const std::string& value);
+  static Result<ConditionPtr> build_condition(const YamlValue& conditionYaml);
 };
 
 }  // namespace launch_cpp

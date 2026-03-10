@@ -73,7 +73,7 @@ class VariableSubstitution final : public Substitution
    */
   std::string perform(const LaunchContext& context) const override
   {
-    auto result = context.GetLaunchConfiguration(variable_name_);
+    auto result = context.get_launch_configuration(variable_name_);
     if (result.has_value())
     {
       return result.get_value();
@@ -84,12 +84,12 @@ class VariableSubstitution final : public Substitution
   /**
    * @brief Get the variable name
    */
-  const std::string& GetVariableName() const { return variable_name_; }
+  const std::string& get_variable_name() const { return variable_name_; }
 
   /**
    * @brief Get the default value
    */
-  const std::string& GetDefaultValue() const { return default_value_; }
+  const std::string& get_default_value() const { return default_value_; }
 
  private:
   std::string variable_name_;

@@ -40,8 +40,8 @@ class GroupAction final : public Action
 
   Result<void> execute(LaunchContext& context) override;
 
-  const std::vector<ActionPtr>& GetActions() const noexcept { return options_.actions; }
-  const ConditionPtr& GetCondition() const noexcept { return options_.condition; }
+  const std::vector<ActionPtr>& get_actions() const noexcept { return options_.actions; }
+  const ConditionPtr& get_condition() const noexcept { return options_.condition; }
 
  private:
   Options options_;

@@ -39,7 +39,7 @@ class TextSubstitution final : public Substitution
     return text_;
   }
   
-  const std::string& GetText() const noexcept { return text_; }
+  const std::string& get_text() const noexcept { return text_; }
   
  private:
   std::string text_;

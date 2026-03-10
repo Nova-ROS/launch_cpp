@@ -28,14 +28,14 @@ using namespace launch_cpp;
 class MockLaunchContext : public LaunchContext
 {
  public:
-  void RegisterEventHandler(const EventHandlerPtr&) override {}
-  void UnregisterEventHandler(const EventHandler*) override {}
-  const EventHandlerVector& GetEventHandlers() const override { return handlers_; }
-  void SetLaunchConfiguration(const std::string& key, const std::string& value) override
+  void register_event_handler(const EventHandlerPtr&) override {}
+  void unregister_event_handler(const EventHandler*) override {}
+  const EventHandlerVector& get_event_handlers() const override { return handlers_; }
+  void set_launch_configuration(const std::string& key, const std::string& value) override
   {
     configs_[key] = value;
   }
-  Result<std::string> GetLaunchConfiguration(const std::string& key) const override
+  Result<std::string> get_launch_configuration(const std::string& key) const override
   {
     auto it = configs_.find(key);
     if (it == configs_.end()) {
@@ -43,11 +43,11 @@ class MockLaunchContext : public LaunchContext
     }
     return Result<std::string>(it->second);
   }
-  bool HasLaunchConfiguration(const std::string& key) const override
+  bool has_launch_configuration(const std::string& key) const override
   {
     return configs_.find(key) != configs_.end();
   }
-  std::string GetEnvironmentVariable(const std::string& name) const override
+  std::string get_environment_variable(const std::string& name) const override
   {
     auto it = env_vars_.find(name);
     if (it != env_vars_.end()) {
@@ -55,13 +55,13 @@ class MockLaunchContext : public LaunchContext
     }
     return "";
   }
-  void SetEnvironmentVariable(const std::string& name, const std::string& value) override
+  void set_environment_variable(const std::string& name, const std::string& value) override
   {
     env_vars_[name] = value;
   }
-  void EmitEvent(EventPtr) override {}
-  void SetCurrentLaunchFile(const std::string& path) override { currentLaunchFile_ = path; }
-  std::string GetCurrentLaunchFile() const override { return currentLaunchFile_; }
+  void emit_event(EventPtr) override {}
+  void set_current_launch_file(const std::string& path) override { currentLaunchFile_ = path; }
+  std::string get_current_launch_file() const override { return currentLaunchFile_; }
 
  private:
   EventHandlerVector handlers_;
@@ -228,7 +228,7 @@ TEST(UnlessConditionExtendedTest, RandomString)
 TEST(LaunchConfigurationEqualsExtendedTest, MatchingValues)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("test_key", "test_value");
+  ctx.set_launch_configuration("test_key", "test_value");
   
   LaunchConfigurationEquals cond("test_key", std::make_shared<TextSubstitution>("test_value"));
   EXPECT_TRUE(cond.evaluate(ctx));
@@ -237,7 +237,7 @@ TEST(LaunchConfigurationEqualsExtendedTest, MatchingValues)
 TEST(LaunchConfigurationEqualsExtendedTest, NonMatchingValues)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("test_key", "test_value");
+  ctx.set_launch_configuration("test_key", "test_value");
   
   LaunchConfigurationEquals cond("test_key", std::make_shared<TextSubstitution>("different_value"));
   EXPECT_FALSE(cond.evaluate(ctx));
@@ -253,7 +253,7 @@ TEST(LaunchConfigurationEqualsExtendedTest, NonExistingKey)
 TEST(LaunchConfigurationEqualsExtendedTest, EmptyExpectedValue)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("test_key", "");
+  ctx.set_launch_configuration("test_key", "");
   
   LaunchConfigurationEquals cond("test_key", std::make_shared<TextSubstitution>(""));
   EXPECT_TRUE(cond.evaluate(ctx));
@@ -262,7 +262,7 @@ TEST(LaunchConfigurationEqualsExtendedTest, EmptyExpectedValue)
 TEST(LaunchConfigurationEqualsExtendedTest, NullSubstitution)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("test_key", "test_value");
+  ctx.set_launch_configuration("test_key", "test_value");
   
   LaunchConfigurationEquals cond("test_key", nullptr);
   // Should handle null substitution gracefully
@@ -272,7 +272,7 @@ TEST(LaunchConfigurationEqualsExtendedTest, NullSubstitution)
 TEST(LaunchConfigurationEqualsExtendedTest, EmptyKey)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("", "value");
+  ctx.set_launch_configuration("", "value");
   
   LaunchConfigurationEquals cond("", std::make_shared<TextSubstitution>("value"));
   EXPECT_TRUE(cond.evaluate(ctx));
@@ -281,7 +281,7 @@ TEST(LaunchConfigurationEqualsExtendedTest, EmptyKey)
 TEST(LaunchConfigurationEqualsExtendedTest, CaseSensitive)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("key", "Value");
+  ctx.set_launch_configuration("key", "Value");
   
   LaunchConfigurationEquals cond("key", std::make_shared<TextSubstitution>("value"));
   EXPECT_FALSE(cond.evaluate(ctx));
@@ -290,8 +290,8 @@ TEST(LaunchConfigurationEqualsExtendedTest, CaseSensitive)
 TEST(LaunchConfigurationEqualsExtendedTest, MultipleConfigs)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("key1", "value1");
-  ctx.SetLaunchConfiguration("key2", "value2");
+  ctx.set_launch_configuration("key1", "value1");
+  ctx.set_launch_configuration("key2", "value2");
   
   LaunchConfigurationEquals cond1("key1", std::make_shared<TextSubstitution>("value1"));
   LaunchConfigurationEquals cond2("key2", std::make_shared<TextSubstitution>("value2"));
@@ -307,8 +307,8 @@ TEST(LaunchConfigurationEqualsExtendedTest, MultipleConfigs)
 TEST(ConditionComplexTest, CombinedUsage)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("mode", "production");
-  ctx.SetLaunchConfiguration("debug", "false");
+  ctx.set_launch_configuration("mode", "production");
+  ctx.set_launch_configuration("debug", "false");
   
   // Test: mode == "production" AND debug == "false"
   LaunchConfigurationEquals mode_cond("mode", std::make_shared<TextSubstitution>("production"));
@@ -321,7 +321,7 @@ TEST(ConditionComplexTest, CombinedUsage)
 TEST(ConditionComplexTest, IfWithConfig)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("enabled", "true");
+  ctx.set_launch_configuration("enabled", "true");
   
   IfCondition if_cond(std::make_shared<TextSubstitution>("true"));
   LaunchConfigurationEquals equals_cond("enabled", std::make_shared<TextSubstitution>("true"));
@@ -333,7 +333,7 @@ TEST(ConditionComplexTest, IfWithConfig)
 TEST(ConditionComplexTest, UnlessWithConfig)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("disabled", "false");
+  ctx.set_launch_configuration("disabled", "false");
   
   UnlessCondition unless_cond(std::make_shared<TextSubstitution>("false"));
   LaunchConfigurationEquals equals_cond("disabled", std::make_shared<TextSubstitution>("false"));
@@ -345,7 +345,7 @@ TEST(ConditionComplexTest, UnlessWithConfig)
 TEST(ConditionComplexTest, AllConditionsTogether)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("key1", "value1");
+  ctx.set_launch_configuration("key1", "value1");
   
   IfCondition if_true(std::make_shared<TextSubstitution>("true"));
   UnlessCondition unless_false(std::make_shared<TextSubstitution>("false"));

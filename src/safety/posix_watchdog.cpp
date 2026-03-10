@@ -70,9 +70,9 @@ public:
     OsalResult<void> StopInternal();
 
 private:
-    void WatchdogThread();
-    bool ValidateHeartbeat(const HeartbeatMessage& message);
-    void CheckTimeouts();
+    void watchdog_thread();
+    bool validate_heartbeat(const HeartbeatMessage& message);
+    void check_timeouts();
     
     std::map<uint32_t, WatchdogNode> nodes_;
     std::mutex nodes_mutex_;
@@ -179,7 +179,7 @@ OsalResult<void> PosixWatchdog::Impl::submit_heartbeatInternal(
     const HeartbeatMessage& message) {
     
     // Validate checksum
-    if (!ValidateHeartbeat(message)) {
+    if (!validate_heartbeat(message)) {
         return OsalResult<void>(
             OsalStatus::kInvalidArgument,
             "Invalid heartbeat checksum");
@@ -241,7 +241,7 @@ OsalResult<void> PosixWatchdog::Impl::StartInternal() {
     }
     
     start_time_ = std::chrono::steady_clock::now();
-    watchdog_thread_ = std::thread(&Impl::WatchdogThread, this);
+    watchdog_thread_ = std::thread(&Impl::watchdog_thread, this);
     
     return OsalResult<void>();
 }
@@ -258,16 +258,16 @@ OsalResult<void> PosixWatchdog::Impl::StopInternal() {
     return OsalResult<void>();
 }
 
-void PosixWatchdog::Impl::WatchdogThread() {
+void PosixWatchdog::Impl::watchdog_thread() {
     while (running_) {
-        CheckTimeouts();
+        check_timeouts();
         
         // Check every 100ms
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 
-void PosixWatchdog::Impl::CheckTimeouts() {
+void PosixWatchdog::Impl::check_timeouts() {
     auto now = std::chrono::steady_clock::now();
     
     std::lock_guard<std::mutex> lock(nodes_mutex_);
@@ -290,9 +290,9 @@ void PosixWatchdog::Impl::CheckTimeouts() {
     }
 }
 
-bool PosixWatchdog::Impl::ValidateHeartbeat(const HeartbeatMessage& message) {
+bool PosixWatchdog::Impl::validate_heartbeat(const HeartbeatMessage& message) {
     // Simple checksum validation
-    uint32_t expected = message.CalculateChecksum();
+    uint32_t expected = message.calculate_checksum();
     return (message.checksum == expected);
 }
 

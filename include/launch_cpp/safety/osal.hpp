@@ -672,7 +672,7 @@ struct HeartbeatMessage {
      * @brief Calculate checksum
      * @return Calculated checksum
      */
-    uint32_t CalculateChecksum() const {
+    uint32_t calculate_checksum() const {
         // Simple checksum: sum of all fields except checksum itself
         uint32_t sum = node_id + sequence + static_cast<uint32_t>(timestamp_us & 0xFFFFFFFF)
                       + static_cast<uint32_t>((timestamp_us >> 32) & 0xFFFFFFFF)

@@ -27,14 +27,14 @@ using namespace launch_cpp;
 class MockLaunchContext : public LaunchContext
 {
  public:
-  void RegisterEventHandler(const EventHandlerPtr&) override {}
-  void UnregisterEventHandler(const EventHandler*) override {}
-  const EventHandlerVector& GetEventHandlers() const override { return handlers_; }
-  void SetLaunchConfiguration(const std::string& key, const std::string& value) override
+  void register_event_handler(const EventHandlerPtr&) override {}
+  void unregister_event_handler(const EventHandler*) override {}
+  const EventHandlerVector& get_event_handlers() const override { return handlers_; }
+  void set_launch_configuration(const std::string& key, const std::string& value) override
   {
     configs_[key] = value;
   }
-  Result<std::string> GetLaunchConfiguration(const std::string& key) const override
+  Result<std::string> get_launch_configuration(const std::string& key) const override
   {
     auto it = configs_.find(key);
     if (it == configs_.end()) {
@@ -42,15 +42,15 @@ class MockLaunchContext : public LaunchContext
     }
     return Result<std::string>(it->second);
   }
-  bool HasLaunchConfiguration(const std::string& key) const override
+  bool has_launch_configuration(const std::string& key) const override
   {
     return configs_.find(key) != configs_.end();
   }
-  std::string GetEnvironmentVariable(const std::string&) const override { return ""; }
-  void SetEnvironmentVariable(const std::string&, const std::string&) override {}
-  void EmitEvent(EventPtr) override {}
-  void SetCurrentLaunchFile(const std::string& path) override { currentLaunchFile_ = path; }
-  std::string GetCurrentLaunchFile() const override { return currentLaunchFile_; }
+  std::string get_environment_variable(const std::string&) const override { return ""; }
+  void set_environment_variable(const std::string&, const std::string&) override {}
+  void emit_event(EventPtr) override {}
+  void set_current_launch_file(const std::string& path) override { currentLaunchFile_ = path; }
+  std::string get_current_launch_file() const override { return currentLaunchFile_; }
 
  private:
   EventHandlerVector handlers_;
@@ -142,7 +142,7 @@ TEST(UnlessConditionTest, EmptyString)
 TEST(LaunchConfigurationEqualsTest, MatchingValues)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("test_key", "test_value");
+  ctx.set_launch_configuration("test_key", "test_value");
   
   LaunchConfigurationEquals cond("test_key", std::make_shared<TextSubstitution>("test_value"));
   EXPECT_TRUE(cond.evaluate(ctx));
@@ -152,7 +152,7 @@ TEST(LaunchConfigurationEqualsTest, MatchingValues)
 TEST(LaunchConfigurationEqualsTest, NonMatchingValues)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("test_key", "test_value");
+  ctx.set_launch_configuration("test_key", "test_value");
   
   LaunchConfigurationEquals cond("test_key", std::make_shared<TextSubstitution>("different_value"));
   EXPECT_FALSE(cond.evaluate(ctx));
@@ -172,7 +172,7 @@ TEST(LaunchConfigurationEqualsTest, NonExistingKey)
 TEST(LaunchConfigurationEqualsTest, EmptyExpectedValue)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("test_key", "");
+  ctx.set_launch_configuration("test_key", "");
   
   LaunchConfigurationEquals cond("test_key", std::make_shared<TextSubstitution>(""));
   EXPECT_TRUE(cond.evaluate(ctx));
@@ -182,7 +182,7 @@ TEST(LaunchConfigurationEqualsTest, EmptyExpectedValue)
 TEST(ConditionBaseTest, InterfaceImplementation)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("key", "value");
+  ctx.set_launch_configuration("key", "value");
   
   // Test polymorphic behavior
   std::vector<std::shared_ptr<Condition>> conditions;
@@ -201,8 +201,8 @@ TEST(ConditionBaseTest, InterfaceImplementation)
 TEST(ConditionComplexTest, CombinedUsage)
 {
   MockLaunchContext ctx;
-  ctx.SetLaunchConfiguration("feature_enabled", "true");
-  ctx.SetLaunchConfiguration("mode", "production");
+  ctx.set_launch_configuration("feature_enabled", "true");
+  ctx.set_launch_configuration("mode", "production");
   
   // If feature is enabled
   IfCondition if_cond(std::make_shared<TextSubstitution>("true"));

@@ -41,8 +41,8 @@ class TimerAction final : public Action
 
   Result<void> execute(LaunchContext& context) override;
 
-  std::chrono::milliseconds GetPeriod() const noexcept { return options_.period; }
-  const std::vector<ActionPtr>& GetActions() const noexcept { return options_.actions; }
+  std::chrono::milliseconds get_period() const noexcept { return options_.period; }
+  const std::vector<ActionPtr>& get_actions() const noexcept { return options_.actions; }
 
  private:
   Options options_;
